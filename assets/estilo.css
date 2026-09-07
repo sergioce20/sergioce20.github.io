@@ -1,0 +1,43 @@
+:root{
+  --tinta:#1c1e21;
+  --tinta-fraca:#5a6068;
+  --papel:#fbfaf8;
+  --linha:#e2ded8;
+  --realce:#7a2e2e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--papel);
+  color:var(--tinta);
+  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  padding:0 1.5rem;
+}
+.capa,main,footer{max-width:44rem;margin:0 auto}
+.capa{padding:4rem 0 2rem;border-bottom:1px solid var(--linha)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:2.1rem;font-weight:600;margin:0;letter-spacing:-.01em}
+.papel{margin:.5rem 0 0;color:var(--tinta-fraca);font-size:1rem}
+main{padding:1rem 0 3rem}
+section{margin:2.75rem 0}
+h2{font-family:Georgia,"Times New Roman",serif;font-size:.85rem;font-weight:700;margin:0 0 .4rem;
+   text-transform:uppercase;letter-spacing:.09em;color:var(--realce)}
+.nota{margin:.2rem 0 1.1rem;color:var(--tinta-fraca);font-size:.95rem}
+.lista{list-style:none;padding:0;margin:0}
+.lista li{padding:.85rem 0;border-top:1px solid var(--linha)}
+.lista a{color:var(--tinta);text-decoration:none;font-weight:600;border-bottom:1px solid var(--realce)}
+.lista a:hover{color:var(--realce)}
+.detalhe{display:block;color:var(--tinta-fraca);font-size:.88rem;margin-top:.15rem}
+footer{padding:1.5rem 0 3rem;border-top:1px solid var(--linha);color:var(--tinta-fraca);font-size:.85rem}
+footer a{color:var(--tinta-fraca)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--linha)}
+th{font-weight:600;color:var(--tinta-fraca);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+code{background:#f0ece6;padding:.1rem .35rem;border-radius:3px;font-size:.88em}
+@media (prefers-color-scheme:dark){
+  :root{--tinta:#e8e6e3;--tinta-fraca:#9a9ea4;--papel:#17181a;--linha:#2e3033;--realce:#d99a9a}
+}
+.item-titulo{display:block;font-weight:600}
+.detalhe-inline{color:var(--tinta-fraca);font-size:.85em}
+.lista .detalhe a{font-weight:500;font-size:.92rem}
+h2+table{margin-top:.4rem}
+main h2{margin-top:2rem}

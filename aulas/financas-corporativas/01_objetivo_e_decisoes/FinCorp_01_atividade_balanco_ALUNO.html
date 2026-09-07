@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>FinCorp 01 · Atividade — Encontre as três decisões no balanço (ALUNO)</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 14mm 15mm; }
+  :root {
+    --azul: #005386; --azul-esc: #06344F; --ouro: #CEB144; --ouro-txt: #8A7326;
+    --verde: #00923E; --laranja: #E77813; --texto: #182430; --muted: #5E6E7A; --linha: #D3DAE0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif;
+         color: var(--texto); font-size: 10.3pt; line-height: 1.38; margin: 0; }
+  h1, h2 { font-family: "Source Serif 4", Georgia, serif; }
+  .cab { display: flex; justify-content: space-between; align-items: flex-start;
+         border-bottom: 3px solid var(--azul); padding-bottom: 6px; }
+  .cab .t1 { font-size: 8.5pt; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--azul); font-weight: 700; }
+  .cab h1 { font-size: 15.5pt; margin: 2px 0 0; color: var(--texto); }
+  .cab .dir { text-align: right; font-size: 8.5pt; color: var(--muted); line-height: 1.4; }
+  .cab .dir b { color: var(--texto); }
+  .grupo { display: flex; gap: 10px; margin: 7px 0 9px; font-size: 9.5pt; }
+  .grupo .campo { flex: 1; border: 1px solid var(--linha); border-radius: 4px; padding: 4px 8px; min-height: 26px; }
+  .grupo .campo .lbl { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: block; }
+  h2 { font-size: 11pt; color: var(--azul-esc); border-bottom: 1px solid var(--linha);
+       padding-bottom: 2px; margin: 10px 0 6px; }
+  table.bal { width: 100%; border-collapse: collapse; }
+  table.bal th, table.bal td { border-bottom: 1px solid var(--linha); padding: 3.2px 8px; font-size: 9.6pt; }
+  table.bal thead th { background: var(--azul); color: #fff; text-align: left; font-weight: 600; }
+  table.bal td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.bal tr.tot td { font-weight: 700; border-top: 1.5px solid var(--azul-esc); background: #EBF0F4; }
+  table.bal td.sub { padding-left: 20px; color: var(--muted); }
+  .duascol { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .memoq { background: #F5EEDA; border-left: 3px solid var(--ouro); padding: 5px 9px;
+           font-size: 9pt; margin-top: 7px; border-radius: 0 4px 4px 0; }
+  ol.qs { margin: 4px 0 0; padding-left: 1.35em; }
+  ol.qs > li { margin-bottom: 6px; }
+  .resp { border: 1px dashed var(--linha); border-radius: 4px; min-height: 34px; margin-top: 3px; }
+  .resp.alta { min-height: 58px; }
+  .fonte { font-size: 7.8pt; color: var(--muted); margin-top: 8px; border-top: 1px solid var(--linha); padding-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="cab">
+  <div>
+    <span class="t1">ED0139 · Finanças Corporativas · UFC/FEAAC · 2026-2 · Prof. Sérgio Cardoso</span>
+    <h1>Encontro 1 · Atividade em grupo · Encontre as três decisões no balanço</h1>
+  </div>
+  <div class="dir"><b>10/08/2026</b><br>15 minutos · entregar ao final<br>calculadora do celular basta</div>
+</div>
+
+<div class="grupo">
+  <div class="campo" style="flex:2.6;"><span class="lbl">Integrantes do grupo (nome e matrícula)</span></div>
+  <div class="campo" style="flex:0.6;"><span class="lbl">Grupo nº</span></div>
+</div>
+
+<h2>Petrobras: balanço patrimonial resumido em 31/12/2025 (consolidado, R$ bilhões)</h2>
+<div class="duascol">
+  <table class="bal">
+    <thead><tr><th>Aplicações (Ativo)</th><th style="text-align:right;">R$ bi</th></tr></thead>
+    <tbody>
+      <tr><td>Ativo circulante</td><td class="num">140,0</td></tr>
+      <tr><td class="sub">· do qual caixa e equivalentes</td><td class="num">35,6</td></tr>
+      <tr><td>Ativo não circulante</td><td class="num">1.083,4</td></tr>
+      <tr><td class="sub">· do qual imobilizado</td><td class="num">924,6</td></tr>
+      <tr class="tot"><td>Ativo total</td><td class="num">1.223,4</td></tr>
+    </tbody>
+  </table>
+  <table class="bal">
+    <thead><tr><th>Origens (Passivo + PL)</th><th style="text-align:right;">R$ bi</th></tr></thead>
+    <tbody>
+      <tr><td>Passivo circulante</td><td class="num">198,4</td></tr>
+      <tr><td class="sub">· do qual empréstimos e financiamentos</td><td class="num">67,3</td></tr>
+      <tr><td>Passivo não circulante</td><td class="num">607,4</td></tr>
+      <tr><td class="sub">· do qual empréstimos e financiamentos</td><td class="num">316,8</td></tr>
+      <tr><td>Patrimônio líquido</td><td class="num">417,6</td></tr>
+      <tr class="tot"><td>Passivo + PL total</td><td class="num">1.223,4</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="memoq"><b>Fluxos do ano (para as questões 3 e 4):</b> em <b>2025</b>, a Petrobras lucrou R$ 110,1 bi, investiu (capex) R$ 112,9 bi e distribuiu R$ 45,2 bi em proventos. Em <b>2024</b>, lucrou R$ 36,6 bi, investiu R$ 91 bi e distribuiu R$ 102,6 bi.</div>
+
+<h2>Questões</h2>
+<ol class="qs">
+  <li><b>Tamanho do compromisso.</b> Que fração do ativo total está no imobilizado? O que esse número diz sobre o tipo de negócio e sobre o horizonte das decisões de investimento da empresa?
+    <div class="resp"></div></li>
+  <li><b>Dívida onerosa.</b> Calcule a dívida bruta (empréstimos e financiamentos de curto + longo prazo) e a razão dívida/PL. O que significa esse número ser próximo de 1?
+    <div class="resp"></div></li>
+  <li><b>As três decisões.</b> Aponte, nos números da folha, onde aparecem: (a) a decisão de <i>investimento</i>; (b) a decisão de <i>financiamento</i>; (c) a decisão de <i>distribuição</i>.
+    <div class="resp alta"></div></li>
+  <li><b>2024 × 2025: a prioridade mudou.</b> Em 2024 a empresa distribuiu R$ 102,6 bi e investiu R$ 91 bi; em 2025 distribuiu R$ 45,2 bi e investiu R$ 112,9 bi. O que essa inversão sugere sobre as escolhas entre as três decisões? Há resposta "certa"? Quem ganha e quem perde em cada escolha?
+    <div class="resp alta"></div></li>
+</ol>
+
+<p class="fonte">Fonte dos dados: Petrobras, DFP consolidada de 31/12/2025 (CVM) e divulgações de resultados 2024 e 2025. Valores congelados para uso didático nesta disciplina. ED0139 · 2026-2 · FinCorp_01.</p>
+
+</body>
+</html>
