@@ -41,3 +41,9 @@ code{background:#f0ece6;padding:.1rem .35rem;border-radius:3px;font-size:.88em}
 .lista .detalhe a{font-weight:500;font-size:.92rem}
 h2+table{margin-top:.4rem}
 main h2{margin-top:2rem}
+a.colab{display:inline-block;background:var(--realce);color:#fff!important;border:0!important;
+  padding:.22rem .6rem;border-radius:4px;font-size:.85rem;font-weight:600;text-decoration:none}
+a.colab:hover{opacity:.88;color:#fff!important}
+a.secundario{font-size:.85rem}
+.capa .papel a{color:var(--tinta-fraca);text-decoration:none}
+.capa .papel a:hover{color:var(--realce)}
