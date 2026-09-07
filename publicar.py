@@ -273,6 +273,10 @@ def main():
     if "--so-montar" in sys.argv:
         print("  (envio desligado)")
         return
+    # o GitHub escreve no repositório por conta própria (arquivo CNAME, por
+    # exemplo), então integramos o remoto antes de enviar
+    subprocess.run(["git", "fetch", "-q", "origin"], cwd=SITE, check=False)
+    subprocess.run(["git", "pull", "--rebase", "-q", "origin", "main"], cwd=SITE, check=False)
     subprocess.run(["git", "add", "-A"], cwd=SITE, check=True)
     if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=SITE).returncode == 0:
         print("  nada mudou, nada a enviar")
