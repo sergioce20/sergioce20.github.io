@@ -33,7 +33,7 @@ body{
 .capa{
   background:var(--chapa);
   color:#f5f2ee;
-  padding:3.5rem 0 2.5rem;
+  padding:3.5rem 0 2.8rem;
   border-bottom:3px solid var(--realce);
 }
 .capa .limite{display:block}
@@ -62,8 +62,8 @@ body{
 .volta:hover{color:var(--realce-vivo)}
 
 /* ---- corpo ---- */
-main{padding:3rem 0 1rem}
-section{margin:0 0 3rem}
+main{padding:4.75rem 0 1rem}
+section{margin:0 0 3.4rem}
 h2{
   font:700 .74rem/1 var(--sans);
   text-transform:uppercase;letter-spacing:.14em;
