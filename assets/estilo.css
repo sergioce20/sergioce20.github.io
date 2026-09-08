@@ -1,49 +1,135 @@
+/* sergiocardoso.pro.br
+   Paleta e tipografia herdadas do material didático (fincorp.css):
+   azul UFC, ouro, Source Serif 4 nos títulos e Source Sans 3 no texto. */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..700;1,400&family=Source+Serif+4:opsz,wght@8..60,400..700&display=swap');
+
 :root{
-  --tinta:#1c1e21;
-  --tinta-fraca:#5a6068;
-  --papel:#fbfaf8;
-  --linha:#e2ded8;
-  --realce:#7a2e2e;
+  --azul:        #005386;
+  --azul-fundo:  #06344F;
+  --azul-noite:  #052638;
+  --ouro:        #CEB144;
+  --ouro-texto:  #8A7326;
+  --tinta:       #182430;
+  --tinta-fraca: #5E6E7A;
+  --linha:       #D3DAE0;
+  --papel:       #F4F6F8;
+  --superficie:  #FFFFFF;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans:  "Source Sans 3", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
+
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
   background:var(--papel);
   color:var(--tinta);
-  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-  padding:0 1.5rem;
+  font:400 17px/1.6 var(--sans);
+  font-variant-numeric:tabular-nums;
 }
-.capa,main,footer{max-width:44rem;margin:0 auto}
-.capa{padding:4rem 0 2rem;border-bottom:1px solid var(--linha)}
-h1{font-family:Georgia,"Times New Roman",serif;font-size:2.1rem;font-weight:600;margin:0;letter-spacing:-.01em}
-.papel{margin:.5rem 0 0;color:var(--tinta-fraca);font-size:1rem}
-main{padding:1rem 0 3rem}
-section{margin:2.75rem 0}
-h2{font-family:Georgia,"Times New Roman",serif;font-size:.85rem;font-weight:700;margin:0 0 .4rem;
-   text-transform:uppercase;letter-spacing:.09em;color:var(--realce)}
-.nota{margin:.2rem 0 1.1rem;color:var(--tinta-fraca);font-size:.95rem}
+.limite{max-width:46rem;margin:0 auto;padding:0 1.5rem}
+
+/* ---- cabeçalho: chapa escura, o único bloco de cor do site ---- */
+.capa{
+  background:var(--azul-noite);
+  color:#fff;
+  padding:3.5rem 0 2.5rem;
+  border-bottom:3px solid var(--ouro);
+}
+.capa .limite{display:block}
+.capa h1{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(2rem,6vw,2.9rem);
+  line-height:1.05;
+  letter-spacing:-.015em;
+  margin:0;
+}
+.capa .papel{
+  margin:.7rem 0 0;
+  color:#A9BECD;
+  font-size:.95rem;
+  letter-spacing:.01em;
+}
+.capa .papel a{color:#A9BECD;text-decoration:none;border-bottom:1px solid #2B4A61}
+.capa .papel a:hover{color:#fff;border-color:var(--ouro)}
+.volta{
+  display:inline-block;margin:0 0 1.4rem;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:#7E9AAE;text-decoration:none;
+}
+.volta:hover{color:var(--ouro)}
+
+/* ---- corpo ---- */
+main{padding:3rem 0 1rem}
+section{margin:0 0 3rem}
+h2{
+  font:700 .74rem/1 var(--sans);
+  text-transform:uppercase;letter-spacing:.14em;
+  color:var(--azul);
+  margin:0 0 .9rem;
+  padding-bottom:.55rem;
+  border-bottom:1px solid var(--linha);
+}
+.nota{margin:0 0 1.4rem;color:var(--tinta-fraca);font-size:.96rem;max-width:38rem}
+
+/* ---- listas ---- */
 .lista{list-style:none;padding:0;margin:0}
-.lista li{padding:.85rem 0;border-top:1px solid var(--linha)}
-.lista a{color:var(--tinta);text-decoration:none;font-weight:600;border-bottom:1px solid var(--realce)}
-.lista a:hover{color:var(--realce)}
-.detalhe{display:block;color:var(--tinta-fraca);font-size:.88rem;margin-top:.15rem}
-footer{padding:1.5rem 0 3rem;border-top:1px solid var(--linha);color:var(--tinta-fraca);font-size:.85rem}
-footer a{color:var(--tinta-fraca)}
-table{border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0}
-th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--linha)}
-th{font-weight:600;color:var(--tinta-fraca);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
-code{background:#f0ece6;padding:.1rem .35rem;border-radius:3px;font-size:.88em}
-@media (prefers-color-scheme:dark){
-  :root{--tinta:#e8e6e3;--tinta-fraca:#9a9ea4;--papel:#17181a;--linha:#2e3033;--realce:#d99a9a}
+.lista li{padding:1.05rem 0;border-bottom:1px solid var(--linha)}
+.lista li:first-child{padding-top:.2rem}
+.lista a{color:var(--tinta);text-decoration:none;font-weight:600;
+  border-bottom:2px solid var(--ouro);padding-bottom:1px}
+.lista a:hover{color:var(--azul);border-color:var(--azul)}
+.item-titulo{display:block;font-weight:600;font-size:1.05rem}
+.detalhe{display:block;color:var(--tinta-fraca);font-size:.88rem;margin-top:.35rem}
+.detalhe-inline{color:var(--tinta-fraca);font-size:.85em;font-family:var(--mono)}
+
+/* ---- o carimbo: data de congelamento, o que torna o dado reproduzível ---- */
+.carimbo{
+  display:inline-block;
+  font:600 .7rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ouro-texto);
+  border:1px solid var(--ouro);
+  padding:.3rem .5rem;border-radius:2px;
+  background:rgba(206,177,68,.09);
 }
-.item-titulo{display:block;font-weight:600}
-.detalhe-inline{color:var(--tinta-fraca);font-size:.85em}
-.lista .detalhe a{font-weight:500;font-size:.92rem}
-h2+table{margin-top:.4rem}
-main h2{margin-top:2rem}
-a.colab{display:inline-block;background:var(--realce);color:#fff!important;border:0!important;
-  padding:.22rem .6rem;border-radius:4px;font-size:.85rem;font-weight:600;text-decoration:none}
-a.colab:hover{opacity:.88;color:#fff!important}
-a.secundario{font-size:.85rem}
-.capa .papel a{color:var(--tinta-fraca);text-decoration:none}
-.capa .papel a:hover{color:var(--realce)}
+
+/* ---- botão do Colab ---- */
+a.colab{
+  display:inline-block;background:var(--azul);color:#fff!important;
+  border:0!important;padding:.4rem .85rem;border-radius:3px;
+  font:600 .85rem/1.2 var(--sans);text-decoration:none;
+}
+a.colab:hover{background:var(--azul-fundo);color:#fff!important}
+a.secundario{font-size:.85rem;font-weight:400;border-bottom-width:1px}
+
+/* ---- tabelas de arquivos: isto é dado, então parece dado ---- */
+table{border-collapse:collapse;width:100%;margin:.2rem 0 2.2rem;font-size:.9rem}
+th,td{text-align:left;padding:.55rem .2rem;border-bottom:1px solid var(--linha);vertical-align:baseline}
+th{font:700 .68rem/1 var(--sans);text-transform:uppercase;letter-spacing:.1em;
+   color:var(--tinta-fraca);border-bottom-width:2px;border-color:var(--tinta-fraca)}
+td:last-child{text-align:right;color:var(--tinta-fraca);font-family:var(--mono);
+  font-size:.82rem;white-space:nowrap;width:1%}
+td a{color:var(--tinta);text-decoration:none;font-family:var(--mono);font-size:.84rem;
+  border-bottom:1px solid var(--linha);word-break:break-all}
+td a:hover{color:var(--azul);border-color:var(--azul)}
+
+code{font-family:var(--mono);font-size:.88em;background:var(--superficie);
+  border:1px solid var(--linha);padding:.08rem .3rem;border-radius:2px}
+
+footer{border-top:1px solid var(--linha);margin-top:2rem;padding:1.6rem 0 4rem;
+  color:var(--tinta-fraca);font-size:.85rem}
+footer a{color:var(--tinta-fraca)}
+
+@media (prefers-color-scheme:dark){
+  :root{
+    --tinta:#E6ECF1; --tinta-fraca:#93A6B4; --linha:#25323D;
+    --papel:#0F1720; --superficie:#16202A; --azul:#5AA6D6; --ouro-texto:#CEB144;
+  }
+  .capa{background:#081722}
+  td a{color:var(--tinta)}
+}

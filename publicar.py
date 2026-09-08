@@ -48,7 +48,7 @@ SINCRONIZAR = [
 ]
 
 BLOQUEIO = re.compile(r"(?i)(gabarito|prova|presenc|notas?_|conceito|matricula)")
-IGNORAR_SEMPRE = {".git", ".DS_Store", "__pycache__", "publicar.py", "LEIA-ME.md"}
+IGNORAR_SEMPRE = {".git", ".DS_Store", "__pycache__", "publicar.py", "LEIA-ME.md", "Publicar site.command"}
 
 
 def oculto(caminho: Path) -> bool:
@@ -156,11 +156,13 @@ def gerar_indices():
 </head>
 <body>
 <header class="capa">
-  <p class="papel"><a href="/">← Sérgio Cardoso</a></p>
-  <h1>{html.escape(titulo_pagina)}</h1>
+  <div class="limite">
+    <a class="volta" href="/">Sérgio Cardoso</a>
+    <h1>{html.escape(titulo_pagina)}</h1>
+  </div>
 </header>
-<main>{"".join(secoes)}</main>
-<footer><p>Material didático sob licença
+<main class="limite">{"".join(secoes)}</main>
+<footer class="limite"><p>Material didático sob licença
 <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">CC BY 4.0</a>,
 salvo indicação em contrário no próprio arquivo.</p></footer>
 </body>
