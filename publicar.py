@@ -35,7 +35,16 @@ DISCIPLINAS = {
 }
 
 ROTULO = {".html": "slides", ".pdf": "PDF", ".xlsx": "Excel", ".docx": "Word",
-          ".zip": "pacote", ".csv": "CSV"}
+          ".ipynb": "notebook", ".csv": "CSV"}
+
+# QUE TIPOS DE ARQUIVO VÃO AO AR.
+# O material de aula (slides, PDF, textos) fica no SIGAA, não aqui: publicar nos
+# dois lugares cria duas versões do mesmo arquivo e uma delas envelhece.
+# Aqui vai só o que o SIGAA não consegue entregar: os dados e o que a atividade
+# no Colab precisa. Para voltar a publicar deck, acrescente ".html" e ".pdf".
+# .zip fica de fora de propósito: pacote é cópia congelada e não acompanha a
+# correção da fonte (já aconteceu, com o notebook velho dentro do zip).
+TIPOS_PUBLICADOS = {".ipynb", ".xlsx"}
 
 CABECA_MANIFESTO = """\
 # QUAIS AULAS ESTÃO PUBLICADAS NO SITE
@@ -141,7 +150,8 @@ def montar_disciplina(chave, info):
 
     for pasta in pastas_de_aula(origem):
         arquivos = [f for f in pasta.rglob("*_ALUNO*")
-                    if f.is_file() and "arquivos_antigos" not in f.parts]
+                    if f.is_file() and "arquivos_antigos" not in f.parts
+                    and f.suffix.lower() in TIPOS_PUBLICADOS]
         if pasta.name not in liberadas:
             if arquivos:
                 retidas.append((pasta.name, len(arquivos)))
@@ -168,8 +178,9 @@ def montar_disciplina(chave, info):
         links = " · ".join(link_arquivo(base, repo_rel, n, e) for n, e in itens)
         linhas.append(f'<li><span class="item-titulo">{html.escape(titulo)}</span>'
                       f'<span class="detalhe">{links}</span></li>')
-    corpo = ('<section><p class="nota">Material do aluno. Os arquivos de apoio do '
-             'professor não são publicados.</p><ul class="lista">' + "".join(linhas) +
+    corpo = ('<section><h2>Atividades</h2><p class="nota">Notebooks e planilhas das '
+             'tarefas. Os slides e textos da disciplina ficam no SIGAA.</p>'
+             '<ul class="lista">' + "".join(linhas) +
              '</ul></section>'
              f'<section><h2>Dados</h2><p class="nota">Bases congeladas usadas nas '
              f'atividades.</p><ul class="lista"><li>'
