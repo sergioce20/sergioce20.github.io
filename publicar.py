@@ -43,8 +43,6 @@ SINCRONIZAR = [
      "descricao": "pacote de dados congelado"},
     {"de": FC / "aulas", "para": f"{DESTINO_FC}/atividades", "glob": "*/**/*_ALUNO.ipynb",
      "plano": True, "descricao": "notebooks das tarefas"},
-    {"de": FC / "aulas", "para": f"{DESTINO_FC}/atividades", "glob": "*/**/*_ALUNO.xlsx",
-     "plano": True, "descricao": "planilhas das tarefas"},
 ]
 
 BLOQUEIO = re.compile(r"(?i)(gabarito|prova|presenc|notas?_|conceito|matricula)")
