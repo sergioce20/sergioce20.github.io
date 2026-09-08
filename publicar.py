@@ -172,11 +172,34 @@ salvo indicação em contrário no próprio arquivo.</p></footer>
     return feitos
 
 
+def carimbar_css():
+    """Poe a versao da folha de estilo no link de todas as paginas, para que
+    ninguem continue vendo o desenho antigo por cache do navegador."""
+    import hashlib
+    css = SITE / "assets/estilo.css"
+    if not css.exists():
+        return
+    v = hashlib.sha1(css.read_bytes()).hexdigest()[:8]
+    alvo = f'href="/assets/estilo.css?v={v}"'
+    n = 0
+    for pag in SITE.rglob("*.html"):
+        if oculto(pag):
+            continue
+        texto = pag.read_text(encoding="utf-8")
+        novo = re.sub(r'href="/assets/estilo\.css(\?v=[0-9a-f]+)?"', alvo, texto)
+        if novo != texto:
+            pag.write_text(novo, encoding="utf-8")
+            n += 1
+    if n:
+        print(f"  folha de estilo carimbada como v={v} em {n} página(s)")
+
+
 def publicar():
     if conferir(silencioso=True):
         conferir()
         sys.exit(1)
     feitos = gerar_indices()
+    carimbar_css()
     for f in feitos:
         print(f"  índice gerado: {f}/index.html")
     subprocess.run(["git", "fetch", "-q", "origin"], cwd=SITE, check=False)
