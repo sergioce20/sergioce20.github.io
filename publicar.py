@@ -2,19 +2,30 @@
 """
 Publica o site sergiocardoso.pro.br.
 
-DUAS TRAVAS, e as duas precisam passar para um arquivo ir para o ar:
+MODELO: a pasta site/ É o site. O que está nela vai ao ar; o que não está, não vai.
+Você arruma a pasta com a mão e depois publica.
 
-  1. NOME: o arquivo precisa ter "_ALUNO" no nome (ou estar em dados/).
-  2. LIBERAÇÃO: a pasta da aula precisa estar listada no PUBLICAR.txt da
-     disciplina, sem o "#" na frente.
+TRÊS COMANDOS:
 
-Aula nova, semestre novo ou disciplina nova NÃO vão para o ar sozinhos.
-O padrão é não publicar. Publicar é um ato deliberado.
+    python3 publicar.py sincronizar   traz de fora as cópias que envelhecem
+                                      (dados e atividades). Não publica.
+    python3 publicar.py conferir      mostra o que iria ao ar. Não publica.
+    python3 publicar.py               publica o que está na pasta.
 
-Uso:  python3 publicar.py             (monta e envia)
-      python3 publicar.py --so-montar (monta e mostra o relatório, sem enviar)
+DUAS REGRAS:
+
+  1. Nome começando com "_" nunca é publicado, seja arquivo ou pasta, em qualquer
+     profundidade. Use _oculto/, _rascunho/, _arquivo/ para tirar do ar sem
+     apagar. Esses nomes também estão no .gitignore, então não vão nem para o
+     GitHub.
+  2. Arquivo com nome suspeito (gabarito, prova, presença, notas) FAZ A
+     PUBLICAÇÃO PARAR, com a lista na tela. Renomeie ou mova para uma pasta "_".
+
+ÍNDICE AUTOMÁTICO: uma pasta ganha index.html gerado só se tiver dentro dela um
+arquivo vazio chamado _gerar_indice. Sem esse arquivo, a página é sua e o script
+nunca toca nela.
 """
-import html, shutil, subprocess, sys
+import html, re, shutil, subprocess, sys
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parent
@@ -22,40 +33,34 @@ UFC = Path.home() / "Documents/UFC/disciplinas"
 REPO = "sergioce20/sergioce20.github.io"
 RAMO = "main"
 
-INSTITUICOES = {"ufc": "Universidade Federal do Ceará"}
+FC = UFC / "financas_corporativas/2026-2"
+DESTINO_FC = "ufc/financas-corporativas/2026-2"
 
-# chave: (instituicao, disciplina, periodo)
-DISCIPLINAS = {
-    ("ufc", "financas-corporativas", "2026-2"): {
-        "titulo": "Finanças Corporativas",
-        "codigo": "ED0139",
-        "curso": "Ciências Atuariais",
-        "origem": UFC / "financas_corporativas/2026-2",
-    },
-}
+# O QUE VEM DE FORA. Só entra aqui o que envelhece e cuja cópia velha causa dano.
+# Slides e textos NÃO entram: ficam no SIGAA, para não existirem em duas versões.
+SINCRONIZAR = [
+    {"de": FC / "dados", "para": f"{DESTINO_FC}/dados", "glob": "**/*",
+     "descricao": "pacote de dados congelado"},
+    {"de": FC / "aulas", "para": f"{DESTINO_FC}/atividades", "glob": "*/**/*_ALUNO.ipynb",
+     "plano": True, "descricao": "notebooks das tarefas"},
+    {"de": FC / "aulas", "para": f"{DESTINO_FC}/atividades", "glob": "*/**/*_ALUNO.xlsx",
+     "plano": True, "descricao": "planilhas das tarefas"},
+]
 
-ROTULO = {".html": "slides", ".pdf": "PDF", ".xlsx": "Excel", ".docx": "Word",
-          ".ipynb": "notebook", ".csv": "CSV"}
+BLOQUEIO = re.compile(r"(?i)(gabarito|prova|presenc|notas?_|conceito|matricula)")
+IGNORAR_SEMPRE = {".git", ".DS_Store", "__pycache__", "publicar.py", "LEIA-ME.md"}
 
-# QUE TIPOS DE ARQUIVO VÃO AO AR.
-# O material de aula (slides, PDF, textos) fica no SIGAA, não aqui: publicar nos
-# dois lugares cria duas versões do mesmo arquivo e uma delas envelhece.
-# Aqui vai só o que o SIGAA não consegue entregar: os dados e o que a atividade
-# no Colab precisa. Para voltar a publicar deck, acrescente ".html" e ".pdf".
-# .zip fica de fora de propósito: pacote é cópia congelada e não acompanha a
-# correção da fonte (já aconteceu, com o notebook velho dentro do zip).
-TIPOS_PUBLICADOS = {".ipynb", ".xlsx"}
 
-CABECA_MANIFESTO = """\
-# QUAIS AULAS ESTÃO PUBLICADAS NO SITE
-#
-# Uma pasta por linha. Linha com "#" na frente NÃO é publicada.
-# Pasta que não estiver aqui também NÃO é publicada, mesmo que tenha
-# arquivos _ALUNO. Aula nova nasce fechada: para liberar, tire o "#"
-# (ou acrescente a linha) e rode  python3 publicar.py
-#
-# A pasta dados/ é publicada sempre, junto com a disciplina.
-"""
+def oculto(caminho: Path) -> bool:
+    """True se qualquer parte do caminho começa com _ ou está na lista fixa."""
+    rel = caminho.relative_to(SITE)
+    return any(p.startswith("_") or p in IGNORAR_SEMPRE for p in rel.parts)
+
+
+def arquivos_publicaveis():
+    for f in sorted(SITE.rglob("*")):
+        if f.is_file() and not oculto(f):
+            yield f
 
 
 def tamanho(p):
@@ -66,236 +71,129 @@ def tamanho(p):
         n /= 1024
 
 
-def titulo_aula(nome):
-    partes = nome.split("_")
-    if partes[0].isdigit():
-        resto = " ".join(partes[1:]).replace("-", " ")
-        return f"Aula {partes[0]} · {resto[:1].upper() + resto[1:]}"
-    return nome.replace("_", " ").capitalize()
-
-
-def pastas_de_aula(origem):
-    return sorted(
-        [d for d in (origem / "aulas").glob("*") if d.is_dir()] +
-        [d for d in (origem / "capsulas").glob("*") if d.is_dir()],
-        key=lambda d: d.name
-    )
-
-
-def ler_manifesto(origem):
-    """Devolve (liberadas, existentes). Cria o arquivo na primeira vez."""
-    arq = origem / "PUBLICAR.txt"
-    existentes = [d.name for d in pastas_de_aula(origem)]
-    if not arq.exists():
-        arq.write_text(CABECA_MANIFESTO + "\n" +
-                       "\n".join(f"# {n}" for n in existentes) + "\n",
-                       encoding="utf-8")
-        print(f"  ! criei {arq} com TUDO fechado. Libere o que for público e rode de novo.")
-        return set(), existentes
-    liberadas = {
-        linha.strip() for linha in arq.read_text(encoding="utf-8").splitlines()
-        if linha.strip() and not linha.strip().startswith("#")
-    }
-    return liberadas, existentes
-
-
-def pagina(titulo, subtitulo, corpo, voltar, rotulo_voltar):
-    return f"""<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(titulo)} · Sérgio Cardoso</title>
-<link rel="stylesheet" href="/assets/estilo.css">
-</head>
-<body>
-<header class="capa">
-  <p class="papel"><a href="{voltar}">← {html.escape(rotulo_voltar)}</a></p>
-  <h1>{html.escape(titulo)}</h1>
-  <p class="papel">{html.escape(subtitulo)}</p>
-</header>
-<main>
-{corpo}
-</main>
-<footer><p>Material didático sob licença
-<a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">CC BY 4.0</a>,
-salvo indicação em contrário no próprio arquivo.</p></footer>
-</body>
-</html>
-"""
-
-
-def link_arquivo(base_url, caminho_repo, nome, ext):
-    """Notebook vira botão do Colab; o resto vira link para o arquivo."""
-    if ext == ".ipynb":
-        colab = (f"https://colab.research.google.com/github/{REPO}/blob/{RAMO}/"
-                 f"{caminho_repo}/{nome}")
-        return (f'<a class="colab" href="{colab}" target="_blank" rel="noopener">'
-                f'Abrir no Colab</a>'
-                f' <a class="secundario" href="{base_url}/{nome}">baixar .ipynb</a>')
-    return f'<a href="{base_url}/{nome}">{ROTULO.get(ext, ext.lstrip("."))}</a>'
-
-
-def montar_disciplina(chave, info):
-    inst, disc, periodo = chave
-    origem = info["origem"]
-    raiz_url = f"/{inst}/{disc}/{periodo}"
-    raiz_dir = SITE / inst / disc / periodo
-    if raiz_dir.exists():
-        shutil.rmtree(raiz_dir)
-    (raiz_dir / "aulas").mkdir(parents=True)
-
-    liberadas, existentes = ler_manifesto(origem)
-    publicadas, retidas = [], []
-
-    for pasta in pastas_de_aula(origem):
-        arquivos = [f for f in pasta.rglob("*_ALUNO*")
-                    if f.is_file() and "arquivos_antigos" not in f.parts
-                    and f.suffix.lower() in TIPOS_PUBLICADOS]
-        if pasta.name not in liberadas:
-            if arquivos:
-                retidas.append((pasta.name, len(arquivos)))
+def sincronizar():
+    print("Trazendo de fora as cópias que envelhecem.\n")
+    for regra in SINCRONIZAR:
+        origem, destino = regra["de"], SITE / regra["para"]
+        if not origem.exists():
+            print(f"  ! origem não encontrada: {origem}")
             continue
-        if not arquivos:
-            retidas.append((pasta.name, 0))
-            continue
-        destino = raiz_dir / "aulas" / pasta.name
         destino.mkdir(parents=True, exist_ok=True)
-        itens = []
-        for f in sorted(arquivos):
-            shutil.copy2(f, destino / f.name)
-            itens.append((f.name, f.suffix.lower()))
-        publicadas.append((titulo_aula(pasta.name), pasta.name, itens))
+        novos = atualizados = 0
+        for f in sorted(origem.glob(regra["glob"])):
+            if not f.is_file() or f.name.startswith(".") or "arquivos_antigos" in f.parts:
+                continue
+            alvo = destino / f.name if regra.get("plano") else destino / f.relative_to(origem)
+            alvo.parent.mkdir(parents=True, exist_ok=True)
+            if not alvo.exists():
+                novos += 1
+            elif f.stat().st_mtime > alvo.stat().st_mtime or f.stat().st_size != alvo.stat().st_size:
+                atualizados += 1
+            else:
+                continue
+            shutil.copy2(f, alvo)
+        print(f"  {regra['descricao']}: {novos} novo(s), {atualizados} atualizado(s)"
+              f"  ->  {regra['para']}/")
+    print("\nAgora ajuste a pasta site/ como quiser e rode:  python3 publicar.py")
 
-    for nome in liberadas - set(existentes):
-        print(f"  ! {origem.name}/PUBLICAR.txt cita '{nome}', que não existe")
 
-    # índice das aulas
-    linhas = []
-    for titulo, pasta, itens in publicadas:
-        base = f"{raiz_url}/aulas/{pasta}"
-        repo_rel = f"{inst}/{disc}/{periodo}/aulas/{pasta}"
-        links = " · ".join(link_arquivo(base, repo_rel, n, e) for n, e in itens)
-        linhas.append(f'<li><span class="item-titulo">{html.escape(titulo)}</span>'
-                      f'<span class="detalhe">{links}</span></li>')
-    corpo = ('<section><h2>Atividades</h2><p class="nota">Notebooks e planilhas das '
-             'tarefas. Os slides e textos da disciplina ficam no SIGAA.</p>'
-             '<ul class="lista">' + "".join(linhas) +
-             '</ul></section>'
-             f'<section><h2>Dados</h2><p class="nota">Bases congeladas usadas nas '
-             f'atividades.</p><ul class="lista"><li>'
-             f'<a href="{raiz_url}/dados/">Pacote de dados {periodo}</a>'
-             f'<span class="detalhe">DFP, preços da B3 e séries do Banco Central</span>'
-             f'</li></ul></section>')
-    sub = f'{info["codigo"]} · {info["curso"]} · {INSTITUICOES[inst]} · {periodo}'
-    (raiz_dir / "index.html").write_text(
-        pagina(info["titulo"], sub, corpo, "/", "Sérgio Cardoso"), encoding="utf-8")
+def conferir(silencioso=False):
+    """Devolve a lista de bloqueios. Se não for silencioso, imprime o inventário."""
+    bloqueados = [f for f in arquivos_publicaveis() if BLOQUEIO.search(f.name)]
+    if not silencioso:
+        por_pasta = {}
+        for f in arquivos_publicaveis():
+            por_pasta.setdefault(f.parent.relative_to(SITE).as_posix() or ".", []).append(f)
+        print("O QUE ESTÁ NO AR (ou iria, se você publicar agora):\n")
+        for pasta in sorted(por_pasta):
+            print(f"  {pasta}/")
+            for f in por_pasta[pasta]:
+                print(f"      {f.name}  ({tamanho(f)})")
+        ocultos = [p for p in SITE.rglob("_*") if p.name.startswith("_")]
+        if ocultos:
+            print("\nFORA DO AR (começa com _, nem vai para o GitHub):")
+            for p in sorted(ocultos):
+                print(f"  {p.relative_to(SITE)}")
+    if bloqueados:
+        print("\n*** BLOQUEADO. Estes nomes não podem ser publicados: ***")
+        for f in bloqueados:
+            print(f"  {f.relative_to(SITE)}")
+        print("Renomeie ou mova para uma pasta começando com _.")
+    return bloqueados
 
-    # dados
-    destino_dados = raiz_dir / "dados"
-    shutil.copytree(origem / "dados", destino_dados,
-                    ignore=shutil.ignore_patterns(".DS_Store"))
-    secoes = []
-    for sub_dir in sorted([p for p in destino_dados.iterdir() if p.is_dir()]) + [destino_dados]:
-        arqs = sorted(f for f in sub_dir.glob("*") if f.is_file() and f.name != "index.html")
+
+def gerar_indices():
+    """Gera index.html só nas pastas que têm o marcador _gerar_indice."""
+    feitos = []
+    for marcador in SITE.rglob("_gerar_indice"):
+        pasta = marcador.parent
+        arqs = [f for f in sorted(pasta.rglob("*"))
+                if f.is_file() and not oculto(f) and f.name != "index.html"]
         if not arqs:
             continue
-        rel = "" if sub_dir == destino_dados else sub_dir.name + "/"
-        nome = "raiz" if sub_dir == destino_dados else sub_dir.name
-        tr = "".join(f'<tr><td><a href="{raiz_url}/dados/{rel}{html.escape(f.name)}">'
-                     f'{html.escape(f.name)}</a></td><td>{tamanho(f)}</td></tr>' for f in arqs)
-        secoes.append(f"<h2>{html.escape(nome)}</h2>"
-                      f"<table><tr><th>arquivo</th><th>tamanho</th></tr>{tr}</table>")
-    corpo_d = ('<section><p class="nota">Bases congeladas na data indicada no nome do '
-               'arquivo. No Python, use o endereço completo do arquivo como caminho. '
-               'Os CSV da DFP usam ponto e vírgula como separador '
-               '(<code>sep=";"</code>).</p>' + "".join(secoes) + "</section>")
-    (destino_dados / "index.html").write_text(
-        pagina(f'Dados · {info["titulo"]}', sub, corpo_d, raiz_url, info["titulo"]),
-        encoding="utf-8")
-
-    return publicadas, retidas, raiz_url, sub
-
-
-def indice_geral(entradas):
-    por_inst = {}
-    for (inst, disc, periodo), info, url, sub in entradas:
-        por_inst.setdefault(inst, []).append((info, url, periodo))
-    secoes = []
-    for inst, itens in por_inst.items():
-        linhas = "".join(
-            f'<li><a href="{url}">{html.escape(i["titulo"])}</a>'
-            f'<span class="detalhe">{html.escape(i["codigo"])} · '
-            f'{html.escape(i["curso"])} · {periodo}</span></li>'
-            for i, url, periodo in sorted(itens, key=lambda t: t[2], reverse=True))
-        secoes.append(f'<section><h2>{html.escape(INSTITUICOES[inst])}</h2>'
-                      f'<ul class="lista">{linhas}</ul></section>')
-    return f"""<!doctype html>
+        grupos = {}
+        for f in arqs:
+            grupos.setdefault(f.parent.relative_to(pasta).as_posix() or ".", []).append(f)
+        base = "/" + pasta.relative_to(SITE).as_posix()
+        secoes = []
+        for sub in sorted(grupos):
+            titulo = "arquivos" if sub == "." else sub
+            pre = "" if sub == "." else sub + "/"
+            tr = "".join(
+                f'<tr><td><a href="{base}/{pre}{html.escape(f.name)}">'
+                f'{html.escape(f.name)}</a></td><td>{tamanho(f)}</td></tr>' for f in grupos[sub])
+            secoes.append(f"<h2>{html.escape(titulo)}</h2>"
+                          f"<table><tr><th>arquivo</th><th>tamanho</th></tr>{tr}</table>")
+        titulo_pagina = (pasta / "_titulo.txt").read_text(encoding="utf-8").strip() \
+            if (pasta / "_titulo.txt").exists() else pasta.name
+        (pasta / "index.html").write_text(f"""<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sérgio Cardoso</title>
+<title>{html.escape(titulo_pagina)} · Sérgio Cardoso</title>
 <link rel="stylesheet" href="/assets/estilo.css">
 </head>
 <body>
 <header class="capa">
-  <h1>Sérgio Cardoso</h1>
-  <p class="papel">Atuário (MIBA 2.285) · Professor de Ciências Atuariais</p>
+  <p class="papel"><a href="/">← Sérgio Cardoso</a></p>
+  <h1>{html.escape(titulo_pagina)}</h1>
 </header>
-<main>
-<p class="nota">Material didático das disciplinas em andamento: slides, roteiros de
-atividade e bases de dados congeladas.</p>
-{"".join(secoes)}
-</main>
+<main>{"".join(secoes)}</main>
 <footer><p>Material didático sob licença
 <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">CC BY 4.0</a>,
 salvo indicação em contrário no próprio arquivo.</p></footer>
 </body>
 </html>
-"""
+""", encoding="utf-8")
+        feitos.append(pasta.relative_to(SITE).as_posix())
+    return feitos
 
 
-def main():
-    # limpa a estrutura antiga
-    for velho in ("aulas", "dados"):
-        p = SITE / velho
-        if p.exists():
-            shutil.rmtree(p)
-
-    entradas, total_ret = [], 0
-    for chave, info in DISCIPLINAS.items():
-        if not info["origem"].exists():
-            print(f"  ! origem não encontrada: {info['origem']}")
-            continue
-        pub, ret, url, sub = montar_disciplina(chave, info)
-        entradas.append((chave, info, url, sub))
-        print(f"\n  {'/'.join(chave)}")
-        for titulo, pasta, itens in pub:
-            print(f"    PUBLICADA  {pasta}  ({len(itens)} arquivos)")
-        for pasta, n in ret:
-            motivo = "fechada no PUBLICAR.txt" if n else "sem arquivo _ALUNO"
-            print(f"    retida     {pasta}  ({n} arquivos, {motivo})")
-        total_ret += len(ret)
-
-    (SITE / "index.html").write_text(indice_geral(entradas), encoding="utf-8")
-    print(f"\n  {len(entradas)} disciplina(s) no ar, {total_ret} pasta(s) retida(s)")
-
-    if "--so-montar" in sys.argv:
-        print("  (envio desligado)")
-        return
-    # o GitHub escreve no repositório por conta própria (arquivo CNAME, por
-    # exemplo), então integramos o remoto antes de enviar
+def publicar():
+    if conferir(silencioso=True):
+        conferir()
+        sys.exit(1)
+    feitos = gerar_indices()
+    for f in feitos:
+        print(f"  índice gerado: {f}/index.html")
     subprocess.run(["git", "fetch", "-q", "origin"], cwd=SITE, check=False)
-    subprocess.run(["git", "pull", "--rebase", "-q", "origin", "main"], cwd=SITE, check=False)
+    subprocess.run(["git", "pull", "--rebase", "-q", "origin", RAMO], cwd=SITE, check=False)
     subprocess.run(["git", "add", "-A"], cwd=SITE, check=True)
     if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=SITE).returncode == 0:
         print("  nada mudou, nada a enviar")
         return
     subprocess.run(["git", "commit", "-m", "atualiza publicação"], cwd=SITE, check=True)
-    subprocess.run(["git", "push"], cwd=SITE, check=True)
-    print("  enviado. o site atualiza em cerca de um minuto")
+    subprocess.run(["git", "push", "-q"], cwd=SITE, check=True)
+    n = sum(1 for _ in arquivos_publicaveis())
+    print(f"  enviado: {n} arquivos no ar. O site atualiza em cerca de um minuto.")
 
 
 if __name__ == "__main__":
-    main()
+    comando = sys.argv[1] if len(sys.argv) > 1 else "publicar"
+    if comando == "sincronizar":
+        sincronizar()
+    elif comando == "conferir":
+        conferir()
+    else:
+        publicar()
