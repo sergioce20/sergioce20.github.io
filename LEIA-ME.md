@@ -115,10 +115,24 @@ O endereço segue a pasta. `ufc/financas-corporativas/2026-2/dados/` no disco é
 
 **Práticas Simuladas em Atuária · ED0145 · 2026.2**
 
-Essa disciplina já tem uma convenção própria, declarada no `LEIA-ME.md` dela:
+Essa disciplina já tem convenção própria, declarada no `LEIA-ME.md` dela:
 a pasta **`publicar/`** é o "espelho do Google Drive da turma" e vai inteira.
 É o mesmo modelo desta pasta aqui, então o encaixe é direto: sincronizamos
 `publicar/` e pronto. Não é preciso `_ALUNO` no nome.
+
+Ela já vem organizada por dentro, com `publicar/dados/` e `publicar/material/`,
+então basta espelhar a pasta toda e a estrutura se mantém.
+
+> ### ATENÇÃO, e isto não é detalhe
+>
+> A disciplina tem também uma pasta **`publicar_alunos/`**, com uma subpasta por
+> aluno (`aluno_1`, `aluno_2`, …). **Ela nunca pode entrar aqui.** Material
+> individualizado num site público expõe o trabalho de cada aluno para qualquer
+> pessoa, e o histórico do git não esquece.
+>
+> Sincronize **`publicar/`**, nunca `publicar_alunos/`. Se um dia precisar
+> entregar material individual, o canal é o SIGAA ou o Drive, com acesso
+> restrito, não este site.
 
 ### 1. Ensinar o script a trazer os arquivos
 
@@ -130,19 +144,14 @@ PS = UFC / "praticas_simuladas/2026-2"
 DESTINO_PS = "ufc/praticas-simuladas/2026-2"
 ```
 
-e, dentro da lista `SINCRONIZAR`, mais uma entrada:
+e, dentro da lista `SINCRONIZAR`, mais uma entrada, espelhando a pasta inteira:
 
 ```python
-    {"de": PS / "publicar", "para": f"{DESTINO_PS}/material", "glob": "**/*",
+    {"de": PS / "publicar", "para": DESTINO_PS, "glob": "**/*",
      "descricao": "material da turma de Práticas Simuladas"},
 ```
 
-Se houver base de dados para os alunos lerem por URL, acrescente também:
-
-```python
-    {"de": PS / "base/amostras", "para": f"{DESTINO_PS}/dados", "glob": "**/*",
-     "descricao": "amostras da base de Práticas Simuladas"},
-```
+Isso traz `publicar/dados/` e `publicar/material/` já na estrutura certa.
 
 ### 2. Criar as pastas e ligar o índice automático
 
@@ -154,6 +163,8 @@ mkdir -p ufc/praticas-simuladas/2026-2/dados
 touch    ufc/praticas-simuladas/2026-2/dados/_gerar_indice
 echo "Dados · Práticas Simuladas 2026.2" > ufc/praticas-simuladas/2026-2/dados/_titulo.txt
 ```
+
+Repita para `material/` se quiser índice gerado também nessa pasta.
 
 ### 3. Escrever a página da disciplina
 
@@ -188,10 +199,12 @@ o que veio, e **3** para publicar.
 
 ### Antes de fazer isso, duas decisões
 
-**A base de ED0145 não está congelada como a de Finanças Corporativas.** Se os
-alunos forem ler dados por URL, a data de congelamento precisa estar no nome do
-arquivo, como em `amostra_g3_congelada_2026-09-01.csv`. Sem isso, um resultado
-deixa de ser reproduzível no dia em que a base mudar.
+**As amostras de ED0145 não estão congeladas como as de Finanças Corporativas.**
+Elas são geradas por `base/scripts/`. Se os alunos forem ler dados por URL, a
+data de congelamento precisa estar no nome do arquivo, como em
+`amostra_g3_congelada_2026-09-01.csv`. Sem isso, um resultado deixa de ser
+reproduzível no dia em que a base for regerada, e a disciplina inteira perde a
+rastreabilidade que Finanças Corporativas tem.
 
 **Hoje o material dela vai para o Google Drive.** Trazer para o site só faz
 sentido se substituir o Drive, não se conviver com ele: material em dois
