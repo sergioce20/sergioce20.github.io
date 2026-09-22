@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<!--
+  =========================================================================
+  HTML 4 — Quando a aderência é frágil — amostra, significância
+  e o reflexo do CF
+  Curso UniAbrapp Módulo II — 34ª Edição — T05p2, Bloco 2, Dia 2
+  Versão: Rodada 2 (versão interativa final)
+  =========================================================================
+
+  PLANO B (D-PB) — 9 ESTADOS DA RODADA 1 (α=0.05 fixo)
+  Para consumo da operacional do PPTX Bloco 2.
+
+       ┌───────────┬────────────┬──────────────┬───────────────┐
+       │           │  n=200     │  n=2.000     │  n=20.000     │
+       ├───────────┼────────────┼──────────────┼───────────────┤
+       │ A desv.   │  PASSA     │  REJEITA     │  REJEITA      │
+       │ B marg.   │  PASSA     │  PASSA ★(1)  │  REJEITA      │
+       │ C aderen. │  PASSA     │  PASSA       │  PASSA        │
+       └───────────┴────────────┴──────────────┴───────────────┘
+
+  ★(1) Marcador de borda — frac_rejeita_qq=0.41
+
+  ESTADOS DA RODADA 2 (tábua B marginal fixa, n=2.000 fixo)
+       ┌───────────┬────────────┬──────────────┬───────────────┐
+       │           │ α=0.01(99%)│ α=0.05(95%)  │ α=0.10(90%)   │
+       ├───────────┼────────────┼──────────────┼───────────────┤
+       │ B marg.   │  PASSA     │  PASSA ★(1)  │  REJEITA      │
+       └───────────┴────────────┴──────────────┴───────────────┘
+
+  Mapeamento de convenções (Leitura A — config_34a.yaml + bloco-2-dia-2.md):
+    Rótulo painel    Catálogo label    CSV tabua_label
+    A — Desviante    D                 "D: IBGE 2020"
+    B — Marginal     C                 "C: BR-EMSsb-2021"
+    C — Aderente     B                 "B: AT-2000 (verdade)"
+
+  -------------------------------------------------------------------------
+  NOTA DE EXECUÇÃO — RITMO DE PALCO
+  -------------------------------------------------------------------------
+  Executar com pausas de 3–5s após cada movimento de slider e cada
+  troca de pill; o conselheiro precisa do silêncio para processar a
+  mudança visual antes da próxima fala. Se em 3 min a Rodada 1
+  fechar, leu corrido; se em 4 min ainda não fechou, está no ritmo
+  certo.
+
+  =========================================================================
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML 4 — Quando a aderência é frágil</title>
+  <style>
+    /* ============================================================
+       UniAbrapp — Tokens institucionais
+       ============================================================ */
+    :root {
+      --ua-azul-marinho-profundo: #00145B;
+      --ua-azul-marinho-claro:    #002C60;
+      --ua-azul-eletrico:         #002CD6;
+      --ua-magenta:               #EF0068;
+      --ua-cinza-fundo:           #F0EFEF;
+      --ua-cinza-lapide:          #E8E8E8;
+      --ua-cinza-rodape:          #7A7A7A;
+      --ua-branco:                #FFFFFF;
+      --ua-laranja:               #F27649;
+      --ua-amarelo:               #F9BB59;
+      --ua-verde:                 #6BFC47;
+
+      --ua-font-titulo:  "Aptos Display", "Aptos", "Inter", system-ui, sans-serif;
+      --ua-font-corpo:   "Aptos", "Inter", system-ui, sans-serif;
+
+      --ua-fs-titulo-slide:     2.75rem;
+      --ua-fs-titulo-secao:     1.75rem;
+      --ua-fs-corpo-grande:     1.25rem;
+      --ua-fs-corpo-padrao:     1rem;
+      --ua-fs-corpo-pequeno:    0.875rem;
+      --ua-fs-frase-ancora:     1.75rem;
+      --ua-fs-rodape:           0.6875rem;
+
+      --ua-spacing-xs: 0.5rem;
+      --ua-spacing-sm: 1rem;
+      --ua-spacing-md: 1.5rem;
+      --ua-spacing-lg: 2rem;
+      --ua-spacing-xl: 3rem;
+
+      --ua-container-max: 78rem;
+
+      /* Animações canônicas */
+      --ua-trans-rapida: 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --ua-trans-fade:   400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ============================================================
+       Reset + base
+       ============================================================ */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: var(--ua-font-corpo);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ua-azul-marinho-claro);
+      background: var(--ua-cinza-fundo);
+    }
+    body.ua-app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ============================================================
+       Âncoras de marca
+       ============================================================ */
+    .ua-logo {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      width: 9rem;
+      height: auto;
+      z-index: 100;
+    }
+    .ua-hashtag {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 4rem;
+      height: 4rem;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       Header / main / footer
+       ============================================================ */
+    .ua-header {
+      padding: 2rem 4rem 1rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-title {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: var(--ua-fs-titulo-slide);
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.1;
+      margin: 0 0 0.5rem;
+    }
+    .ua-subtitle {
+      font-family: var(--ua-font-corpo);
+      font-weight: 400;
+      font-size: var(--ua-fs-corpo-grande);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+      opacity: 0.85;
+    }
+    .ua-main {
+      flex: 1;
+      padding: 1rem 4rem 2rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-footer {
+      padding: 0.5rem 4rem 5rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-footer__text {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-rodape);
+      color: var(--ua-cinza-rodape);
+    }
+
+    /* ============================================================
+       Pills de rodada (Decisão 6 + Ajuste 3 — encurtadas)
+       ============================================================ */
+    .ua-rodadas {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .ua-rodada-pill {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      border: 2px solid transparent;
+      background: var(--ua-cinza-lapide);
+      color: var(--ua-cinza-rodape);
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-grande);
+      cursor: pointer;
+      transition: background var(--ua-trans-rapida),
+                  color var(--ua-trans-rapida),
+                  border-color var(--ua-trans-rapida);
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .ua-rodada-pill:hover:not(.is-active) {
+      background: #DEDDDD;
+    }
+    .ua-rodada-pill:focus-visible {
+      outline: 3px solid var(--ua-magenta);
+      outline-offset: 2px;
+    }
+    .ua-rodada-pill.is-active {
+      background: var(--ua-azul-eletrico);
+      color: var(--ua-branco);
+      border-color: var(--ua-azul-eletrico);
+    }
+
+    /* ============================================================
+       Painel de controles (sliders) — Ajuste obrigatório 2:
+       inativo esconde thumb e clareia track
+       ============================================================ */
+    .ua-controles {
+      background: var(--ua-branco);
+      border: 1px solid var(--ua-cinza-lapide);
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .ua-controle {
+      display: grid;
+      grid-template-columns: 14rem 1fr 6rem;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0.75rem 0;
+      transition: opacity var(--ua-trans-rapida);
+    }
+    .ua-controle + .ua-controle {
+      border-top: 1px solid var(--ua-cinza-lapide);
+    }
+    .ua-controle.is-inactive {
+      opacity: 0.55;
+    }
+    .ua-controle__label {
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-grande);
+      color: var(--ua-azul-marinho-claro);
+    }
+    .ua-controle__label small {
+      display: block;
+      font-weight: 400;
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-cinza-rodape);
+      margin-top: 0.15rem;
+    }
+    .ua-controle__valor {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: 2rem;
+      color: var(--ua-magenta);
+      text-align: right;
+      transition: color var(--ua-trans-rapida);
+    }
+    .ua-controle.is-inactive .ua-controle__valor {
+      color: var(--ua-cinza-rodape);
+    }
+
+    /* Slider snap, thumb grande, track com 3 marcas visuais */
+    .ua-slider-snap {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 0.625rem;
+      background: var(--ua-cinza-lapide);
+      border-radius: 0.3125rem;
+      outline: none;
+      cursor: pointer;
+      transition: background var(--ua-trans-rapida);
+    }
+    /* Inativo: track mais claro, thumb invisível */
+    .ua-controle.is-inactive .ua-slider-snap {
+      background: #F5F5F5;
+      cursor: default;
+    }
+    .ua-slider-snap:disabled { cursor: not-allowed; }
+
+    /* Thumb webkit */
+    .ua-slider-snap::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--ua-magenta);
+      cursor: pointer;
+      border: 3px solid var(--ua-branco);
+      box-shadow: 0 2px 6px rgba(0, 20, 91, 0.25);
+      transition: background var(--ua-trans-rapida),
+                  transform 150ms ease,
+                  opacity var(--ua-trans-rapida);
+    }
+    .ua-slider-snap::-webkit-slider-thumb:hover {
+      transform: scale(1.08);
+    }
+    .ua-controle.is-inactive .ua-slider-snap::-webkit-slider-thumb {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.6);
+    }
+    /* Thumb firefox */
+    .ua-slider-snap::-moz-range-thumb {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--ua-magenta);
+      cursor: pointer;
+      border: 3px solid var(--ua-branco);
+      box-shadow: 0 2px 6px rgba(0, 20, 91, 0.25);
+      transition: background var(--ua-trans-rapida),
+                  transform 150ms ease,
+                  opacity var(--ua-trans-rapida);
+    }
+    .ua-controle.is-inactive .ua-slider-snap::-moz-range-thumb {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.6);
+    }
+    .ua-slider-snap:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px rgba(239, 0, 104, 0.35);
+    }
+    .ua-slider-snap:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 4px rgba(239, 0, 104, 0.35);
+    }
+    .ua-slider-marks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.25rem;
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-cinza-rodape);
+      padding: 0 0.25rem;
+    }
+
+    .ua-fixo {
+      margin-top: 0.5rem;
+      padding: 0.625rem 1rem;
+      background: var(--ua-cinza-fundo);
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+      border-left: 4px solid var(--ua-azul-eletrico);
+      transition: opacity var(--ua-trans-fade);
+    }
+    .ua-fixo strong {
+      color: var(--ua-azul-marinho-profundo);
+      font-weight: 700;
+    }
+    .ua-fixo.is-fading { opacity: 0; }
+
+    /* ============================================================
+       Botão reset
+       ============================================================ */
+    .ua-acoes {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+    .ua-btn-reset {
+      padding: 0.5rem 1rem;
+      background: var(--ua-branco);
+      border: 2px solid var(--ua-azul-marinho-claro);
+      color: var(--ua-azul-marinho-claro);
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-pequeno);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--ua-trans-rapida),
+                  color var(--ua-trans-rapida);
+    }
+    .ua-btn-reset:hover {
+      background: var(--ua-azul-marinho-claro);
+      color: var(--ua-branco);
+    }
+    .ua-btn-reset:focus-visible {
+      outline: 3px solid var(--ua-magenta);
+      outline-offset: 2px;
+    }
+
+    /* ============================================================
+       3 painéis lado a lado — semáforo
+       ============================================================ */
+    .ua-paineis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .ua-painel {
+      background: var(--ua-cinza-lapide);
+      padding: 2rem 1.5rem;
+      position: relative;
+      min-height: 16rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background var(--ua-trans-rapida),
+                  opacity var(--ua-trans-fade),
+                  transform var(--ua-trans-rapida),
+                  box-shadow var(--ua-trans-rapida);
+    }
+    .ua-painel.is-fading { opacity: 0; }
+    /* Barra lateral semáforo */
+    .ua-painel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: var(--ua-cinza-rodape);
+      transition: background var(--ua-trans-rapida);
+    }
+    .ua-painel.is-passa::before { background: var(--ua-verde); }
+    .ua-painel.is-rejeita::before { background: var(--ua-magenta); }
+
+    /* Destaque (Caminho A — slider de α na R2 vira ponteiro narrativo) */
+    .ua-painel.is-foco {
+      box-shadow: 0 0 0 3px var(--ua-azul-eletrico),
+                  0 8px 18px rgba(0, 44, 214, 0.18);
+      transform: translateY(-4px);
+    }
+
+    .ua-painel__titulo {
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: var(--ua-fs-titulo-secao);
+      color: var(--ua-azul-marinho-profundo);
+      margin: 0 0 0.25rem;
+      line-height: 1.15;
+    }
+    .ua-painel__subtitulo {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-cinza-rodape);
+      margin: 0;
+    }
+    .ua-painel__veredicto {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: 3rem;
+      letter-spacing: 0.04em;
+      margin: 1.5rem 0 0.5rem;
+      transition: color var(--ua-trans-rapida);
+      line-height: 1;
+    }
+    .ua-painel.is-passa .ua-painel__veredicto { color: var(--ua-azul-marinho-profundo); }
+    .ua-painel.is-rejeita .ua-painel__veredicto { color: var(--ua-magenta); }
+
+    /* Marcador de borda (zona de borda) */
+    .ua-painel__borda {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--ua-amarelo);
+      color: var(--ua-azul-marinho-profundo);
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-pequeno);
+      letter-spacing: 0.02em;
+      margin-top: 0.5rem;
+    }
+    .ua-painel.is-borda .ua-painel__borda {
+      display: flex;
+    }
+    .ua-painel__borda::before {
+      content: "▲";
+      font-size: 1rem;
+    }
+
+    /* ============================================================
+       Frase-âncora — variante autoral 4.E
+       Ajuste menor 1: padding 1.25rem 2rem para apertar em 1024px
+       ============================================================ */
+    .ua-ancora {
+      margin-top: 2rem;
+    }
+    .ua-ancora__barra {
+      width: 3rem;
+      height: 0.5rem;
+      background: var(--ua-magenta);
+      margin-bottom: 1rem;
+    }
+    .ua-ancora__faixa {
+      background: var(--ua-azul-marinho-profundo);
+      color: var(--ua-branco);
+      padding: 1.25rem 2rem;
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: var(--ua-fs-frase-ancora);
+      line-height: 1.3;
+      transition: opacity var(--ua-trans-fade);
+    }
+    .ua-ancora__faixa.is-fading {
+      opacity: 0;
+    }
+
+    /* ============================================================
+       Reduced motion
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+
+    /* ============================================================
+       Viewport pequeno (laptop / Zoom embedado): hashtag reduzida e
+       padding lateral aumentado para que o conteúdo do painel C não
+       sobreponha à hashtag fixa no canto inferior direito.
+       GIF animado preservado; regra inviolável #1 da skill
+       (hashtag canto inferior direito em todos os slides do curso)
+       mantida.
+       ============================================================ */
+    @media (max-width: 1100px) {
+      .ua-hashtag {
+        width: 3rem;
+        height: 3rem;
+      }
+      .ua-header,
+      .ua-main,
+      .ua-footer {
+        padding-left: 5.5rem;
+        padding-right: 5.5rem;
+      }
+    }
+
+    /* ============================================================
+       Viewport pequeno (≤ 1100px) — hashtag reduzida
+       Em viewports apertados (Zoom embedado, laptops 1024×768),
+       a hashtag 4rem invade o painel direito. Reduzir para 3rem
+       libera espaço lateral preservando regra inviolável #1
+       (logo + hashtag em todos os slides do curso).
+       ============================================================ */
+    @media (max-width: 1100px) {
+      .ua-hashtag {
+        width: 3rem;
+        height: 3rem;
+        bottom: 1rem;
+        right: 1rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/ua-moldura.css">
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> · Programa Executivo · Módulo II · Gestão Atuarial para a Tomada de Decisões · 36ª Edição</div>
+
+
+  <!-- ============================================================
+       Matriz de veredictos consolidados (63 linhas — não filtrar)
+       Decisão 1: JSON inline em <script type="application/json">
+       Para troca de tábuas ativas em edição futura: editar
+       config_*.yaml e regerar este JSON via gerar_dados.py.
+       ============================================================ -->
+  <script type="application/json" id="ua-matriz">
+[{"label":"A: AT2000 Suavizada","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.105},{"label":"A: AT2000 Suavizada","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.025,"frac_qq":0.145},{"label":"A: AT2000 Suavizada","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.045,"frac_qq":0.165},{"label":"A: AT2000 Suavizada","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.005,"frac_qq":0.13},{"label":"A: AT2000 Suavizada","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.025,"frac_qq":0.235},{"label":"A: AT2000 Suavizada","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.06,"frac_qq":0.325},{"label":"A: AT2000 Suavizada","n":20000,"alpha":0.01,"ks":"não rejeita","qq":"rejeita","frac_ks":0.005,"frac_qq":0.625},{"label":"A: AT2000 Suavizada","n":20000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.035,"frac_qq":0.81},{"label":"A: AT2000 Suavizada","n":20000,"alpha":0.1,"ks":"não rejeita","qq":"rejeita","frac_ks":0.065,"frac_qq":0.915},{"label":"B: AT-2000 (verdade)","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.085},{"label":"B: AT-2000 (verdade)","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.025,"frac_qq":0.12},{"label":"B: AT-2000 (verdade)","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.045,"frac_qq":0.145},{"label":"B: AT-2000 (verdade)","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.01,"frac_qq":0.065},{"label":"B: AT-2000 (verdade)","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.025,"frac_qq":0.145},{"label":"B: AT-2000 (verdade)","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.06,"frac_qq":0.195},{"label":"B: AT-2000 (verdade)","n":20000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.005,"frac_qq":0.02},{"label":"B: AT-2000 (verdade)","n":20000,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.04,"frac_qq":0.08},{"label":"B: AT-2000 (verdade)","n":20000,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.055,"frac_qq":0.145},{"label":"E: AT-49","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.035},{"label":"E: AT-49","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.03,"frac_qq":0.055},{"label":"E: AT-49","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.05,"frac_qq":0.085},{"label":"E: AT-49","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"rejeita","frac_ks":0.015,"frac_qq":1.0},{"label":"E: AT-49","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.065,"frac_qq":1.0},{"label":"E: AT-49","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"rejeita","frac_ks":0.155,"frac_qq":1.0},{"label":"E: AT-49","n":20000,"alpha":0.01,"ks":"não rejeita","qq":"rejeita","frac_ks":0.315,"frac_qq":1.0},{"label":"E: AT-49","n":20000,"alpha":0.05,"ks":"rejeita","qq":"rejeita","frac_ks":0.555,"frac_qq":1.0},{"label":"E: AT-49","n":20000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":0.685,"frac_qq":1.0},{"label":"F: RP-2000","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.095},{"label":"F: RP-2000","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.015,"frac_qq":0.135},{"label":"F: RP-2000","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.045,"frac_qq":0.15},{"label":"F: RP-2000","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.015,"frac_qq":0.32},{"label":"F: RP-2000","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.06,"frac_qq":0.525},{"label":"F: RP-2000","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"rejeita","frac_ks":0.095,"frac_qq":0.64},{"label":"F: RP-2000","n":20000,"alpha":0.01,"ks":"não rejeita","qq":"rejeita","frac_ks":0.135,"frac_qq":1.0},{"label":"F: RP-2000","n":20000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.39,"frac_qq":1.0},{"label":"F: RP-2000","n":20000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":0.53,"frac_qq":1.0},{"label":"G: 2012 IAM Basic","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.14},{"label":"G: 2012 IAM Basic","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.015,"frac_qq":0.195},{"label":"G: 2012 IAM Basic","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.045,"frac_qq":0.235},{"label":"G: 2012 IAM Basic","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.03,"frac_qq":0.33},{"label":"G: 2012 IAM Basic","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.085,"frac_qq":0.525},{"label":"G: 2012 IAM Basic","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"rejeita","frac_ks":0.17,"frac_qq":0.585},{"label":"G: 2012 IAM Basic","n":20000,"alpha":0.01,"ks":"rejeita","qq":"rejeita","frac_ks":0.62,"frac_qq":1.0},{"label":"G: 2012 IAM Basic","n":20000,"alpha":0.05,"ks":"rejeita","qq":"rejeita","frac_ks":0.855,"frac_qq":1.0},{"label":"G: 2012 IAM Basic","n":20000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":0.89,"frac_qq":1.0},{"label":"D: IBGE 2020","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.02,"frac_qq":0.015},{"label":"D: IBGE 2020","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.07,"frac_qq":0.035},{"label":"D: IBGE 2020","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.135,"frac_qq":0.04},{"label":"D: IBGE 2020","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.39,"frac_qq":0.205},{"label":"D: IBGE 2020","n":2000,"alpha":0.05,"ks":"rejeita","qq":"não rejeita","frac_ks":0.63,"frac_qq":0.49},{"label":"D: IBGE 2020","n":2000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":0.75,"frac_qq":0.71},{"label":"D: IBGE 2020","n":20000,"alpha":0.01,"ks":"rejeita","qq":"rejeita","frac_ks":1.0,"frac_qq":1.0},{"label":"D: IBGE 2020","n":20000,"alpha":0.05,"ks":"rejeita","qq":"rejeita","frac_ks":1.0,"frac_qq":1.0},{"label":"D: IBGE 2020","n":20000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":1.0,"frac_qq":1.0},{"label":"C: BR-EMSsb-2021","n":200,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.0,"frac_qq":0.12},{"label":"C: BR-EMSsb-2021","n":200,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.03,"frac_qq":0.165},{"label":"C: BR-EMSsb-2021","n":200,"alpha":0.1,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.045,"frac_qq":0.22},{"label":"C: BR-EMSsb-2021","n":2000,"alpha":0.01,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.015,"frac_qq":0.255},{"label":"C: BR-EMSsb-2021","n":2000,"alpha":0.05,"ks":"não rejeita","qq":"não rejeita","frac_ks":0.055,"frac_qq":0.41},{"label":"C: BR-EMSsb-2021","n":2000,"alpha":0.1,"ks":"não rejeita","qq":"rejeita","frac_ks":0.125,"frac_qq":0.53},{"label":"C: BR-EMSsb-2021","n":20000,"alpha":0.01,"ks":"não rejeita","qq":"rejeita","frac_ks":0.22,"frac_qq":1.0},{"label":"C: BR-EMSsb-2021","n":20000,"alpha":0.05,"ks":"não rejeita","qq":"rejeita","frac_ks":0.46,"frac_qq":1.0},{"label":"C: BR-EMSsb-2021","n":20000,"alpha":0.1,"ks":"rejeita","qq":"rejeita","frac_ks":0.575,"frac_qq":1.0}]
+  </script>
+
+  <header class="ua-header">
+    <h1 class="ua-title">Quando a aderência é frágil</h1>
+    <p class="ua-subtitle">amostra, significância e o reflexo do CF</p>
+  </header>
+
+  <main class="ua-main">
+
+    <!-- Pills de rodada — encurtadas, com aria-label e title -->
+    <div class="ua-rodadas" role="tablist" aria-label="Rodadas">
+      <button class="ua-rodada-pill is-active" role="tab" aria-selected="true"
+              data-rodada="1"
+              aria-label="Rodada 1 — variar n, com α=95% fixo"
+              title="Rodada 1 — variar n, com α=95% fixo">
+        Rodada 1 — variar n
+      </button>
+      <button class="ua-rodada-pill" role="tab" aria-selected="false"
+              data-rodada="2"
+              aria-label="Rodada 2 — variar α, com tábua marginal e n médio fixos"
+              title="Rodada 2 — variar α, com tábua marginal e n médio fixos">
+        Rodada 2 — variar α
+      </button>
+    </div>
+
+    <!-- Painel de controles -->
+    <section class="ua-controles" aria-label="Controles do facilitador">
+
+      <div class="ua-controle" id="ua-controle-n">
+        <div class="ua-controle__label">
+          Tamanho da massa
+          <small>expostos ao risco no plano</small>
+        </div>
+        <div>
+          <input type="range" min="0" max="2" step="1" value="1"
+                 class="ua-slider-snap" id="ua-slider-n"
+                 aria-label="Tamanho da massa">
+          <div class="ua-slider-marks">
+            <span>200</span>
+            <span>2.000</span>
+            <span>20.000</span>
+          </div>
+        </div>
+        <div class="ua-controle__valor" id="ua-valor-n">2.000</div>
+      </div>
+
+      <div class="ua-controle is-inactive" id="ua-controle-alpha">
+        <div class="ua-controle__label">
+          Nível de significância
+          <small>α = limiar para rejeitar a tábua</small>
+        </div>
+        <div>
+          <input type="range" min="0" max="2" step="1" value="1"
+                 class="ua-slider-snap" id="ua-slider-alpha"
+                 aria-label="Nível de significância">
+          <div class="ua-slider-marks">
+            <span>α=0,01 (99%)</span>
+            <span>α=0,05 (95%)</span>
+            <span>α=0,10 (90%)</span>
+          </div>
+        </div>
+        <div class="ua-controle__valor" id="ua-valor-alpha">0,05</div>
+      </div>
+
+      <div class="ua-fixo" id="ua-fixo-info">
+        <strong>Fixo nesta rodada:</strong> α = 0,05 (95%).
+        Tábuas comparadas: A — Desviante, B — Marginal, C — Aderente.
+      </div>
+
+      <div class="ua-acoes">
+        <button class="ua-btn-reset" id="ua-btn-reset" type="button">
+          Resetar
+        </button>
+      </div>
+    </section>
+
+    <!-- 3 painéis de veredicto — conteúdo populado via JS -->
+    <section class="ua-paineis" aria-label="Resultado dos testes" id="ua-paineis">
+      <article class="ua-painel" data-painel="0">
+        <div>
+          <h3 class="ua-painel__titulo"></h3>
+          <p class="ua-painel__subtitulo"></p>
+        </div>
+        <div>
+          <div class="ua-painel__veredicto"></div>
+          <div class="ua-painel__borda"></div>
+        </div>
+      </article>
+      <article class="ua-painel" data-painel="1">
+        <div>
+          <h3 class="ua-painel__titulo"></h3>
+          <p class="ua-painel__subtitulo"></p>
+        </div>
+        <div>
+          <div class="ua-painel__veredicto"></div>
+          <div class="ua-painel__borda"></div>
+        </div>
+      </article>
+      <article class="ua-painel" data-painel="2">
+        <div>
+          <h3 class="ua-painel__titulo"></h3>
+          <p class="ua-painel__subtitulo"></p>
+        </div>
+        <div>
+          <div class="ua-painel__veredicto"></div>
+          <div class="ua-painel__borda"></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Frase-âncora -->
+    <section class="ua-ancora" aria-label="Frase-âncora">
+      <div class="ua-ancora__barra"></div>
+      <div class="ua-ancora__faixa" id="ua-ancora-texto">
+        a régua estatística do teste depende do tamanho da massa.
+        Plano com massa pequena tem teste cego.
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="ua-footer">
+    <span class="ua-footer__text">
+      UniAbrapp · Módulo II · 36ª Ed · Set/2026 · HTML 4 · Aderência
+    </span>
+  </footer>
+
+  <img src="assets/hashtag-azul-eletrico.gif" alt=""
+       class="ua-hashtag" aria-hidden="true">
+  <img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+
+  <script>
+  /* ============================================================
+     Configuração da edição (Decisão 2: JS literal, derivado do
+     config_34a.yaml). Em edição futura, regerar este bloco junto
+     com a matriz JSON via gerar_dados.py.
+     ============================================================ */
+  const UA_CONFIG = {
+    versao: "34a",
+    experimento: "B",
+    candidatas: {
+      aderente:  { csv_label: "B: AT-2000 (verdade)",  rotulo: "C — Aderente",  nome_visivel: "AT-2000" },
+      marginal:  { csv_label: "C: BR-EMSsb-2021",      rotulo: "B — Marginal",  nome_visivel: "BR-EMSsb-2021" },
+      desviante: { csv_label: "D: IBGE 2020",          rotulo: "A — Desviante", nome_visivel: "IBGE 2020" }
+    },
+    /* Ordem de exibição dos painéis na Rodada 1: A | B | C
+       (desviante | marginal | aderente) — gradiente da
+       maior à menor desviância */
+    ordem_rodada_1: ["desviante", "marginal", "aderente"],
+    niveis_n:     [200, 2000, 20000],
+    niveis_alpha: [0.01, 0.05, 0.10],
+    estado_base:  { rodada: 1, n_idx: 1, alpha_idx: 1 },
+    threshold_borda: 0.30,
+    /* Frases-âncora literais do briefing */
+    frases: {
+      r1: "a régua estatística do teste depende do tamanho da massa. Plano com massa pequena tem teste cego.",
+      r2: "a mesma tábua, na mesma massa, comportamento de fronteira. Em α=99% e α=95% passa; em α=90% rejeita. O α não é detalhe técnico — é a régua que define o veredicto."
+    },
+    fixo: {
+      r1: '<strong>Fixo nesta rodada:</strong> α = 0,05 (95%). Tábuas comparadas: A — Desviante, B — Marginal, C — Aderente.',
+      r2: '<strong>Fixo nesta rodada:</strong> n = 2.000 expostos · tábua: B — Marginal (BR-EMSsb-2021).'
+    }
+  };
+
+  /* ============================================================
+     Index da matriz: Map<csv_label|n|alpha, registro>
+     Lookup O(1).
+     ============================================================ */
+  const matrizRaw = JSON.parse(document.getElementById('ua-matriz').textContent);
+  const matriz = new Map();
+  for (const r of matrizRaw) {
+    matriz.set(`${r.label}|${r.n}|${r.alpha}`, r);
+  }
+
+  /* ============================================================
+     Estado da peça
+     ============================================================ */
+  const estado = { ...UA_CONFIG.estado_base };
+
+  /* ============================================================
+     Helpers de formatação
+     ============================================================ */
+  const formatN = (n) => n.toLocaleString('pt-BR');
+  const formatAlpha = (a) => a.toFixed(2).replace('.', ',');
+  const formatAlphaPercent = (a) => `${Math.round((1 - a) * 100)}%`;
+
+  /* ============================================================
+     Lookup de registro e cálculo de borda
+     ============================================================ */
+  function buscarRegistro(csv_label, n, alpha) {
+    return matriz.get(`${csv_label}|${n}|${alpha}`);
+  }
+  function veredictoConsolidado(reg) {
+    return (reg.ks === 'rejeita' || reg.qq === 'rejeita') ? 'rejeita' : 'passa';
+  }
+  function deBorda(reg) {
+    return reg.frac_ks >= UA_CONFIG.threshold_borda ||
+           reg.frac_qq >= UA_CONFIG.threshold_borda;
+  }
+  function textoBorda(reg) {
+    if (reg.frac_qq >= UA_CONFIG.threshold_borda) {
+      return `borda — frac. de rejeição QQ = ${Math.round(reg.frac_qq * 100)}%`;
+    }
+    return `borda — frac. de rejeição KS = ${Math.round(reg.frac_ks * 100)}%`;
+  }
+
+  /* ============================================================
+     Render — popula os 3 painéis a partir do estado
+     ============================================================ */
+  const elPaineis = [
+    document.querySelector('[data-painel="0"]'),
+    document.querySelector('[data-painel="1"]'),
+    document.querySelector('[data-painel="2"]')
+  ];
+
+  function dadosPaineisRodada1() {
+    const n = UA_CONFIG.niveis_n[estado.n_idx];
+    const alpha = UA_CONFIG.niveis_alpha[estado.alpha_idx];
+    return UA_CONFIG.ordem_rodada_1.map(chave => {
+      const cand = UA_CONFIG.candidatas[chave];
+      const reg = buscarRegistro(cand.csv_label, n, alpha);
+      return {
+        titulo: cand.rotulo,
+        subtitulo: cand.nome_visivel,
+        reg
+      };
+    });
+  }
+
+  function dadosPaineisRodada2() {
+    const n = UA_CONFIG.niveis_n[estado.n_idx];   // n=2000
+    const cand = UA_CONFIG.candidatas.marginal;
+    return UA_CONFIG.niveis_alpha.map(alpha => {
+      const reg = buscarRegistro(cand.csv_label, n, alpha);
+      return {
+        titulo: `α = ${formatAlpha(alpha)} (${formatAlphaPercent(alpha)})`,
+        subtitulo: `${cand.rotulo} — ${cand.nome_visivel}`,
+        reg
+      };
+    });
+  }
+
+  function aplicarPainel(el, dados) {
+    el.querySelector('.ua-painel__titulo').textContent = dados.titulo;
+    el.querySelector('.ua-painel__subtitulo').textContent = dados.subtitulo;
+    const veredicto = veredictoConsolidado(dados.reg);
+    el.classList.remove('is-passa', 'is-rejeita', 'is-borda');
+    if (veredicto === 'passa') {
+      el.classList.add('is-passa');
+      el.querySelector('.ua-painel__veredicto').textContent = 'PASSA';
+      if (deBorda(dados.reg)) {
+        el.classList.add('is-borda');
+        el.querySelector('.ua-painel__borda').textContent = textoBorda(dados.reg);
+      }
+    } else {
+      el.classList.add('is-rejeita');
+      el.querySelector('.ua-painel__veredicto').textContent = 'REJEITA';
+    }
+  }
+
+  function renderPaineis() {
+    const dados = (estado.rodada === 1)
+      ? dadosPaineisRodada1()
+      : dadosPaineisRodada2();
+    dados.forEach((d, i) => aplicarPainel(elPaineis[i], d));
+    /* Caminho A: na R2 o slider de α destaca o painel correspondente */
+    elPaineis.forEach((p, i) => p.classList.remove('is-foco'));
+    if (estado.rodada === 2) {
+      elPaineis[estado.alpha_idx].classList.add('is-foco');
+    }
+  }
+
+  /* ============================================================
+     Render — controles, frase-âncora, fixo
+     ============================================================ */
+  const elValorN     = document.getElementById('ua-valor-n');
+  const elValorAlpha = document.getElementById('ua-valor-alpha');
+  const elSliderN     = document.getElementById('ua-slider-n');
+  const elSliderAlpha = document.getElementById('ua-slider-alpha');
+  const elControleN     = document.getElementById('ua-controle-n');
+  const elControleAlpha = document.getElementById('ua-controle-alpha');
+  const elFixo   = document.getElementById('ua-fixo-info');
+  const elAncora = document.getElementById('ua-ancora-texto');
+  const elPills = document.querySelectorAll('.ua-rodada-pill');
+
+  function renderControles() {
+    elValorN.textContent = formatN(UA_CONFIG.niveis_n[estado.n_idx]);
+    elValorAlpha.textContent = formatAlpha(UA_CONFIG.niveis_alpha[estado.alpha_idx]);
+    elSliderN.value = estado.n_idx;
+    elSliderAlpha.value = estado.alpha_idx;
+
+    if (estado.rodada === 1) {
+      elControleN.classList.remove('is-inactive');
+      elControleAlpha.classList.add('is-inactive');
+      elSliderAlpha.setAttribute('tabindex', '-1');
+      elSliderN.removeAttribute('tabindex');
+    } else {
+      elControleN.classList.add('is-inactive');
+      elControleAlpha.classList.remove('is-inactive');
+      elSliderN.setAttribute('tabindex', '-1');
+      elSliderAlpha.removeAttribute('tabindex');
+    }
+  }
+
+  function renderPills() {
+    elPills.forEach(pill => {
+      const r = parseInt(pill.dataset.rodada, 10);
+      const ativa = (r === estado.rodada);
+      pill.classList.toggle('is-active', ativa);
+      pill.setAttribute('aria-selected', ativa ? 'true' : 'false');
+    });
+  }
+
+  function renderFraseAncoraEFixo() {
+    elFixo.innerHTML = UA_CONFIG.fixo[`r${estado.rodada}`];
+    elAncora.textContent = UA_CONFIG.frases[`r${estado.rodada}`];
+  }
+
+  /* ============================================================
+     Atualização total — sem fade (mudança de slider dentro de
+     uma rodada deve ser instantânea, ~300ms só de transição
+     visual nos painéis e sliders)
+     ============================================================ */
+  function renderTudo() {
+    renderControles();
+    renderPills();
+    renderPaineis();
+    renderFraseAncoraEFixo();
+  }
+
+  /* ============================================================
+     Transição de rodada — fade ~400ms nos painéis e na
+     frase-âncora; sliders e fixo trocam no meio do fade
+     ============================================================ */
+  let trocandoRodada = false;
+  function trocarRodada(novaRodada) {
+    if (trocandoRodada || novaRodada === estado.rodada) return;
+    trocandoRodada = true;
+
+    /* 1. fade-out simultâneo */
+    elPaineis.forEach(p => p.classList.add('is-fading'));
+    elAncora.classList.add('is-fading');
+    elFixo.classList.add('is-fading');
+
+    setTimeout(() => {
+      /* 2. swap do estado e re-render no escuro */
+      estado.rodada = novaRodada;
+      /* Resetar índices ao estado base de cada rodada para começar limpo */
+      if (novaRodada === 1) {
+        estado.n_idx = 1;       // n=2000
+        estado.alpha_idx = 1;   // α=0.05
+      } else {
+        estado.n_idx = 1;       // n=2000 fixo
+        estado.alpha_idx = 1;   // estado base da R2 também começa em 0.05
+      }
+      renderTudo();
+
+      /* 3. fade-in */
+      elPaineis.forEach(p => p.classList.remove('is-fading'));
+      elAncora.classList.remove('is-fading');
+      elFixo.classList.remove('is-fading');
+
+      trocandoRodada = false;
+    }, 400);
+  }
+
+  /* ============================================================
+     Reset — volta ao estado base da rodada atual
+     ============================================================ */
+  function resetar() {
+    estado.n_idx = 1;
+    estado.alpha_idx = 1;
+    renderTudo();
+  }
+
+  /* ============================================================
+     Wiring de eventos
+     ============================================================ */
+  elSliderN.addEventListener('input', (e) => {
+    if (estado.rodada !== 1) return;  // slider inativo na R2
+    estado.n_idx = parseInt(e.target.value, 10);
+    renderTudo();
+  });
+  elSliderAlpha.addEventListener('input', (e) => {
+    if (estado.rodada !== 2) return;  // slider inativo na R1
+    estado.alpha_idx = parseInt(e.target.value, 10);
+    renderTudo();
+  });
+  /* Bloquear interação com slider inativo (mesmo via teclado) */
+  function guardaSliderInativo(e) {
+    const slider = e.target;
+    if (slider === elSliderN && estado.rodada !== 1) e.preventDefault();
+    if (slider === elSliderAlpha && estado.rodada !== 2) e.preventDefault();
+  }
+  elSliderN.addEventListener('keydown', guardaSliderInativo);
+  elSliderAlpha.addEventListener('keydown', guardaSliderInativo);
+  elSliderN.addEventListener('mousedown', guardaSliderInativo);
+  elSliderAlpha.addEventListener('mousedown', guardaSliderInativo);
+  elSliderN.addEventListener('touchstart', guardaSliderInativo, { passive: false });
+  elSliderAlpha.addEventListener('touchstart', guardaSliderInativo, { passive: false });
+
+  elPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      trocarRodada(parseInt(pill.dataset.rodada, 10));
+    });
+  });
+
+  document.getElementById('ua-btn-reset').addEventListener('click', resetar);
+
+  /* Atalhos de teclado para o facilitador */
+  document.addEventListener('keydown', (e) => {
+    /* 1 / 2 — alternar rodada */
+    if (e.key === '1') trocarRodada(1);
+    if (e.key === '2') trocarRodada(2);
+    /* r — resetar */
+    if (e.key === 'r' || e.key === 'R') resetar();
+  });
+
+  /* ============================================================
+     Boot
+     ============================================================ */
+  renderTudo();
+  </script>
+
+</body>
+</html>

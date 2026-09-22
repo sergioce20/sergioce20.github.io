@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML 2 · Decomposição de resultado econômico · UniAbrapp Módulo II</title>
+  <style>
+    /* ============================================================
+       UniAbrapp — Tokens institucionais (linhas 65-114 da skill)
+       ============================================================ */
+    :root {
+      /* Primárias */
+      --ua-azul-marinho-profundo: #00145B;
+      --ua-azul-marinho-claro:    #002C60;
+      --ua-azul-eletrico:         #002CD6;
+      --ua-magenta:               #EF0068;
+
+      /* Neutros */
+      --ua-cinza-fundo:           #F0EFEF;
+      --ua-cinza-lapide:          #E8E8E8;
+      --ua-cinza-rodape:          #7A7A7A;
+      --ua-branco:                #FFFFFF;
+
+      /* Acentos */
+      --ua-laranja:               #F27649;
+      --ua-amarelo:               #F9BB59;
+
+      /* Paleta complementar (uso pontual em gráficos) */
+      --ua-verde:                 #6BFC47;
+      --ua-roxo:                  #A400ED;
+      --ua-vermelho:              #E20001;
+      --ua-ciano:                 #01C3FF;
+      --ua-amarelo-saturado:      #FFCE1C;
+
+      /* Tipografia */
+      --ua-font-titulo:  "Aptos Display", "Aptos", "Inter", system-ui, sans-serif;
+      --ua-font-corpo:   "Aptos", "Inter", system-ui, sans-serif;
+
+      /* Escala */
+      --ua-fs-titulo-divisor:   4.5rem;
+      --ua-fs-titulo-slide:     2.75rem;
+      --ua-fs-titulo-secao:     1.75rem;
+      --ua-fs-corpo-grande:     1.25rem;
+      --ua-fs-corpo-padrao:     1rem;
+      --ua-fs-corpo-pequeno:    0.875rem;
+      --ua-fs-questionar:       1.5rem;
+      --ua-fs-frase-ancora:     1.75rem;
+      --ua-fs-caption:          0.75rem;
+      --ua-fs-rodape:           0.6875rem;
+
+      /* Espaçamento */
+      --ua-spacing-xs: 0.5rem;
+      --ua-spacing-sm: 1rem;
+      --ua-spacing-md: 1.5rem;
+      --ua-spacing-lg: 2rem;
+      --ua-spacing-xl: 3rem;
+
+      /* Layout */
+      --ua-container-max: 78rem;
+    }
+
+    /* ============================================================
+       Reset + base
+       ============================================================ */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: var(--ua-font-corpo);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ua-azul-marinho-claro);
+      background: var(--ua-cinza-fundo);
+    }
+    body.ua-app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Foco visível institucional — usado em botões interativos */
+    :focus-visible {
+      outline: 3px solid var(--ua-azul-eletrico);
+      outline-offset: 3px;
+    }
+
+    /* Âncoras de marca */
+    .ua-logo {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      width: 9rem;
+      height: auto;
+      z-index: 100;
+    }
+    .ua-hashtag {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 4rem;
+      height: 4rem;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Header e footer */
+    .ua-header {
+      padding: 3rem 4rem 2rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-title {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: var(--ua-fs-titulo-slide);
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.1;
+      margin: 0 0 0.5rem;
+    }
+    .ua-subtitle {
+      font-family: var(--ua-font-corpo);
+      font-weight: 400;
+      font-size: var(--ua-fs-corpo-grande);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+      opacity: 0.85;
+    }
+    .ua-main {
+      flex: 1;
+      padding: 2rem 4rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-footer {
+      padding: 1rem 4rem 5rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-footer__text {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-rodape);
+      color: var(--ua-cinza-rodape);
+    }
+
+    /* ============================================================
+       Cabeçalho conceitual da decomposição
+       ============================================================ */
+    .ua-deco-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 0.6rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .ua-deco-titulo {
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: var(--ua-fs-titulo-secao);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+    }
+    .ua-deco-total {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+    }
+    .ua-deco-total strong {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      color: var(--ua-magenta);
+      font-size: 1.4rem;
+      margin-left: 0.4rem;
+    }
+    .ua-deco-passivo {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-cinza-rodape);
+      margin: 0 0 1.25rem;
+    }
+
+    /* ============================================================
+       Faixa de caixas com largura proporcional
+       AJUSTE 3: descontar gap do cálculo de largura.
+       Cada caixa cede 0.5rem; soma = 1.5rem = 2 × gap de 0.75rem.
+       ============================================================ */
+    .ua-deco-faixa {
+      display: flex;
+      gap: 0.75rem;
+      width: 100%;
+      align-items: stretch;
+    }
+    .ua-caixa {
+      flex-grow: 0;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 1.4rem 1.5rem 1.2rem;
+      background: var(--ua-branco);
+      border: 2px solid var(--ua-cinza-lapide);
+      border-radius: 0;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      text-align: left;
+      font-family: var(--ua-font-corpo);
+      min-height: 11rem;
+    }
+    .ua-caixa:hover {
+      border-color: var(--ua-magenta);
+      box-shadow: 0 4px 12px rgba(239, 0, 104, 0.15);
+    }
+    .ua-caixa.is-active {
+      border-color: var(--ua-magenta);
+      background: var(--ua-magenta);
+    }
+    .ua-caixa__rotulo {
+      font-size: var(--ua-fs-corpo-grande);
+      font-weight: 700;
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.2;
+    }
+    .ua-caixa__pct {
+      font-family: var(--ua-font-titulo);
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: var(--ua-magenta);
+      line-height: 1;
+      margin: 0.6rem 0 0.15rem;
+    }
+    .ua-caixa__valor {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-pequeno);
+      font-weight: 500;
+      color: var(--ua-azul-marinho-claro);
+      opacity: 0.85;
+    }
+    .ua-caixa__hint {
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.9rem;
+    }
+    .ua-caixa.is-active .ua-caixa__rotulo,
+    .ua-caixa.is-active .ua-caixa__pct,
+    .ua-caixa.is-active .ua-caixa__valor,
+    .ua-caixa.is-active .ua-caixa__hint {
+      color: var(--ua-branco);
+      opacity: 1;
+    }
+    .ua-caixa--estreita {
+      padding: 1.4rem 0.7rem 1.2rem;
+    }
+    .ua-caixa--estreita .ua-caixa__rotulo {
+      font-size: 0.95rem;
+    }
+    .ua-caixa--estreita .ua-caixa__pct {
+      font-size: 2rem;
+    }
+
+    /* ============================================================
+       Painel inline de detalhamento — animação 300ms ease-out
+       ============================================================ */
+    .ua-painel {
+      margin-top: 1.25rem;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      /* Borda controlada via classe .is-open */
+      border: 2px solid transparent;
+      background: transparent;
+      transition:
+        max-height 0.3s ease-out,
+        opacity 0.3s ease-out,
+        padding 0.3s ease-out,
+        border-color 0.3s ease-out,
+        background 0.3s ease-out;
+      padding: 0 2rem;
+    }
+    .ua-painel.is-open {
+      background: var(--ua-branco);
+      border-color: var(--ua-magenta);
+      opacity: 1;
+      padding: 1.75rem 2rem;
+      /* max-height definida em JS via px exato */
+    }
+    .ua-painel__titulo {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      /* AJUSTE 4: 1.6rem -> 1.8rem para reequilibrar com o chip */
+      font-size: 1.8rem;
+      color: var(--ua-azul-marinho-claro);
+      margin: 0 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .ua-painel__chip {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-pequeno);
+      font-weight: 700;
+      /* AJUSTE 4: chip mais leve — fundo translúcido, texto em magenta */
+      color: var(--ua-magenta);
+      background: rgba(239, 0, 104, 0.12);
+      padding: 0.25rem 0.7rem;
+      letter-spacing: 0.03em;
+    }
+    .ua-painel__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 0.5rem;
+    }
+    .ua-painel__bloco h4 {
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-pequeno);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ua-azul-eletrico);
+      margin: 0 0 0.4rem;
+    }
+    .ua-painel__bloco p {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+      line-height: 1.45;
+    }
+    .ua-painel__bloco--full {
+      grid-column: 1 / -1;
+    }
+    .ua-painel__norma {
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      background: var(--ua-cinza-fundo);
+      border-left: 4px solid var(--ua-azul-eletrico);
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.45;
+    }
+    .ua-painel__norma strong {
+      color: var(--ua-azul-eletrico);
+    }
+
+    /* ============================================================
+       Frase-âncora — Item 3, decisão (a): permanente
+       ============================================================ */
+    .ua-ancora {
+      margin-top: 2rem;
+      padding: 1.5rem 2rem;
+      background: var(--ua-azul-marinho-profundo);
+      color: var(--ua-branco);
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: var(--ua-fs-frase-ancora);
+      line-height: 1.3;
+    }
+    .ua-ancora::before {
+      content: "";
+      display: block;
+      width: 3rem;
+      height: 0.25rem;
+      background: var(--ua-magenta);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Nota de calibração ilustrativa */
+    .ua-nota-calibragem {
+      margin-top: 1.25rem;
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      line-height: 1.4;
+      max-width: 60rem;
+    }
+
+    /* Reduce motion — respeita preferência do sistema */
+    @media (prefers-reduced-motion: reduce) {
+      .ua-painel,
+      .ua-caixa {
+        transition: none !important;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/ua-moldura.css">
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> · Programa Executivo · Módulo II · Gestão Atuarial para a Tomada de Decisões · 36ª Edição</div>
+
+  <header class="ua-header">
+    <h1 class="ua-title">Decomposição do resultado econômico</h1>
+    <p class="ua-subtitle">ExBD Previdência · déficit apurado em 2025: três componentes, três tratamentos</p>
+  </header>
+
+  <main class="ua-main">
+
+    <div class="ua-deco-header">
+      <h2 class="ua-deco-titulo">Onde nasceu o déficit de 2025?</h2>
+      <span class="ua-deco-total">Déficit total apurado <strong>R$ 600 mi</strong></span>
+    </div>
+    <p class="ua-deco-passivo">Reserva matemática da ExBD: R$ 12,0 bi · Déficit ≈ 5% do passivo · Equacionamento desde 2022 segue ativo</p>
+
+    <!-- Faixa de 3 caixas com largura proporcional (gap descontado via calc) -->
+    <div class="ua-deco-faixa" role="radiogroup" aria-label="Componentes do resultado econômico">
+
+      <button type="button"
+              class="ua-caixa"
+              data-categoria="rentabilidade"
+              role="radio"
+              aria-checked="false"
+              aria-expanded="false"
+              aria-controls="painel-detalhe"
+              style="width: calc(63.56% - 0.5rem);">
+        <div>
+          <span class="ua-caixa__rotulo">Rentabilidade</span>
+          <div class="ua-caixa__pct">65%</div>
+          <div class="ua-caixa__valor">R$ 390 mi</div>
+        </div>
+        <span class="ua-caixa__hint">Clique para detalhar</span>
+      </button>
+
+      <button type="button"
+              class="ua-caixa"
+              data-categoria="premissa"
+              role="radio"
+              aria-checked="false"
+              aria-expanded="false"
+              aria-controls="painel-detalhe"
+              style="width: calc(24.44% - 0.5rem);">
+        <div>
+          <span class="ua-caixa__rotulo">Premissa</span>
+          <div class="ua-caixa__pct">25%</div>
+          <div class="ua-caixa__valor">R$ 150 mi</div>
+        </div>
+        <span class="ua-caixa__hint">Clique para detalhar</span>
+      </button>
+
+      <button type="button"
+              class="ua-caixa ua-caixa--estreita"
+              data-categoria="experiencia"
+              role="radio"
+              aria-checked="false"
+              aria-expanded="false"
+              aria-controls="painel-detalhe"
+              style="width: calc(12.00% - 0.5rem);">
+        <div>
+          <span class="ua-caixa__rotulo">Experiência</span>
+          <div class="ua-caixa__pct">10%</div>
+          <div class="ua-caixa__valor">R$ 60 mi</div>
+        </div>
+        <span class="ua-caixa__hint">Clique</span>
+      </button>
+
+    </div>
+
+    <!-- Painel de detalhamento — único, conteúdo trocado conforme caixa ativa -->
+    <section class="ua-painel" id="painel-detalhe" aria-live="polite">
+
+      <!-- Painel Rentabilidade -->
+      <div class="ua-painel__conteudo" data-painel="rentabilidade" hidden>
+        <h3 class="ua-painel__titulo">
+          Rentabilidade
+          <span class="ua-painel__chip">R$ 390 mi · 65%</span>
+        </h3>
+        <div class="ua-painel__grid">
+          <div class="ua-painel__bloco">
+            <h4>Origem</h4>
+            <p>Rentabilidade dos investimentos abaixo da meta atuarial (INPC + 4,5%) nos exercícios 2022-2025.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Causa potencial associada</h4>
+            <p>Plano de custeio adequado, hipótese de rentabilidade na faixa esperada, mas realização do mercado divergiu.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Tratamento</h4>
+            <p>Equacionamento financeiro via contribuição extraordinária.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Premissa -->
+      <div class="ua-painel__conteudo" data-painel="premissa" hidden>
+        <h3 class="ua-painel__titulo">
+          Premissa
+          <span class="ua-painel__chip">R$ 150 mi · 25%</span>
+        </h3>
+        <div class="ua-painel__grid">
+          <div class="ua-painel__bloco">
+            <h4>Origem</h4>
+            <p>Tábua AT-2000 suavizada em 10%: longevidade observada superior à projetada.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Tratamento</h4>
+            <p>Revisão técnica de premissa, separada do equacionamento.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Eco do estudo de 2023</h4>
+            <p>As ressalvas do estudo de aderência 2023, não tratadas em ata, agora aparecem materializadas em desvio de premissa.</p>
+          </div>
+        </div>
+        <div class="ua-painel__norma">
+          <strong>Art. 35, Res. CNPC nº 30/2018, texto literal.</strong> "Observado o disposto nesta Resolução e nas demais normas estabelecidas pelo órgão regulador, o plano de equacionamento referido no art. 29 poderá contemplar, dentre outras, as seguintes formas, de maneira individual ou combinada: I - instituição ou aumento de contribuição extraordinária; II - redução do valor dos benefícios a conceder; III - outras formas estipuladas no regulamento do plano de benefícios." Mudança de premissa atuarial não está entre as formas listadas: premissa é insumo da apuração do resultado, não instrumento de tratamento do desvio apurado.
+        </div>
+      </div>
+
+      <!-- Painel Experiência -->
+      <div class="ua-painel__conteudo" data-painel="experiencia" hidden>
+        <h3 class="ua-painel__titulo">
+          Experiência
+          <span class="ua-painel__chip">R$ 60 mi · 10%</span>
+        </h3>
+        <div class="ua-painel__grid">
+          <div class="ua-painel__bloco">
+            <h4>Origem</h4>
+            <p>Movimentação atípica de benefícios a conceder, rotatividade fora da hipótese em magnitude pequena.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Tratamento</h4>
+            <p>Monitoramento, sem ação estrutural se isolado.</p>
+          </div>
+          <div class="ua-painel__bloco">
+            <h4>Leitura para o conselho</h4>
+            <p>Componente residual neste exercício. Vira sinal de alerta apenas se persistir por exercícios consecutivos.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Frase-âncora de amarração — visível sempre (Item 3 opção a) -->
+    <div class="ua-ancora">
+      Déficit não é número monolítico. É soma de componentes, cada um com causa diferente, cada um exigindo tratamento diferente.
+    </div>
+
+    <!-- Nota de calibração -->
+    <p class="ua-nota-calibragem">
+      Valores ilustrativos calibrados sobre o caso ExBD; não derivados de demonstração técnica auditada. Proporções pedagógicas: 65% rentabilidade / 25% premissa / 10% experiência. Larguras visuais com piso mínimo de 12% em Experiência para preservar usabilidade do clique sem inverter a hierarquia Premissa &gt; Experiência.
+    </p>
+
+  </main>
+
+  <footer class="ua-footer">
+    <span class="ua-footer__text">UniAbrapp · Módulo II · 36ª Ed · Set/2026 · HTML 2 · Decomposição de resultado econômico</span>
+  </footer>
+
+  <img src="assets/hashtag-azul-eletrico.gif" alt="" class="ua-hashtag" aria-hidden="true">
+  <img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+
+  <script>
+    // ============================================================
+    // HTML 2 — Rodada 2: interatividade real
+    // - Clique nas caixas alterna painel inline (apenas 1 ativo)
+    // - Animação 300ms ease-out via max-height calculado
+    // - cancelAnimationFrame ao iniciar nova animação
+    // - aria-expanded por caixa, aria-checked como radio
+    // - Setinha (←/→/Home/End) navega entre caixas (radiogroup)
+    // ============================================================
+    (function () {
+      const caixas = Array.from(document.querySelectorAll('.ua-caixa'));
+      const painel = document.getElementById('painel-detalhe');
+      const conteudos = Array.from(painel.querySelectorAll('.ua-painel__conteudo'));
+
+      let categoriaAtiva = null;
+      let rafId = null;
+      let timeoutId = null;
+
+      function cancelarAnimacaoPendente() {
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+      }
+
+      function alturaConteudo(categoria) {
+        const conteudo = conteudos.find(c => c.dataset.painel === categoria);
+        if (!conteudo) return 0;
+        // Mede a altura natural do conteúdo + padding vertical (1.75rem × 2 = 56px)
+        // Tornar visível para medir, depois esconder os outros
+        conteudos.forEach(c => { c.hidden = c.dataset.painel !== categoria; });
+        // Force reflow para que a medição seja precisa
+        const altura = conteudo.scrollHeight;
+        return altura + 56; // 1.75rem top + 1.75rem bottom = 56px
+      }
+
+      function abrirPainel(categoria) {
+        cancelarAnimacaoPendente();
+
+        // Trocar conteúdo visível
+        conteudos.forEach(c => { c.hidden = c.dataset.painel !== categoria; });
+
+        // Calcular altura final
+        const alturaFinal = alturaConteudo(categoria);
+
+        // Garantir estado de partida coerente se vinha de fechado
+        if (!painel.classList.contains('is-open')) {
+          painel.style.maxHeight = '0px';
+          // Force reflow antes de mudar a classe + max-height final
+          rafId = requestAnimationFrame(() => {
+            painel.classList.add('is-open');
+            rafId = requestAnimationFrame(() => {
+              painel.style.maxHeight = alturaFinal + 'px';
+              rafId = null;
+            });
+          });
+        } else {
+          // Já aberto — só ajusta a altura para o novo conteúdo
+          painel.style.maxHeight = alturaFinal + 'px';
+        }
+
+        // Após a transição, libera o max-height para acomodar mudanças de viewport
+        timeoutId = setTimeout(() => {
+          if (painel.classList.contains('is-open')) {
+            painel.style.maxHeight = 'none';
+          }
+          timeoutId = null;
+        }, 320);
+      }
+
+      function fecharPainel() {
+        cancelarAnimacaoPendente();
+
+        // Captura altura atual para começar a animação a partir dela
+        const alturaAtual = painel.scrollHeight;
+        painel.style.maxHeight = alturaAtual + 'px';
+
+        rafId = requestAnimationFrame(() => {
+          painel.classList.remove('is-open');
+          painel.style.maxHeight = '0px';
+          rafId = null;
+        });
+
+        timeoutId = setTimeout(() => {
+          conteudos.forEach(c => { c.hidden = true; });
+          timeoutId = null;
+        }, 320);
+      }
+
+      function ativar(categoria) {
+        // Toggle: clicar na mesma caixa ativa fecha o painel
+        if (categoriaAtiva === categoria) {
+          categoriaAtiva = null;
+          caixas.forEach(c => {
+            c.classList.remove('is-active');
+            c.setAttribute('aria-checked', 'false');
+            c.setAttribute('aria-expanded', 'false');
+          });
+          fecharPainel();
+          return;
+        }
+
+        categoriaAtiva = categoria;
+        caixas.forEach(c => {
+          const ativa = c.dataset.categoria === categoria;
+          c.classList.toggle('is-active', ativa);
+          c.setAttribute('aria-checked', ativa ? 'true' : 'false');
+          c.setAttribute('aria-expanded', ativa ? 'true' : 'false');
+        });
+        abrirPainel(categoria);
+      }
+
+      // Clique
+      caixas.forEach(c => {
+        c.addEventListener('click', () => ativar(c.dataset.categoria));
+      });
+
+      // Navegação por setinha (padrão radiogroup)
+      caixas.forEach((c, idx) => {
+        c.addEventListener('keydown', (e) => {
+          let alvo = null;
+          switch (e.key) {
+            case 'ArrowRight':
+            case 'ArrowDown':
+              alvo = caixas[(idx + 1) % caixas.length];
+              break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+              alvo = caixas[(idx - 1 + caixas.length) % caixas.length];
+              break;
+            case 'Home':
+              alvo = caixas[0];
+              break;
+            case 'End':
+              alvo = caixas[caixas.length - 1];
+              break;
+            default:
+              return;
+          }
+          e.preventDefault();
+          alvo.focus();
+          ativar(alvo.dataset.categoria);
+        });
+      });
+
+      // Recalcular altura do painel se viewport mudar enquanto aberto
+      let resizeRaf = null;
+      window.addEventListener('resize', () => {
+        if (!painel.classList.contains('is-open') || !categoriaAtiva) return;
+        if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          // Já estamos com max-height: none após transição;
+          // só revalidar se ainda em modo numérico
+          resizeRaf = null;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

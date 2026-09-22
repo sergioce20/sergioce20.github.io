@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML 5 — Plano CD: o problema da desacumulação</title>
+<style>
+:root{
+  --ua-azul-marinho-profundo:#00145B; --ua-azul-marinho-claro:#002C60;
+  --ua-azul-eletrico:#002CD6; --ua-magenta:#EF0068;
+  --ua-cinza-fundo:#F0EFEF; --ua-cinza-lapide:#E8E8E8; --ua-cinza-rodape:#7A7A7A; --ua-branco:#FFFFFF;
+  --ua-laranja:#F27649; --ua-amarelo:#F9BB59;
+  --ua-font-titulo:"Aptos Display","Aptos","Inter",system-ui,-apple-system,sans-serif;
+  --ua-font-corpo:"Aptos","Inter",system-ui,-apple-system,sans-serif;
+  --primary-color:var(--ua-azul-eletrico); --primary-strong:var(--ua-magenta);
+  --text-color:var(--ua-azul-marinho-claro); --muted-color:var(--ua-cinza-rodape);
+  --line-color:var(--ua-cinza-lapide); --surface:var(--ua-branco); --surface-2:var(--ua-cinza-fundo);
+  --heading-font:var(--ua-font-titulo); --body-font:var(--ua-font-corpo);
+  --ui-font-scale:1; --box-radius:0px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;font-family:var(--ua-font-corpo);font-size:16px;line-height:1.5;
+  color:var(--text-color);background:var(--ua-cinza-fundo);}
+body.ua-app{min-height:100vh;display:flex;flex-direction:column;position:relative;}
+.ua-logo{position:fixed;top:1.2rem;right:1.5rem;width:9rem;height:auto;z-index:100;}
+.ua-hashtag{position:fixed;bottom:1.5rem;right:1.5rem;width:4rem;height:4rem;z-index:100;pointer-events:none;}
+.ua-header{padding:2.2rem 4rem 0.6rem;max-width:82rem;margin:0 auto;width:100%;}
+.ua-title{font-family:var(--ua-font-titulo);font-weight:900;font-size:2.4rem;
+  color:var(--ua-azul-marinho-claro);line-height:1.1;margin:0 0 .35rem;}
+.ua-subtitle{font-size:1.15rem;margin:0;opacity:.85;}
+.ua-main{flex:1;padding:1rem 4rem 0;max-width:82rem;margin:0 auto;width:100%;
+  display:flex;flex-direction:column;min-height:0;}
+.ua-footer{padding:.6rem 4rem 4.5rem;max-width:82rem;margin:0 auto;width:100%;}
+.ua-footer__text{font-size:.6875rem;color:var(--ua-cinza-rodape);}
+.painel{display:flex;gap:22px;flex:1;min-height:0;align-items:stretch;}
+.painel .graf{flex:1.75;min-height:0;display:flex;flex-direction:column;position:relative;}
+.painel .lado{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;justify-content:flex-start;
+  background:var(--ua-branco);border:1px solid var(--line-color);padding:16px 18px;}
+.interativo-svg{width:100%;flex:1;min-height:360px;}
+.footnote{font-size:.78rem;color:var(--muted-color);line-height:1.35;margin-top:8px;}
+.text-sm{font-size:.9rem;}
+.muted{color:var(--muted-color);}
+.callout{background:var(--ua-magenta);color:#fff;padding:12px 18px;margin-top:14px;
+  font-family:var(--ua-font-titulo);font-weight:700;font-size:1.05rem;line-height:1.3;}
+.desac-ctrl{display:flex;flex-direction:column;gap:13px;}
+.desac-ctrl .row label{font-size:.92rem;font-weight:600;color:var(--text-color);
+  display:flex;justify-content:space-between;align-items:baseline;margin:0;}
+.desac-ctrl .row label .v{color:var(--primary-strong);font-weight:700;font-family:var(--heading-font);}
+.desac-ctrl .row input[type=range]{margin:4px 0 0;height:5px;width:100%;accent-color:var(--ua-magenta);}
+.grp{display:inline-flex;border:1px solid var(--line-color);border-radius:999px;overflow:hidden;}
+.grp button{border:none;background:transparent;padding:5px 14px;cursor:pointer;
+  font-family:var(--heading-font);font-weight:700;font-size:.85rem;color:var(--muted-color);}
+.grp button.on{background:var(--primary-color);color:#fff;}
+.desac-sexo{display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap;}
+.desac-sel{font-family:var(--body-font);font-size:.85rem;color:var(--text-color);
+  border:1px solid var(--line-color);padding:3px 6px;background:var(--surface);cursor:pointer;}
+.desac-reset{font-family:var(--heading-font);font-weight:600;font-size:.85rem;color:var(--primary-color);
+  background:var(--surface);border:1px solid var(--line-color);padding:6px 14px;cursor:pointer;}
+.desac-reset:hover{background:var(--surface-2);border-color:var(--primary-color);}
+.desac-ctrl .row label .tag{display:inline-block;font-weight:700;font-size:.8rem;padding:1px 9px;}
+.indet-linha{display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;}
+.indet-linha .ex{font-size:.82rem;color:var(--muted-color);font-weight:600;}
+.indet-linha .ex strong{color:var(--primary-strong);}
+.desac-ref{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.85rem;
+  color:var(--muted-color);margin-top:8px;}
+.desac-fix{border:1px solid var(--line-color);background:var(--surface);padding:4px 12px;cursor:pointer;
+  color:var(--muted-color);font-family:var(--heading-font);font-weight:600;font-size:.8rem;}
+.desac-fix:hover{color:var(--primary-color);border-color:var(--primary-color);}
+.desac-fix.ok{background:var(--primary-color);color:#fff;border-color:var(--primary-color);}
+.desac-fix:active,.desac-reset:active{transform:scale(.93);}
+.desac-reset.flash{background:var(--primary-color);color:#fff;border-color:var(--primary-color);}
+.desac-legenda{display:flex;flex-wrap:wrap;gap:7px 12px;margin-top:10px;}
+.desac-legenda .leg{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;
+  padding:4px 10px;border:1px solid var(--line-color);background:var(--ua-branco);user-select:none;}
+.desac-legenda .leg .sw{width:24px;border-top:3px solid #888;display:inline-block;}
+.desac-legenda .leg[data-st=oculta]{opacity:.45;}
+.desac-legenda .leg[data-st=oculta] .nome{text-decoration:line-through;}
+.desac-legenda .leg[data-st=realcada]{border-color:var(--primary-color);
+  box-shadow:0 0 0 1px var(--primary-color) inset;font-weight:700;}
+.desac-tip{position:absolute;z-index:6;pointer-events:none;background:rgba(255,255,255,.97);
+  border:1px solid var(--line-color);padding:8px 11px;font-size:.85rem;
+  box-shadow:0 3px 14px rgba(0,0,0,.20);min-width:200px;color:var(--text-color);}
+.desac-tip .ti{font-weight:700;color:var(--primary-strong);margin-bottom:5px;}
+.desac-tip .lin{display:flex;align-items:center;gap:7px;margin:3px 0;}
+.desac-tip .lin .dot{width:11px;height:11px;display:inline-block;flex-shrink:0;}
+.desac-tip .lin .vv{margin-left:auto;font-weight:700;padding-left:10px;}
+@media (max-width:1100px){.painel{flex-direction:column;} .ua-header,.ua-main,.ua-footer{padding-left:1.5rem;padding-right:1.5rem;}}
+</style>
+  <link rel="stylesheet" href="assets/ua-moldura.css">
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> · Programa Executivo · Módulo II · Gestão Atuarial para a Tomada de Decisões · 36ª Edição</div>
+
+<header class="ua-header">
+  <h1 class="ua-title">Plano CD: o problema da desacumulação</h1>
+  <p class="ua-subtitle">As formas usuais de pagar renda em conta individual, e por que nenhuma resolve a longevidade.</p>
+</header>
+
+<main class="ua-main">
+  <div class="painel">
+    <div class="graf">
+      <svg id="svgDes" class="interativo-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"
+           role="img" aria-label="Evolução do benefício por método de desacumulação"></svg>
+      <div id="desTip" class="desac-tip" style="display:none;"></div>
+      <div id="desLeg" class="desac-legenda"></div>
+    </div>
+    <div class="lado">
+      <div class="desac-ctrl">
+        <div class="row"><label>Idade inicial <span class="v" id="dvIdade">65</span></label>
+          <input id="dIdade" type="range" min="55" max="72" step="1" value="65"></div>
+        <div class="row"><label>Taxa real de juros (a.a.) <span class="v" id="dvJuros">4%</span></label>
+          <input id="dJuros" type="range" min="0" max="8" step="0.25" value="4"></div>
+      </div>
+      <div class="desac-ctrl">
+        <div class="row"><label><span class="tag" style="background:#F27649;color:#fff">Prazo determinado</span>
+          <span class="v" id="dvPzA">22 anos</span></label>
+          <input id="dPzA" type="range" min="10" max="40" step="1" value="22"></div>
+        <div class="row"><label><span class="tag" style="background:#E20001;color:#fff">Retirada anual</span>
+          <span class="v" id="dvRrA">6,75%</span></label>
+          <input id="dRrA" type="range" min="3" max="12" step="0.25" value="6.75"></div>
+        <div class="row">
+          <label><span class="tag" style="background:#002CD6;color:#fff">Prazo indeterminado</span></label>
+          <div class="indet-linha">
+            <span class="grp"><button id="dSexoH" class="on" type="button">Homem</button><button id="dSexoF" type="button">Mulher</button></span>
+            <span class="ex" id="dEx">sobrevida <em>e</em><sub>x</sub> = <strong>22,0</strong> anos</span>
+          </div>
+        </div>
+      </div>
+      <div class="desac-ctrl">
+        <div class="desac-sexo" style="justify-content:space-between;">
+          <span class="grp"><button id="dEixoR" type="button">R$</button><button id="dEixoP" class="on" type="button">%</button></span>
+          <button id="dReset" class="desac-reset" type="button" title="Voltar os valores aos padrões">Restaurar</button>
+        </div>
+        <div id="dRefWrap" class="desac-ref">100%&nbsp;=&nbsp;<select id="dRef" class="desac-sel">
+          <option value="det">Prazo det. (renda const.)</option>
+          <option value="detcc">Prazo det. (cota const.)</option>
+          <option value="ret">Retirada anual</option>
+          <option value="perp">Perpetuidade</option>
+          <option value="indet">Prazo indeterminado</option></select>
+          <button id="dFixar" class="desac-fix" type="button" title="Fixar a referência">Fixar</button>
+          <span id="dAncora"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">Nenhuma das formas usuais de pagar renda em conta individual protege quem vive muito:
+    ou o benefício zera no fim do prazo, ou encolhe sem parar, ou paga pouco demais.</div>
+
+  <p class="footnote">Benefício mensal, em reais constantes, a partir de um saldo hipotético de R$ 100.000 na concessão;
+    o saldo apenas reescala o eixo e não altera o formato das curvas. &ldquo;Prazo indeterminado&rdquo; recalcula a renda a cada ano
+    pela expectativa de sobrevida: RP-2014 por sexo com escala de melhoria MP-2021, aplicação geracional para a coorte
+    que se aposenta aos 65 anos em 2024. Clique nas legendas para realçar, tirar o realce ou ocultar cada curva.
+    Elaboração própria.</p>
+</main>
+
+<footer class="ua-footer">
+  <span class="ua-footer__text">UniAbrapp &middot; Módulo II &middot; 36ª Edição &middot; Set/2026 &middot; HTML 5 &middot; Gestão Atuarial para a Tomada de Decisões</span>
+</footer>
+
+<img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+<img src="assets/hashtag-azul-eletrico.gif" alt="" class="ua-hashtag" aria-hidden="true">
+
+<script>
+window.DADOS_DESAC = {"idades": [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120], "ex_M": [30.79, 29.87, 28.96, 28.06, 27.16, 26.28, 25.4, 24.54, 23.68, 22.84, 22.01, 21.19, 20.38, 19.58, 18.79, 18.01, 17.24, 16.47, 15.72, 14.97, 14.24, 13.51, 12.79, 12.09, 11.4, 10.71, 10.04, 9.44, 8.85, 8.29, 7.75, 7.23, 6.73, 6.26, 5.82, 5.41, 5.02, 4.67, 4.35, 4.06, 3.79, 3.54, 3.31, 3.09, 2.9, 2.71, 2.55, 2.39, 2.26, 2.13, 2.02, 1.91, 1.82, 1.74, 1.66, 1.61, 1.58, 1.55, 1.53, 1.5, 1.47, 1.44, 1.38, 1.25, 1.0, 0.0], "ex_F": [34.54, 33.6, 32.66, 31.72, 30.79, 29.86, 28.94, 28.01, 27.09, 26.18, 25.27, 24.36, 23.45, 22.55, 21.65, 20.76, 19.87, 18.99, 18.12, 17.25, 16.38, 15.52, 14.67, 13.83, 12.99, 12.15, 11.33, 10.67, 10.04, 9.42, 8.83, 8.26, 7.71, 7.19, 6.69, 6.23, 5.79, 5.38, 5.01, 4.66, 4.33, 4.03, 3.76, 3.5, 3.27, 3.05, 2.85, 2.67, 2.5, 2.35, 2.21, 2.08, 1.97, 1.86, 1.77, 1.69, 1.62, 1.56, 1.52, 1.5, 1.47, 1.44, 1.38, 1.25, 1.0, 0.0], "ancora": "idade 65 <-> ano 2024 (geracional RP-2014/MP-2021)"};
+
+</script>
+<script>
+
+  (function(){
+    const T = window.DADOS_DESAC;
+    const svg = document.getElementById('svgDes');
+    if(!svg || !T) { if(!T) console.warn('DADOS_DESAC ausente'); return; }
+    const fmt = (x,d)=> Number(x).toLocaleString('pt-BR', d!=null?{minimumFractionDigits:d,maximumFractionDigits:d}:{maximumFractionDigits:2});
+    const P = id => document.getElementById(id).value;
+
+    const exMap={M:{},F:{}};
+    T.idades.forEach((a,i)=>{ exMap.M[a]=T.ex_M[i]; exMap.F[a]=T.ex_F[i]; });
+    const aMin=T.idades[0], aMax=T.idades[T.idades.length-1];
+    const exAt=(sx,age)=>{ const a=Math.min(Math.max(age,aMin),aMax); return age>aMax?0:exMap[sx][a]; };
+
+    const FIM=110, SALDO=100000, EPS=1.0;
+    let sexo='M', eixo='%', refId='det', ancora=0, travado=false;
+    const curvas=[
+      {id:'det',   nome:'Prazo det. · renda constante', cor:'#F27649', tipo:'solid', st:'oculta'},
+      {id:'detcc', nome:'Prazo det. · cota constante',   cor:'#A400ED', tipo:'solid', st:'oculta'},
+      {id:'ret',   nome:'Retirada anual',                cor:'#E20001', tipo:'solid', st:'oculta'},
+      {id:'perp',  nome:'Perpetuidade',                  cor:'#7A7A7A', tipo:'solid', st:'oculta'},
+      {id:'indet', nome:'Prazo indeterminado',           cor:'#002CD6', tipo:'solid', st:'oculta'},
+    ];
+    const aDue=(N,i)=>{ if(N<=0) return 1e-9; if(Math.abs(i)<1e-9) return N; const v=1/(1+i); return (1-Math.pow(v,N))/(1-v); };
+
+    function calc(){
+      const a0=+P('dIdade'), i=+P('dJuros')/100, N=+P('dPzA'), r=+P('dRrA')/100;
+      const ages=[]; for(let a=a0;a<=FIM;a++) ages.push(a);
+      const det  =()=>{ const B=SALDO/aDue(N,i); return ages.map(a=> a<a0+N ? B : 0); };               // renda real constante
+      const detcc=()=>{ return ages.map(a=> a<a0+N ? (SALDO/N)*Math.pow(1+i,a-a0) : 0); };             // cota constante -> R$ crescente
+      const ret  =()=>{ let bal=SALDO; return ages.map(()=>{ const b=r*bal; bal=(bal-b)*(1+i); return b; }); };
+      const perp =()=> ages.map(()=> i*SALDO);
+      const indet=()=>{ let bal=SALDO; return ages.map(a=>{ const M=Math.max(0,Math.round(exAt(sexo,a))); let b=M>0?bal/aDue(M,i):bal; if(b>bal)b=bal; bal=(bal-b)*(1+i); if(bal<0)bal=0; return b; }); };
+      return {ages, data:{det:det(),detcc:detcc(),ret:ret(),perp:perp(),indet:indet()}};
+    }
+    function fixaAncora(){ const {data}=calc(); ancora = data[refId][0]||1; const el=document.getElementById('dAncora'); if(el) el.textContent='≡ R$ '+fmt(ancora/12,0)+'/mês'; }
+    function atualizaTrava(){ const lk=document.getElementById('dFixar'); const an=document.getElementById('dAncora');
+      lk.classList.toggle('ok',travado); lk.textContent = travado?'Fixado':'Fixar';
+      lk.title = travado?'Referência travada — clique para soltar (some a linha de 100%)':'Travar a referência: mostra a linha de 100% e congela o valor';
+      an.style.display = travado?'':'none'; }
+
+    const W=1000,H=500, ml=94,mr=26,mt=18,mb=54, pw=W-ml-mr, ph=H-mt-mb;
+    const S={};   // estado p/ o hover
+    function draw(){
+      const {ages,data}=calc();
+      const rel = eixo==='%';
+      const refVal = rel ? (travado ? (ancora>0?ancora:1) : (data[refId][0]||1)) : 1;   // travado = âncora congelada; solto = ao vivo
+      const conv = (id,k)=> rel ? data[id][k]/refVal*100 : data[id][k]/12;
+      const vis = curvas.filter(c=>c.st!=='oculta'); const base = vis.length?vis:curvas;
+      let ymax=0; base.forEach(c=> data[c.id].forEach((v,k)=>{ const m=conv(c.id,k); if(m>ymax)ymax=m; }));
+      ymax = ymax>0 ? ymax*1.12 : 1; if(rel) ymax=Math.max(ymax,115);
+      const X=a=> ml + ((a-ages[0])/((ages[ages.length-1]-ages[0])||1))*pw;
+      const Y=m=> mt + (1-Math.min(m,ymax)/ymax)*ph;
+      S.ages=ages; S.data=data; S.X=X; S.Y=Y; S.rel=rel; S.refVal=refVal;
+      const eixoTit = rel ? 'Nível do benefício (% da referência)' : 'Benefício mensal (R$)';
+      const tick = v => rel ? (fmt(v,0)+'%') : ('R$ '+fmt(v,0));
+      let g='';
+      for(let k=0;k<=5;k++){ const vv=ymax*k/5, y=Y(vv).toFixed(1);
+        g+=`<line x1="${ml}" y1="${y}" x2="${W-mr}" y2="${y}" stroke="var(--line-color)"/>`;
+        g+=`<text x="${ml-10}" y="${(+y+5)}" text-anchor="end" font-size="16" fill="var(--muted-color)">${tick(vv)}</text>`; }
+      for(let a=ages[0]; a<=ages[ages.length-1]; a+=7){ g+=`<text x="${X(a).toFixed(1)}" y="${H-22}" text-anchor="middle" font-size="15.5" fill="var(--muted-color)">${a}</text>`; }
+      g+=`<text x="${(ml+pw/2).toFixed(0)}" y="${H-2}" text-anchor="middle" font-size="16" fill="var(--muted-color)">Idade</text>`;
+      g+=`<text transform="translate(20,${(mt+ph/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="16" fill="var(--muted-color)">${eixoTit}</text>`;
+      if(rel && travado){ const y100=Y(100).toFixed(1); g+=`<line x1="${ml}" y1="${y100}" x2="${W-mr}" y2="${y100}" stroke="var(--primary-strong)" stroke-dasharray="5 4" stroke-width="1.4"/>`; }
+      const ordem=[...curvas].sort((a,b)=> ((a.st==='realcada')?1:0)-((b.st==='realcada')?1:0));
+      let paths='', marks='';
+      ordem.forEach(c=>{ if(c.st==='oculta') return;
+        const arr=data[c.id]; const pts=[]; let lastK=-1;
+        for(let k=0;k<arr.length;k++){ if(arr[k]/12>EPS){ pts.push(k); lastK=k; } else if(pts.length){ break; } }
+        if(!pts.length) return;
+        let d='M'; pts.forEach((k,idx)=>{ d+=`${X(ages[k]).toFixed(1)},${Y(conv(c.id,k)).toFixed(1)} `; if(idx<pts.length-1)d+='L'; });
+        const real=c.st==='realcada';
+        const w= real ? (c.id==='indet'?5.4:4) : 2.4;
+        const op= real ? 1 : 0.45;
+        const dash= c.tipo==='dot' ? ` stroke-dasharray="2 7" stroke-linecap="round"` : '';
+        paths+=`<path d="${d}" fill="none" stroke="${c.cor}" stroke-width="${w}" stroke-opacity="${op}"${dash}/>`;
+        if(lastK < arr.length-1){ marks+=`<circle cx="${X(ages[lastK]).toFixed(1)}" cy="${Y(conv(c.id,lastK)).toFixed(1)}" r="6" fill="${c.cor}" stroke="#fff" stroke-width="2" opacity="${op}"/>`; }
+      });
+      svg.innerHTML=`<g>${g}</g>${paths}${marks}<g id="desHover"></g>`;
+    }
+
+    // ---- hover: linha-guia + tooltip com os valores ----
+    const tip=document.getElementById('desTip');
+    function hover(e){
+      if(!S.ages) return;
+      const rect=svg.getBoundingClientRect();
+      const vx=(e.clientX-rect.left)/rect.width*W;
+      let age=Math.round(S.ages[0]+(vx-ml)/pw*(S.ages[S.ages.length-1]-S.ages[0]));
+      age=Math.max(S.ages[0],Math.min(S.ages[S.ages.length-1],age));
+      const k=age-S.ages[0];
+      const gx=S.X(age);
+      const hg=document.getElementById('desHover');
+      if(hg) hg.innerHTML=`<line x1="${gx.toFixed(1)}" y1="${mt}" x2="${gx.toFixed(1)}" y2="${mt+ph}" stroke="var(--muted-color)" stroke-dasharray="3 4" stroke-width="1"/>`;
+      const vis=curvas.filter(c=>c.st!=='oculta');
+      if(!vis.length){ tip.style.display='none'; return; }
+      let html=`<div class="ti">Idade ${age}</div>`;
+      vis.forEach(c=>{ const ab=S.data[c.id][k]/12; const txt = ab<=EPS ? '—' : (S.rel ? (fmt(S.data[c.id][k]/S.refVal*100,1)+'%') : ('R$ '+fmt(ab,2))); html+=`<div class="lin"><span class="dot" style="background:${c.cor}"></span>${c.nome}<span class="vv">${txt}</span></div>`; });
+      tip.innerHTML=html; tip.style.display='block';
+      const cont=tip.offsetParent.getBoundingClientRect();
+      let lx=e.clientX-cont.left+16, ty=e.clientY-cont.top+12;
+      if(lx+200>cont.width) lx=e.clientX-cont.left-200;
+      tip.style.left=lx+'px'; tip.style.top=ty+'px';
+    }
+    svg.addEventListener('mousemove',hover);
+    svg.addEventListener('mouseleave',()=>{ tip.style.display='none'; const hg=document.getElementById('desHover'); if(hg) hg.innerHTML=''; });
+
+    function legenda(){
+      const box=document.getElementById('desLeg'); box.innerHTML='';
+      curvas.forEach(c=>{
+        const el=document.createElement('div'); el.className='leg'; el.dataset.st=c.st;
+        const sw = c.tipo==='dot' ? `border-top:3px dotted ${c.cor};` : `border-top:4px solid ${c.cor};`;
+        el.innerHTML=`<span class="sw" style="${sw}"></span><span class="nome">${c.nome}</span>`;
+        el.title='Clique: realçar → sem realce → ocultar';
+        el.addEventListener('click',()=>{ c.st = c.st==='oculta'?'realcada':(c.st==='realcada'?'sem':'oculta'); legenda(); draw(); });
+        box.appendChild(el);
+      });
+    }
+
+    function labels(){
+      document.getElementById('dvIdade').textContent = P('dIdade');
+      document.getElementById('dvJuros').textContent = fmt(+P('dJuros'))+'%';
+      document.getElementById('dvPzA').textContent = P('dPzA')+' anos';
+      document.getElementById('dvRrA').textContent = fmt(+P('dRrA'))+'%';
+      const a0=+P('dIdade');
+      document.getElementById('dEx').innerHTML = 'sobrevida <em>e</em><sub>x</sub> = <strong>'+fmt(exAt(sexo,a0),1)+'</strong> anos';
+    }
+    ['dIdade','dJuros','dPzA','dRrA'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',()=>{ labels(); draw(); });
+    });
+    const bH=document.getElementById('dSexoH'), bF=document.getElementById('dSexoF');
+    bH.addEventListener('click',()=>{ sexo='M'; bH.classList.add('on'); bF.classList.remove('on'); labels(); draw(); });
+    bF.addEventListener('click',()=>{ sexo='F'; bF.classList.add('on'); bH.classList.remove('on'); labels(); draw(); });
+    function eixoBtns(){ document.getElementById('dEixoR').classList.toggle('on',eixo==='R$'); document.getElementById('dEixoP').classList.toggle('on',eixo==='%'); document.getElementById('dRefWrap').style.display = eixo==='%'?'':'none'; }
+    document.getElementById('dEixoR').addEventListener('click',()=>{ eixo='R$'; eixoBtns(); draw(); });
+    document.getElementById('dEixoP').addEventListener('click',()=>{ eixo='%'; eixoBtns(); draw(); });
+    document.getElementById('dRef').addEventListener('change',e=>{ refId=e.target.value; if(travado) fixaAncora(); draw(); });
+    document.getElementById('dFixar').addEventListener('click',()=>{
+      travado=!travado;
+      if(travado){ fixaAncora(); const an=document.getElementById('dAncora'); an.classList.remove('pulse'); void an.offsetWidth; an.classList.add('pulse'); }
+      atualizaTrava(); draw();
+    });
+    document.getElementById('dReset').addEventListener('click',(e)=>{
+      // restaura SÓ os valores; mantém curvas reveladas, cadeado/âncora, sexo, eixo e referência
+      document.getElementById('dIdade').value=65; document.getElementById('dJuros').value=4; document.getElementById('dPzA').value=22; document.getElementById('dRrA').value=6.75;
+      labels(); draw();
+      const rb=e.currentTarget; rb.classList.add('flash'); setTimeout(()=>rb.classList.remove('flash'),350);
+    });
+    eixoBtns(); atualizaTrava(); legenda(); labels(); draw();
+  })();
+  
+</script>
+</body>
+</html>

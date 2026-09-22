@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML 1 · Sensibilidade do passivo a premissas · UniAbrapp Módulo II</title>
+  <style>
+    /* ============================================================
+       UniAbrapp — Tokens institucionais
+       Importado integralmente de contexts/html-pieces.md (linhas 65-114)
+       ============================================================ */
+    :root {
+      /* Primárias */
+      --ua-azul-marinho-profundo: #00145B;
+      --ua-azul-marinho-claro:    #002C60;
+      --ua-azul-eletrico:         #002CD6;
+      --ua-magenta:               #EF0068;
+
+      /* Neutros */
+      --ua-cinza-fundo:           #F0EFEF;
+      --ua-cinza-lapide:          #E8E8E8;
+      --ua-cinza-rodape:          #7A7A7A;
+      --ua-branco:                #FFFFFF;
+
+      /* Acentos */
+      --ua-laranja:               #F27649;
+      --ua-amarelo:               #F9BB59;
+
+      /* Paleta complementar (uso pontual em gráficos) */
+      --ua-verde:                 #6BFC47;
+      --ua-roxo:                  #A400ED;
+      --ua-vermelho:              #E20001;
+      --ua-ciano:                 #01C3FF;
+      --ua-amarelo-saturado:      #FFCE1C;
+
+      /* Tipografia */
+      --ua-font-titulo:  "Aptos Display", "Aptos", "Inter", system-ui, sans-serif;
+      --ua-font-corpo:   "Aptos", "Inter", system-ui, sans-serif;
+
+      /* Escala */
+      --ua-fs-titulo-divisor:   4.5rem;
+      --ua-fs-titulo-slide:     2.75rem;
+      --ua-fs-titulo-secao:     1.75rem;
+      --ua-fs-corpo-grande:     1.25rem;
+      --ua-fs-corpo-padrao:     1rem;
+      --ua-fs-corpo-pequeno:    0.875rem;
+      --ua-fs-questionar:       1.5rem;
+      --ua-fs-frase-ancora:     1.75rem;
+      --ua-fs-caption:          0.75rem;
+      --ua-fs-rodape:           0.6875rem;
+
+      /* Espaçamento */
+      --ua-spacing-xs: 0.5rem;
+      --ua-spacing-sm: 1rem;
+      --ua-spacing-md: 1.5rem;
+      --ua-spacing-lg: 2rem;
+      --ua-spacing-xl: 3rem;
+
+      /* Layout */
+      --ua-container-max: 78rem;  /* 1248 px — proporção próxima do slide */
+    }
+
+    /* ============================================================
+       UniAbrapp — Reset + base
+       ============================================================ */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: var(--ua-font-corpo);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ua-azul-marinho-claro);
+      background: var(--ua-cinza-fundo);
+    }
+    body.ua-app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ============================================================
+       UniAbrapp — Âncoras de marca
+       ============================================================ */
+    .ua-logo {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      width: 9rem;
+      height: auto;
+      z-index: 100;
+    }
+    .ua-hashtag {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 4rem;
+      height: 4rem;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       UniAbrapp — Header e footer (padrão canônico da skill)
+       ============================================================ */
+    .ua-header {
+      padding: 3rem 4rem 2rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-title {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: var(--ua-fs-titulo-slide);
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.1;
+      margin: 0 0 0.5rem;
+    }
+    .ua-subtitle {
+      font-family: var(--ua-font-corpo);
+      font-weight: 400;
+      font-size: var(--ua-fs-corpo-grande);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+      opacity: 0.85;
+    }
+
+    .ua-main {
+      flex: 1;
+      padding: 2rem 4rem;
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: var(--ua-spacing-lg);
+      align-items: start;
+    }
+
+    .ua-footer {
+      padding: 1rem 4rem 5rem;  /* extra bottom para não colidir com hashtag */
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ua-footer__text {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-rodape);
+      color: var(--ua-cinza-rodape);
+    }
+
+    /* ============================================================
+       Coluna esquerda — controles
+       ============================================================ */
+    .ua-controles {
+      display: flex;
+      flex-direction: column;
+      gap: var(--ua-spacing-md);
+    }
+    .ua-controle-card {
+      background: var(--ua-branco);
+      border: 1px solid var(--ua-cinza-lapide);
+      padding: 1.25rem 1.5rem;
+    }
+    .ua-controle-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+    .ua-controle-card__rotulo {
+      font-family: var(--ua-font-corpo);
+      font-weight: 700;
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .ua-controle-card__rodada {
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ua-controle-card__nome {
+      font-family: var(--ua-font-corpo);
+      font-weight: 400;
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0 0 0.75rem;
+      line-height: 1.4;
+    }
+    .ua-controle-card__valor {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: 2rem;
+      color: var(--ua-magenta);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Slider */
+    .ua-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 0.5rem;
+      background: var(--ua-cinza-lapide);
+      border-radius: 0.25rem;
+      outline: none;
+      margin: 0.5rem 0;
+    }
+    .ua-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--ua-magenta);
+      cursor: pointer;
+      border: 2px solid var(--ua-branco);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .ua-slider::-moz-range-thumb {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--ua-magenta);
+      cursor: pointer;
+      border: 2px solid var(--ua-branco);
+    }
+    .ua-slider:focus-visible {
+      outline: 3px solid var(--ua-azul-eletrico);
+      outline-offset: 4px;
+    }
+    .ua-slider-escala {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      margin-top: 0.25rem;
+    }
+
+    /* Botões da tábua */
+    .ua-tabua-grupo {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .ua-tabua-btn {
+      background: var(--ua-branco);
+      border: 2px solid var(--ua-cinza-lapide);
+      padding: 0.75rem 0.5rem;
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-azul-marinho-claro);
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .ua-tabua-btn:hover:not(.is-active) {
+      border-color: var(--ua-azul-marinho-claro);
+    }
+    .ua-tabua-btn:focus-visible {
+      outline: 3px solid var(--ua-azul-eletrico);
+      outline-offset: 2px;
+    }
+    .ua-tabua-btn.is-active {
+      border-color: var(--ua-magenta);
+      background: var(--ua-magenta);
+      color: var(--ua-branco);
+    }
+
+    /* ============================================================
+       Coluna direita — painel de resposta
+       ============================================================ */
+    .ua-resposta {
+      background: var(--ua-branco);
+      border: 1px solid var(--ua-cinza-lapide);
+      padding: 2rem 2.25rem;
+      position: sticky;
+      top: 2rem;
+    }
+    .ua-resposta__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--ua-cinza-lapide);
+    }
+    .ua-resposta__titulo {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: var(--ua-fs-titulo-secao);
+      color: var(--ua-azul-marinho-claro);
+      margin: 0;
+    }
+    .ua-resposta__reset {
+      background: var(--ua-cinza-fundo);
+      border: 1px solid var(--ua-cinza-lapide);
+      padding: 0.5rem 1rem;
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+      font-size: var(--ua-fs-corpo-pequeno);
+      color: var(--ua-azul-marinho-claro);
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .ua-resposta__reset:hover {
+      border-color: var(--ua-azul-marinho-claro);
+      background: var(--ua-branco);
+    }
+    .ua-resposta__reset:focus-visible {
+      outline: 3px solid var(--ua-azul-eletrico);
+      outline-offset: 2px;
+    }
+
+    .ua-resposta__base-rotulo {
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.25rem;
+    }
+    .ua-resposta__base-valor {
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--ua-azul-marinho-claro);
+      margin-bottom: 1.25rem;
+    }
+    .ua-resposta__seta {
+      font-size: 1.5rem;
+      color: var(--ua-cinza-rodape);
+      margin: 0.25rem 0 0.5rem;
+      font-family: var(--ua-font-titulo);
+    }
+    .ua-resposta__novo-rotulo {
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.25rem;
+    }
+    .ua-resposta__novo-valor {
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: 4rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      transition: color 0.2s ease;
+    }
+    .ua-resposta__novo-valor.is-aumento { color: var(--ua-magenta); }
+    .ua-resposta__novo-valor.is-reducao { color: var(--ua-azul-eletrico); }
+    .ua-resposta__novo-valor.is-neutro  { color: var(--ua-azul-marinho-claro); }
+
+    /* Chip Δ% — cross-fade ao mudar de cor */
+    .ua-resposta__delta {
+      display: inline-block;
+      font-family: var(--ua-font-titulo);
+      font-weight: 700;
+      font-size: var(--ua-fs-titulo-secao);
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1.5rem;
+      transition: background 0.15s ease, color 0.15s ease, opacity 0.2s ease;
+    }
+    .ua-resposta__delta.is-aumento {
+      color: var(--ua-branco);
+      background: var(--ua-magenta);
+    }
+    .ua-resposta__delta.is-reducao {
+      color: var(--ua-branco);
+      background: var(--ua-azul-eletrico);
+    }
+    .ua-resposta__delta.is-hidden {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    /* Barra horizontal -20% / +20% com clamp e chevron de transbordo */
+    .ua-barra {
+      margin-top: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .ua-barra__trilha {
+      position: relative;
+      height: 1.5rem;
+      background: var(--ua-cinza-lapide);
+      border-radius: 0;
+      overflow: visible;
+    }
+    .ua-barra__zero {
+      position: absolute;
+      top: -0.25rem;
+      bottom: -0.25rem;
+      left: 50%;
+      width: 2px;
+      background: var(--ua-azul-marinho-claro);
+      z-index: 1;
+    }
+    .ua-barra__preenchimento {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      transition: left 0.3s ease-out, width 0.3s ease-out, background 0.2s ease;
+    }
+    .ua-barra__preenchimento.is-aumento { background: var(--ua-magenta); }
+    .ua-barra__preenchimento.is-reducao { background: var(--ua-azul-eletrico); }
+    .ua-barra__preenchimento.is-hidden  { width: 0 !important; }
+
+    /* Chevron de transbordo — aparece quando |Δ%| > 20 */
+    .ua-barra__chevron {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--ua-font-titulo);
+      font-weight: 900;
+      font-size: 1.2rem;
+      line-height: 1;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 2;
+    }
+    .ua-barra__chevron.is-on { opacity: 1; }
+    .ua-barra__chevron--direita {
+      right: -1.4rem;
+    }
+    .ua-barra__chevron--esquerda {
+      left: -1.4rem;
+    }
+    .ua-barra__chevron.is-aumento { color: var(--ua-magenta); }
+    .ua-barra__chevron.is-reducao { color: var(--ua-azul-eletrico); }
+
+    .ua-barra__escala-wrap {
+      position: relative;
+    }
+    .ua-barra__escala {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      margin-top: 0.35rem;
+      font-family: var(--ua-font-corpo);
+      font-weight: 500;
+    }
+    .ua-barra__escala-zero {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      color: var(--ua-azul-marinho-claro);
+    }
+
+    /* Linha de impacto patrimonial */
+    .ua-impacto {
+      padding: 0.875rem 1rem;
+      background: var(--ua-cinza-fundo);
+      border-left: 3px solid var(--ua-azul-marinho-claro);
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-padrao);
+      color: var(--ua-azul-marinho-claro);
+      line-height: 1.45;
+      transition: border-left-color 0.2s ease;
+    }
+    .ua-impacto strong {
+      font-weight: 700;
+    }
+    .ua-impacto.is-neutro {
+      border-left-color: var(--ua-cinza-rodape);
+      font-style: italic;
+      color: var(--ua-cinza-rodape);
+    }
+
+    /* Disclaimer */
+    .ua-disclaimer {
+      max-width: var(--ua-container-max);
+      margin: 0 auto;
+      padding: 0.75rem 4rem 0.5rem;
+      width: 100%;
+    }
+    .ua-disclaimer__texto {
+      font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-caption);
+      color: var(--ua-cinza-rodape);
+      line-height: 1.4;
+      font-style: italic;
+      max-width: 56rem;
+    }
+
+    /* Em telas estreitas, controles e resposta empilham */
+    @media (max-width: 60rem) {
+      .ua-main {
+        grid-template-columns: 1fr;
+      }
+      .ua-resposta {
+        position: static;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/ua-moldura.css">
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> · Programa Executivo · Módulo II · Gestão Atuarial para a Tomada de Decisões · 36ª Edição</div>
+
+
+  <img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+  <img src="assets/hashtag-azul-eletrico.gif" alt="" class="ua-hashtag" aria-hidden="true">
+
+  <header class="ua-header">
+    <h1 class="ua-title">Sensibilidade do passivo a premissas</h1>
+    <p class="ua-subtitle">Quanto o passivo da ExBD se move quando a hipótese muda.</p>
+  </header>
+
+  <main class="ua-main">
+
+    <!-- ============================================================
+         Coluna esquerda — controles ativos
+         ============================================================ -->
+    <section class="ua-controles">
+
+      <!-- Rodada 1 — Taxa de juros real -->
+      <div class="ua-controle-card">
+        <div class="ua-controle-card__head">
+          <span class="ua-controle-card__rotulo">Taxa de juros real</span>
+          <span class="ua-controle-card__rodada">Rodada 1 · 3 min</span>
+        </div>
+        <p class="ua-controle-card__nome">Meta atuarial (% a.a., acima do INPC)</p>
+        <div class="ua-controle-card__valor" id="val-juros">4,5%</div>
+        <input type="range" min="3.5" max="5.5" step="0.1" value="4.5"
+               class="ua-slider" id="slider-juros" aria-label="Taxa de juros real">
+        <div class="ua-slider-escala">
+          <span>3,5%</span>
+          <span>4,0%</span>
+          <span>4,5% <small>(base)</small></span>
+          <span>5,0%</span>
+          <span>5,5%</span>
+        </div>
+      </div>
+
+      <!-- Rodada 2 — Tábua de mortalidade -->
+      <div class="ua-controle-card">
+        <div class="ua-controle-card__head">
+          <span class="ua-controle-card__rotulo">Tábua de mortalidade</span>
+          <span class="ua-controle-card__rodada">Rodada 2 · 3 min</span>
+        </div>
+        <p class="ua-controle-card__nome">Hipótese de longevidade do conjunto de assistidos.</p>
+        <div class="ua-tabua-grupo" role="radiogroup" aria-label="Tábua de mortalidade">
+          <button class="ua-tabua-btn" data-tabua="curta" type="button" role="radio" aria-checked="false">Menos<br>conservadora</button>
+          <button class="ua-tabua-btn is-active" data-tabua="base" type="button" role="radio" aria-checked="true">Base<br><small>(do plano)</small></button>
+          <button class="ua-tabua-btn" data-tabua="longa" type="button" role="radio" aria-checked="false">Mais<br>conservadora</button>
+        </div>
+      </div>
+
+      <!-- Rodada 3 — Rotatividade -->
+      <div class="ua-controle-card">
+        <div class="ua-controle-card__head">
+          <span class="ua-controle-card__rotulo">Rotatividade</span>
+          <span class="ua-controle-card__rodada">Rodada 3 · 4 min</span>
+        </div>
+        <p class="ua-controle-card__nome">Saída anual projetada de ativos antes de aposentar (% a.a.)</p>
+        <div class="ua-controle-card__valor" id="val-rot">2,0%</div>
+        <input type="range" min="0" max="6" step="0.5" value="2"
+               class="ua-slider" id="slider-rot" aria-label="Rotatividade">
+        <div class="ua-slider-escala">
+          <span>0%</span>
+          <span>2% <small>(base)</small></span>
+          <span>4%</span>
+          <span>6%</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         Coluna direita — painel de resposta
+         ============================================================ -->
+    <aside class="ua-resposta">
+      <div class="ua-resposta__head">
+        <h2 class="ua-resposta__titulo">Reserva matemática do plano</h2>
+        <button class="ua-resposta__reset" type="button" id="btn-reset">↺ Resetar</button>
+      </div>
+
+      <div class="ua-resposta__base-rotulo">Estado-base</div>
+      <div class="ua-resposta__base-valor">R$ 12,00 bi</div>
+
+      <div class="ua-resposta__seta">↓</div>
+
+      <div class="ua-resposta__novo-rotulo" id="novo-rotulo">Novo valor</div>
+      <div class="ua-resposta__novo-valor is-neutro" id="novo-valor">R$ 12,00 bi</div>
+
+      <span class="ua-resposta__delta is-hidden" id="delta">+0,0%</span>
+
+      <div class="ua-barra">
+        <div class="ua-barra__trilha">
+          <div class="ua-barra__chevron ua-barra__chevron--esquerda" id="chevron-esq" aria-hidden="true">◀</div>
+          <div class="ua-barra__preenchimento is-hidden" id="barra"
+               style="left: 50%; width: 0;"></div>
+          <div class="ua-barra__zero"></div>
+          <div class="ua-barra__chevron ua-barra__chevron--direita" id="chevron-dir" aria-hidden="true">▶</div>
+        </div>
+        <div class="ua-barra__escala-wrap">
+          <div class="ua-barra__escala">
+            <span>−20%</span>
+            <span class="ua-barra__escala-zero">0</span>
+            <span>+20%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ua-impacto is-neutro" id="impacto">
+        Estado-base. Mova as premissas para ver a sensibilidade do passivo.
+      </div>
+    </aside>
+
+  </main>
+
+  <div class="ua-disclaimer">
+    <p class="ua-disclaimer__texto">
+      Valores calibrados sobre o mini-caso ExBD do curso: reserva matemática de R$ 12 bi, prazo médio dos fluxos de cerca de 14 anos, cerca de 4,2 mil ativos e 6,8 mil assistidos, tábua AT-2000 suavizada em 10% e meta atuarial de INPC + 4,5% a.a. Caso hipotético, não representa plano específico. As sensibilidades são aproximações de primeira ordem, derivadas do prazo médio dos fluxos, para fins didáticos. A peça não substitui simulação atuarial, estudo de aderência nem análise de sensibilidade do plano específico.
+    </p>
+  </div>
+
+  <footer class="ua-footer">
+    <span class="ua-footer__text">UniAbrapp · Módulo II · 36ª Ed · Set/2026 · HTML 1 · Sensibilidade do passivo</span>
+  </footer>
+
+  <script>
+    /* ============================================================
+       HTML 1 — Lógica interativa
+       ============================================================ */
+
+    // Constantes de calibração (congeladas — espelham S65/S66 do PPTX)
+    const BASE_RM_BI = 12.00;          // R$ 12,00 bi de reserva matemática
+    const BASE_JUROS = 4.5;            // % a.a.
+    const BASE_ROT = 2.0;              // % a.a.
+    const BASE_TABUA = 'base';
+
+    // Sensibilidades (Δ% no passivo)
+    const SENS_JUROS_POR_PP = -14.0;   // por p.p. acima da base; por isso valor negativo (taxa sobe → passivo cai)
+    const SENS_ROT_POR_PP   = -1.2;    // por p.p. acima da base
+    const SENS_TABUA = {
+      curta: -4.0,
+      base:   0.0,
+      longa: +6.0
+    };
+
+    // Limites da barra (escala fixa)
+    const ESCALA_MAX = 20.0;           // ±20%
+
+    // Estado atual
+    let estado = {
+      juros: BASE_JUROS,
+      rot:   BASE_ROT,
+      tabua: BASE_TABUA
+    };
+
+    // Valor atualmente exibido no número grande (em R$ bi) — para retomar animação no meio
+    let valorExibido = BASE_RM_BI;
+    // Δ% atualmente exibido — para retomar animação do chip e da barra
+    let deltaExibido = 0;
+
+    // Referências DOM
+    const sliderJuros = document.getElementById('slider-juros');
+    const sliderRot   = document.getElementById('slider-rot');
+    const tabuaBtns   = document.querySelectorAll('.ua-tabua-btn');
+    const btnReset    = document.getElementById('btn-reset');
+
+    const valJuros    = document.getElementById('val-juros');
+    const valRot      = document.getElementById('val-rot');
+
+    const novoValor   = document.getElementById('novo-valor');
+    const delta       = document.getElementById('delta');
+    const barra       = document.getElementById('barra');
+    const chevronEsq  = document.getElementById('chevron-esq');
+    const chevronDir  = document.getElementById('chevron-dir');
+    const impacto     = document.getElementById('impacto');
+
+    // ============================================================
+    // Helpers de formatação
+    // ============================================================
+    function formatBilhoes(v) {
+      // R$ 12,00 bi — sempre 2 decimais, vírgula como separador
+      return 'R$ ' + v.toFixed(2).replace('.', ',') + ' bi';
+    }
+    function formatDelta(d) {
+      // +14,0%  /  −2,4%  /  0,0%
+      const sinal = d > 0 ? '+' : (d < 0 ? '−' : '');
+      const abs = Math.abs(d).toFixed(1).replace('.', ',');
+      return sinal + abs + '%';
+    }
+    function formatPct(v, casas) {
+      return v.toFixed(casas).replace('.', ',') + '%';
+    }
+
+    // ============================================================
+    // Cálculo de Δ% combinado (soma dos efeitos — aproximação 1ª ordem)
+    // ============================================================
+    function calcularDelta() {
+      const dJuros = (estado.juros - BASE_JUROS) * SENS_JUROS_POR_PP;
+      const dRot   = (estado.rot   - BASE_ROT)   * SENS_ROT_POR_PP;
+      const dTabua = SENS_TABUA[estado.tabua];
+      return dJuros + dRot + dTabua;
+    }
+
+    function isNeutro() {
+      // Detecção por valores dos controles (não por Δ% == 0)
+      // Tolerância pequena para ponto flutuante do slider
+      return Math.abs(estado.juros - BASE_JUROS) < 0.001
+          && Math.abs(estado.rot   - BASE_ROT)   < 0.001
+          && estado.tabua === BASE_TABUA;
+    }
+
+    // ============================================================
+    // Animação com cancelamento de RAF anterior
+    // ============================================================
+    let rafId = null;
+
+    function cancelarAnimacao() {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+
+    function animarPainel(deltaAlvo, duracao = 300) {
+      cancelarAnimacao();
+
+      const valorAlvo = BASE_RM_BI * (1 + deltaAlvo / 100);
+      const valorInicial = valorExibido;
+      const deltaInicial = deltaExibido;
+      const inicio = performance.now();
+
+      function frame(agora) {
+        const t = Math.min(1, (agora - inicio) / duracao);
+        // ease-out (rápido no início, desacelera)
+        const eased = 1 - Math.pow(1 - t, 3);
+
+        const v = valorInicial + (valorAlvo - valorInicial) * eased;
+        const d = deltaInicial + (deltaAlvo - deltaInicial) * eased;
+
+        valorExibido = v;
+        deltaExibido = d;
+
+        novoValor.textContent = formatBilhoes(v);
+        delta.textContent = formatDelta(d);
+
+        if (t < 1) {
+          rafId = requestAnimationFrame(frame);
+        } else {
+          rafId = null;
+        }
+      }
+
+      rafId = requestAnimationFrame(frame);
+    }
+
+    // ============================================================
+    // Atualização visual do painel direito
+    // ============================================================
+    function atualizarPainel() {
+      const neutro = isNeutro();
+      const d = neutro ? 0 : calcularDelta();
+
+      // Animação do número grande e do chip
+      animarPainel(d);
+
+      // Cor do número grande
+      novoValor.classList.remove('is-aumento', 'is-reducao', 'is-neutro');
+      if (neutro) {
+        novoValor.classList.add('is-neutro');
+      } else if (d > 0) {
+        novoValor.classList.add('is-aumento');
+      } else if (d < 0) {
+        novoValor.classList.add('is-reducao');
+      } else {
+        novoValor.classList.add('is-neutro');
+      }
+
+      // Chip Δ%
+      delta.classList.remove('is-aumento', 'is-reducao', 'is-hidden');
+      if (neutro) {
+        delta.classList.add('is-hidden');
+      } else if (d > 0) {
+        delta.classList.add('is-aumento');
+      } else if (d < 0) {
+        delta.classList.add('is-reducao');
+      } else {
+        delta.classList.add('is-hidden');
+      }
+
+      // Barra com clamp em ±ESCALA_MAX e chevron de transbordo
+      barra.classList.remove('is-aumento', 'is-reducao', 'is-hidden');
+      chevronEsq.classList.remove('is-on', 'is-aumento', 'is-reducao');
+      chevronDir.classList.remove('is-on', 'is-aumento', 'is-reducao');
+
+      if (neutro || Math.abs(d) < 0.05) {
+        barra.classList.add('is-hidden');
+        barra.style.left = '50%';
+        barra.style.width = '0';
+      } else {
+        const dClamp = Math.max(-ESCALA_MAX, Math.min(ESCALA_MAX, d));
+        // Cada lado da escala = 50% da largura. ESCALA_MAX corresponde a 50%.
+        const larguraPct = (Math.abs(dClamp) / ESCALA_MAX) * 50;
+        const esquerdaPct = dClamp >= 0 ? 50 : (50 - larguraPct);
+        barra.style.left = esquerdaPct + '%';
+        barra.style.width = larguraPct + '%';
+
+        if (d > 0) {
+          barra.classList.add('is-aumento');
+          if (d > ESCALA_MAX) {
+            chevronDir.classList.add('is-on', 'is-aumento');
+          }
+        } else {
+          barra.classList.add('is-reducao');
+          if (d < -ESCALA_MAX) {
+            chevronEsq.classList.add('is-on', 'is-reducao');
+          }
+        }
+      }
+
+      // Caixa de impacto patrimonial
+      atualizarImpacto(d, neutro);
+    }
+
+    // ============================================================
+    // Texto da caixa de impacto
+    // ============================================================
+    function atualizarImpacto(d, neutro) {
+      impacto.classList.remove('is-neutro');
+
+      if (neutro) {
+        impacto.classList.add('is-neutro');
+        impacto.innerHTML = 'Estado-base. Mova as premissas para ver a sensibilidade do passivo.';
+        return;
+      }
+
+      const valorAlvo = BASE_RM_BI * (1 + d / 100);
+      const deltaPatrimonio = valorAlvo - BASE_RM_BI;
+      const deltaPatrimonioStr = formatBilhoes(Math.abs(deltaPatrimonio));
+
+      // Texto qualitativo quando o slider de rotatividade for o único movido (lição da R3)
+      // — detectar se único efeito ativo é rotatividade
+      const efJuros = Math.abs(estado.juros - BASE_JUROS) > 0.001;
+      const efTabua = estado.tabua !== BASE_TABUA;
+      const efRot   = Math.abs(estado.rot - BASE_ROT) > 0.001;
+      const apenasRotatividade = efRot && !efJuros && !efTabua;
+
+      if (apenasRotatividade) {
+        impacto.innerHTML = 'Movimento <strong>pequeno</strong> em valor absoluto: em BD maduro, a maior parte do passivo já está em assistidos, premissa de saída futura mexe pouco no total.';
+        return;
+      }
+
+      if (d > 0) {
+        impacto.innerHTML = 'Equivalente a <strong>' + deltaPatrimonioStr + '</strong> de patrimônio adicional necessário para manter o plano em equilíbrio.';
+      } else {
+        impacto.innerHTML = 'Equivalente a <strong>' + deltaPatrimonioStr + '</strong> de redução do passivo. Não significa superávit: só dimensiona a sensibilidade da hipótese.';
+      }
+    }
+
+    // ============================================================
+    // Eventos
+    // ============================================================
+    sliderJuros.addEventListener('input', e => {
+      estado.juros = parseFloat(e.target.value);
+      valJuros.textContent = formatPct(estado.juros, 1);
+      atualizarPainel();
+    });
+
+    sliderRot.addEventListener('input', e => {
+      estado.rot = parseFloat(e.target.value);
+      valRot.textContent = formatPct(estado.rot, 1);
+      atualizarPainel();
+    });
+
+    tabuaBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        estado.tabua = btn.dataset.tabua;
+        tabuaBtns.forEach(b => {
+          const ativo = b.dataset.tabua === estado.tabua;
+          b.classList.toggle('is-active', ativo);
+          b.setAttribute('aria-checked', String(ativo));
+        });
+        atualizarPainel();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      estado.juros = BASE_JUROS;
+      estado.rot   = BASE_ROT;
+      estado.tabua = BASE_TABUA;
+
+      sliderJuros.value = BASE_JUROS;
+      sliderRot.value   = BASE_ROT;
+      valJuros.textContent = formatPct(BASE_JUROS, 1);
+      valRot.textContent   = formatPct(BASE_ROT, 1);
+
+      tabuaBtns.forEach(b => {
+        const ativo = b.dataset.tabua === BASE_TABUA;
+        b.classList.toggle('is-active', ativo);
+        b.setAttribute('aria-checked', String(ativo));
+      });
+
+      atualizarPainel();
+    });
+
+    // Estado inicial
+    atualizarPainel();
+  </script>
+</body>
+</html>
