@@ -296,7 +296,7 @@
           <span class="ua-card__rotulo">Taxa atuarial do plano</span>
           <span class="ua-card__tag">entra no ajuste</span>
         </div>
-        <p class="ua-card__desc">Meta atuarial da ExBD, acima do INPC. É a taxa que a norma manda usar.</p>
+        <p class="ua-card__desc">Meta atuarial do plano, acima do INPC. É a taxa que a norma manda usar.</p>
         <div class="ua-valor" id="v-at">4,5%</div>
         <input type="range" id="s-at" min="3.5" max="6.5" step="0.1" value="4.5"
                aria-label="Taxa atuarial do plano, em por cento ao ano acima da inflação">
@@ -367,7 +367,7 @@
       </div>
 
       <div class="ua-eta">
-        <span>Equilíbrio técnico contábil da ExBD:</span>
+        <span>Equilíbrio técnico contábil do plano:</span>
         <strong style="color:var(--ua-magenta)">déficit de R$ 600 mi</strong>
         <span class="ua-eta__seta">passa a ler-se como</span>
         <strong id="n-eta">déficit de R$ 171 mi</strong>
@@ -418,7 +418,7 @@
       Modelo didático simplificado, em termos reais: valor de face de R$ 2,80 bi e, no modo com cupom, cupom semestral no
       padrão da NTN-B, calculado como (1 + 6,0%) elevado a 0,5, menos 1, sobre o valor de face. Cada valor é a soma dos fluxos
       ainda por receber, descontados pela taxa em questão. A trajetória de mercado é simulada por sorteio com semente, não é
-      série observada. Caso hipotético calibrado sobre o mini-caso ExBD (meta INPC + 4,5% a.a., déficit de R$ 600 mi). Não
+      série observada. Caso hipotético (meta INPC + 4,5% a.a., déficit de R$ 600 mi). Não
       representa plano específico nem substitui cálculo atuarial.
     </p>
 
@@ -446,11 +446,11 @@
        Mercado  = valor pela taxa de mercado     (preço de tela)
        Atuarial = valor pela taxa atuarial       (o que a norma manda comparar)
        Ajuste   = Atuarial - Curva
-     Déficit contábil da ExBD fixado em R$ 600 mi (mini-caso do curso).
+     Déficit contábil do plano fixado em R$ 600 mi (mini-caso do curso).
      ============================================================ */
   var FACE_BI = 2.80;        // valor de face (resgate), em R$ bi
   var CUPOM_AA = 6.0;        // taxa de cupom, % a.a. em termos reais
-  var DEFICIT_MI = 600;      // déficit contábil da ExBD, em R$ mi
+  var DEFICIT_MI = 600;      // déficit contábil do plano, em R$ mi
   var BASE = { aq: 6.0, mk: 7.0, at: 4.5, pz: 10 };
   var st = { aq: BASE.aq, mk: BASE.mk, at: BASE.at, pz: BASE.pz, cupom: true };
 
