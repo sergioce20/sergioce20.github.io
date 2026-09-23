@@ -380,6 +380,11 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
   .tabela-qx table.matriz{font-size:.6rem;}
   .tabela-qx .leg-t{font-size:.62rem;}
 }
+
+.abas{flex-wrap:nowrap;}
+.abas button{white-space:nowrap;}
+@media (max-width:1700px){ .abas button{padding:4px 9px;font-size:.8rem;} }
+@media (max-height:1010px) and (max-width:1700px){ .abas button{padding:2px 8px;font-size:.76rem;} }
 </style>
 <link rel="stylesheet" href="assets/ua-moldura.css">
 <style>
@@ -403,9 +408,10 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
     <div class="abas">
       <button id="ab1" class="on" data-aba="proj">Patrimônio</button>
       <button id="ab2" data-aba="taxat">Taxa no tempo</button>
-      <button id="ab3" data-aba="dist">Distribuição da TIR</button>
+      <button id="ab3" data-aba="dist">Distribuição</button>
       <button id="ab4" data-aba="carteira">Carteira</button>
-      <button id="ab5" data-aba="fluxo">Fluxo do passivo</button>
+      <button id="ab5" data-aba="escolha">Escolha da taxa</button>
+      <button id="ab6" data-aba="fluxo">Fluxo</button>
     </div>
     <svg id="svg" class="interativo-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" role="img"></svg>
     <div id="tabela" class="tabela-qx oculto"></div>
@@ -885,6 +891,83 @@ function desenhaTaxa(svg){
     (faixaVisivel ? '<span class="it fixo"><span class="sw" style="background:'+AZUL+';opacity:.18;border-color:transparent"></span>faixa de cenários</span>' : "");
 }
 
+function desenhaEscolha(svg){
+  var S = simula();
+  var piso = E.param - E.banda, teto = E.param + E.banda;   // intervalo regulatório
+  var med = S.p50*100, p5 = S.p5*100, p95 = S.p95*100;      // o que a carteira entrega
+  var det = tirAtivo()*100, zera = tir(E.pat)*100;
+  // o intervalo possível vai do piso regulatório até a mediana do que a carteira entrega
+  var pIni = piso, pFim = med, existe = pFim > pIni + 1e-9;
+
+  var lo = Math.min(piso, p5, E.taxa, zera) - 0.35;
+  var hi = Math.max(teto, p95, E.taxa, zera) + 0.35;
+  var px = function(v){ return ML + (v-lo)/(hi-lo)*(W-ML-MR); };
+  var passo = (hi-lo) > 6 ? 1 : 0.5;
+  var xs = []; for (var x0 = Math.ceil(lo/passo)*passo; x0 <= hi; x0 += passo) xs.push({px:px(x0), rot:nb(x0,1)+"%"});
+  // sem grade horizontal: as três barras têm posição fixa
+  svg.appendChild(el("line",{x1:ML,y1:H-MB,x2:W-MR,y2:H-MB,stroke:CINZA,"stroke-width":1}));
+  xs.forEach(function(t){
+    svg.appendChild(el("line",{x1:t.px,y1:H-MB,x2:t.px,y2:H-MB+5,stroke:CINZA,"stroke-width":1}));
+    svg.appendChild(texto(t.px,H-MB+20,t.rot,{fill:CINZA,"font-size":13,"text-anchor":"middle"}));
+    svg.appendChild(el("line",{x1:t.px,y1:MT,x2:t.px,y2:H-MB,stroke:LINHA,"stroke-width":1}));
+  });
+  svg.appendChild(texto((ML+W-MR)/2,H-6,"Taxa real de juros ao ano",{fill:CINZA,"font-size":13,"text-anchor":"middle"}));
+
+  var alt = 66, y0 = MT + 34, gap = 58;
+  function barra(y, ini, fim, cor, op, rot, det2){
+    var x1b = px(ini), x2b = px(fim);
+    svg.appendChild(el("rect",{x:Math.min(x1b,x2b), y:y, width:Math.max(Math.abs(x2b-x1b),2), height:alt,
+      fill:cor, opacity:op}));
+    svg.appendChild(el("rect",{x:Math.min(x1b,x2b), y:y, width:Math.max(Math.abs(x2b-x1b),2), height:alt,
+      fill:"none", stroke:cor, "stroke-width":1.4, opacity:.75}));
+    svg.appendChild(texto(ML, y-7, rot, {fill:cor,"font-size":13,"font-weight":700,"text-anchor":"start"}));
+    if (det2) svg.appendChild(texto(W-MR, y-7, det2, {fill:CINZA,"font-size":12,"text-anchor":"end"}));
+  }
+  // 1. intervalo regulatório
+  barra(y0, piso, teto, ELET, .13, "Intervalo regulatório da Previc",
+    pp(piso) + " a " + pp(teto));
+  // 2. o que a carteira entrega
+  barra(y0+alt+gap, p5, p95, AZUL, .11, "O que a carteira entrega nos cenários",
+    "faixa de 5% a 95%: " + pp(p5) + " a " + pp(p95));
+  var yM = y0+alt+gap;
+  svg.appendChild(el("line",{x1:px(med), y1:yM-3, x2:px(med), y2:yM+alt+3, stroke:AZUL, "stroke-width":2.6}));
+  svg.appendChild(texto(px(med), yM+alt+16, "mediana " + pp(med), {fill:AZUL,"font-size":12,"font-weight":700,"text-anchor":"middle"}));
+  svg.appendChild(el("line",{x1:px(det), y1:yM+6, x2:px(det), y2:yM+alt-6, stroke:AZUL, "stroke-width":1.4, "stroke-dasharray":"3 3"}));
+
+  // 3. intervalo possível
+  var y3 = y0+2*(alt+gap);
+  if (existe){
+    barra(y3, pIni, pFim, "#00614A", .15, "Intervalo possível de escolha",
+      pp(pIni) + " a " + pp(pFim));
+  } else {
+    svg.appendChild(el("rect",{x:ML, y:y3, width:W-ML-MR, height:alt, fill:MAG, opacity:.08}));
+    svg.appendChild(texto(ML, y3-7, "Intervalo possível de escolha", {fill:MAG,"font-size":13,"font-weight":700,"text-anchor":"start"}));
+    svg.appendChild(texto((ML+W-MR)/2, y3+alt/2+5,
+      "vazio: a mediana da carteira (" + pp(med) + ") está abaixo do piso regulatório (" + pp(piso) + ")",
+      {fill:MAG,"font-size":13,"font-weight":700,"text-anchor":"middle"}));
+  }
+
+  // a taxa escolhida atravessa as três barras
+  var dentro = existe && E.taxa >= pIni - 1e-9 && E.taxa <= pFim + 1e-9;
+  var corT = dentro ? "#00614A" : MAG;
+  svg.appendChild(el("line",{x1:px(E.taxa), y1:MT, x2:px(E.taxa), y2:y0+3*alt+2*gap+26, stroke:corT, "stroke-width":2.8}));
+  svg.appendChild(texto(px(E.taxa), MT-9, "taxa em discussão: " + pp(E.taxa),
+    {fill:corT,"font-size":13,"font-weight":700,"text-anchor":"middle"}));
+  // taxa que zera o saldo, como referência
+  svg.appendChild(el("line",{x1:px(zera), y1:MT+4, x2:px(zera), y2:y0+3*alt+2*gap+26, stroke:LAR, "stroke-width":1.6, "stroke-dasharray":"5 4"}));
+  svg.appendChild(texto(px(zera), y0+3*alt+2*gap+42, "zera o saldo: " + pp(zera),
+    {fill:LAR,"font-size":12,"font-weight":700,"text-anchor":"middle"}));
+
+  CTX = null;
+  $("leg").innerHTML =
+    '<span class="it fixo"><span class="sw" style="border-color:'+ELET+'"></span>piso e teto vêm da taxa parâmetro e da duration</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+AZUL+'"></span>o teto prático é a mediana, não o melhor cenário</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+corT+'"></span>' +
+      (!existe ? "não há intervalo possível: a carteira não alcança o piso regulatório"
+               : (dentro ? "a taxa em discussão está dentro do intervalo possível"
+                         : "a taxa em discussão está fora do intervalo possível")) + '</span>';
+}
+
 function desenhaCarteira(){
   var r = tirAtivo();
   var linhas = [
@@ -1042,13 +1125,14 @@ function render(){
   var svg = $("svg"), tab = $("tabela");
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   $("tip").classList.add("oculto");
-  var grafico = (aba === "proj" || aba === "dist" || aba === "taxat");
+  var grafico = (aba === "proj" || aba === "dist" || aba === "taxat" || aba === "escolha");
   svg.style.visibility = grafico ? "visible" : "hidden";
   tab.classList.toggle("oculto", grafico);
   document.querySelector(".painel").classList.toggle("qx-modo", !grafico);
   if (aba === "proj") desenhaProj(svg);
   else if (aba === "dist") desenhaDist(svg);
   else if (aba === "taxat") desenhaTaxa(svg);
+  else if (aba === "escolha") desenhaEscolha(svg);
   else if (aba === "carteira"){ desenhaCarteira(); afastaDaLapide(); }
   else { desenhaFluxo(); afastaDaLapide(); }
 
