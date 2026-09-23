@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudo de Convergência da Taxa de Juros — exemplo numérico</title>
+<style>
+
+
+:root{
+  --ua-azul-marinho-profundo:#00145B; --ua-azul-marinho-claro:#002C60;
+  --ua-azul-eletrico:#002CD6; --ua-magenta:#EF0068;
+  --ua-cinza-fundo:#F0EFEF; --ua-cinza-lapide:#E8E8E8; --ua-cinza-rodape:#7A7A7A; --ua-branco:#FFFFFF;
+  --ua-laranja:#F27649; --ua-amarelo:#F9BB59;
+  --ua-font-titulo:"Aptos Display","Aptos","Inter",system-ui,-apple-system,sans-serif;
+  --ua-font-corpo:"Aptos","Inter",system-ui,-apple-system,sans-serif;
+  --primary-color:var(--ua-azul-eletrico); --primary-strong:var(--ua-magenta);
+  --text-color:var(--ua-azul-marinho-claro); --muted-color:var(--ua-cinza-rodape);
+  --line-color:var(--ua-cinza-lapide); --surface:var(--ua-branco); --surface-2:var(--ua-cinza-fundo);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;font-family:var(--ua-font-corpo);font-size:16px;line-height:1.5;
+  color:var(--text-color);background:var(--ua-cinza-fundo);}
+body.ua-app{min-height:100vh;display:flex;flex-direction:column;position:relative;}
+.ua-logo{position:fixed;top:1.2rem;right:1.5rem;width:9rem;height:auto;z-index:100;}
+.ua-hashtag{position:fixed;bottom:1.5rem;right:1.5rem;width:4rem;height:4rem;z-index:100;pointer-events:none;}
+.ua-header{padding:1.4rem 4rem 0.4rem;max-width:82rem;margin:0 auto;width:100%;}
+.ua-title{font-family:var(--ua-font-titulo);font-weight:900;font-size:2.1rem;
+  color:var(--ua-azul-marinho-claro);line-height:1.1;margin:0 0 .35rem;}
+.ua-subtitle{font-size:1.15rem;margin:0;opacity:.85;}
+.ua-main{flex:1;padding:1rem 4rem 0;max-width:86rem;margin:0 auto;width:100%;
+  display:flex;flex-direction:column;min-height:0;}
+.ua-footer{padding:.4rem 4rem 3rem;max-width:82rem;margin:0 auto;width:100%;}
+.ua-footer__text{font-size:.6875rem;color:var(--ua-cinza-rodape);}
+
+.painel{display:flex;gap:22px;flex:1;min-height:0;align-items:stretch;}
+.painel .graf{flex:1.6;min-height:0;display:flex;flex-direction:column;position:relative;}
+.faixa-res{display:flex;gap:18px;margin-top:10px;}
+.presets{border-bottom:1px solid var(--line-color);padding-bottom:9px;}
+.linha-sel{display:flex;gap:9px;align-items:flex-end;}
+.linha-sel select{flex:1;min-width:0;}
+.ajuste{flex:0 0 152px;}
+.ajuste label{display:flex;white-space:nowrap;}
+.ajuste label{font-size:.76rem;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;color:var(--muted-color);}
+.ajuste label .v{font-family:var(--ua-font-titulo);font-weight:700;color:var(--primary-strong);}
+.ajuste input[type=range]{margin:2px 0 0;height:4px;width:100%;accent-color:var(--ua-magenta);}
+.tip{position:absolute;z-index:8;pointer-events:none;background:rgba(255,255,255,.97);
+  border:1px solid var(--line-color);padding:7px 10px;font-size:.8rem;color:var(--text-color);
+  box-shadow:0 3px 14px rgba(0,0,0,.18);min-width:190px;}
+.tip .ti{font-family:var(--ua-font-titulo);font-weight:700;color:var(--ua-azul-marinho-claro);
+  margin-bottom:5px;border-bottom:1px solid var(--line-color);padding-bottom:3px;}
+.tip .lin{display:flex;align-items:center;gap:7px;margin:2px 0;white-space:nowrap;}
+.tip .lin .sw2{width:16px;border-top:3px solid #888;display:inline-block;flex:0 0 auto;}
+.tip .lin .vv{margin-left:auto;font-weight:700;padding-left:12px;}
+.tip .rod{margin-top:4px;font-size:.72rem;color:var(--muted-color);}
+.legenda .it{cursor:pointer;user-select:none;padding:2px 7px;border:1px solid transparent;}
+.legenda .it:hover{border-color:var(--line-color);}
+.legenda .it[data-off="1"]{opacity:.4;}
+.legenda .it[data-off="1"] .nome{text-decoration:line-through;}
+.legenda .fixo{cursor:default;}
+
+.presets-tit{font-family:var(--ua-font-titulo);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-color);font-weight:700;margin-bottom:6px;}
+.presets-bts{display:flex;flex-wrap:wrap;gap:5px;}
+.presets-bts button{border:1px solid var(--line-color);background:var(--ua-branco);cursor:pointer;
+  font-family:var(--ua-font-titulo);font-weight:700;font-size:.76rem;color:var(--ua-azul-marinho-claro);
+  padding:4px 9px;line-height:1.2;text-align:left;}
+.presets-bts button:hover{border-color:var(--primary-color);color:var(--primary-color);}
+.presets-bts button.on{background:var(--primary-color);color:#fff;border-color:var(--primary-color);}
+.res h3 .un{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted-color);font-size:.72rem;}
+table.matriz{border-collapse:collapse;width:100%;font-size:.84rem;}
+table.matriz th,table.matriz td{padding:3px 6px;text-align:right;white-space:nowrap;
+  border-bottom:1px solid var(--line-color);}
+table.matriz th:first-child,table.matriz td:first-child{text-align:left;font-weight:600;white-space:normal;}
+table.matriz thead th{font-family:var(--ua-font-titulo);font-size:.72rem;color:var(--muted-color);
+  text-transform:uppercase;letter-spacing:.04em;}
+table.matriz td.v{font-family:var(--ua-font-titulo);font-weight:900;font-size:1.15rem;}
+table.matriz tr.lA td.v{color:var(--ua-azul-marinho-claro);}
+table.matriz tr.lB td.v{color:var(--ua-magenta);}
+table.matriz tr.lA td:first-child{color:var(--ua-azul-marinho-claro);}
+table.matriz tr.lB td:first-child{color:var(--ua-magenta);}
+table.matriz tr.ldif td{border-bottom:none;padding-top:5px;}
+table.matriz tr.ldif td.v{font-size:.9rem;color:#fff;}
+table.matriz tr.ldif td.v span{background:var(--ua-magenta);padding:2px 9px;display:inline-block;}
+table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);font-weight:700;}
+
+.faixa-res .res{flex:1;border-top:1px solid var(--line-color);padding-top:9px;}
+.faixa-res .par{align-items:flex-end;}
+.faixa-res .bloco.selo{flex:0 0 auto;}
+.faixa-res .delta{margin-top:0;}
+.faixa-res .nota-lado{margin-top:5px;}
+@media (min-width:1101px){ .painel .graf{padding-left:min(8.5vw,128px);} .painel.qx-modo .graf{padding-left:0;} }
+.painel.qx-modo .graf{flex:3.1;}
+.painel.qx-modo .lado{flex:0 0 clamp(300px,24vw,360px);}
+.painel .lado{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;
+  background:var(--ua-branco);border:1px solid var(--line-color);padding:16px 18px;}
+.interativo-svg{width:100%;flex:1;min-height:290px;}
+.tabela-qx{position:absolute;left:0;right:0;top:40px;bottom:0;display:flex;flex-direction:column;overflow:auto;}
+.oculto{display:none !important;}
+.tabela-qx .linha-t{display:flex;gap:10px;align-items:flex-start;}
+.tabela-qx .caminho{margin-top:8px;}
+.tabela-qx .bloco-t{flex:0 0 auto;min-width:0;}
+.tabela-qx h4{font-family:var(--ua-font-titulo);font-size:.95rem;margin:0 0 4px;color:var(--ua-azul-marinho-claro);}
+.tabela-qx h4 .tag{font-weight:400;font-size:.8rem;color:var(--muted-color);display:block;}
+.tabela-qx table{border-collapse:collapse;width:auto;font-size:.72rem;background:var(--ua-branco);}
+.tabela-qx th,.tabela-qx td{border:1px solid var(--line-color);padding:3px 4px;text-align:right;white-space:nowrap;}
+.tabela-qx th{background:var(--ua-cinza-fundo);font-family:var(--ua-font-titulo);font-weight:700;
+  color:var(--ua-azul-marinho-claro);font-size:.74rem;}
+.tabela-qx th.idade,.tabela-qx td.idade{text-align:left;font-weight:700;background:var(--ua-cinza-fundo);}
+.tabela-qx td.diag{background:rgba(239,0,104,.15);color:var(--ua-magenta);font-weight:700;}
+.tabela-qx td.diag-est{background:rgba(0,44,96,.11);color:var(--ua-azul-marinho-claro);font-weight:700;}
+.tabela-qx .caminho td.idade{font-weight:600;}
+.tabela-qx .caminho .v-est{color:var(--ua-azul-marinho-claro);font-weight:700;background:rgba(0,44,96,.06);}
+.tabela-qx .caminho .v-ger{color:var(--ua-magenta);font-weight:700;background:rgba(239,0,104,.07);}
+.tabela-qx .caminho .v-dif{font-weight:700;}
+.tabela-qx .leg-t .b-est{color:var(--ua-azul-marinho-claro);}
+.tabela-qx .leg-t{font-size:.8rem;color:var(--muted-color);margin:7px 0 0;line-height:1.35;max-width:46rem;}
+.tabela-qx .leg-t b{color:var(--ua-magenta);}
+.footnote{font-size:.72rem;color:var(--muted-color);line-height:1.35;margin-top:8px;}
+.callout{background:var(--ua-magenta);color:#fff;padding:10px 18px;margin-top:10px;
+  font-family:var(--ua-font-titulo);font-weight:700;font-size:1.05rem;line-height:1.3;}
+
+.abas{display:inline-flex;border:1px solid var(--line-color);overflow:hidden;margin-bottom:8px;align-self:flex-end;}
+.abas button{border:none;background:var(--ua-branco);padding:6px 16px;cursor:pointer;
+  font-family:var(--ua-font-titulo);font-weight:700;font-size:.85rem;color:var(--muted-color);}
+.abas button.on{background:var(--primary-color);color:#fff;}
+
+.ctrl{display:flex;flex-direction:column;gap:12px;}
+.ctrl .row label{font-size:.92rem;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;margin:0;}
+.ctrl .row label .v{color:var(--primary-strong);font-weight:700;font-family:var(--ua-font-titulo);}
+.ctrl .row input[type=range]{margin:4px 0 0;height:5px;width:100%;accent-color:var(--ua-magenta);}
+.grp{display:inline-flex;border:1px solid var(--line-color);border-radius:999px;overflow:hidden;}
+.grp button{border:none;background:transparent;padding:5px 16px;cursor:pointer;
+  font-family:var(--ua-font-titulo);font-weight:700;font-size:.85rem;color:var(--muted-color);}
+.grp button.on{background:var(--primary-color);color:#fff;}
+.linha-sexo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.linha-sexo span{font-size:.92rem;font-weight:600;}
+
+.res{border-top:1px solid var(--line-color);padding-top:12px;}
+.res h3{font-family:var(--ua-font-titulo);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-color);margin:0 0 8px;font-weight:700;}
+.par{display:flex;gap:10px;align-items:flex-end;}
+.par .bloco{flex:1;}
+.par .rot{font-size:.72rem;color:var(--muted-color);text-transform:uppercase;letter-spacing:.04em;}
+.par .num{font-family:var(--ua-font-titulo);font-weight:900;font-size:1.55rem;line-height:1.1;}
+.par .num.est{color:var(--ua-azul-marinho-claro);}
+.par .num.ger{color:var(--ua-magenta);}
+.delta{display:inline-block;background:var(--ua-magenta);color:#fff;font-family:var(--ua-font-titulo);
+  font-weight:700;font-size:.9rem;padding:2px 10px;margin-top:6px;}
+.delta.neutro{background:var(--ua-cinza-rodape);}
+.nota-lado{font-size:.76rem;color:var(--muted-color);line-height:1.35;}
+.btn-reset{font-family:var(--ua-font-titulo);font-weight:600;font-size:.85rem;color:var(--primary-color);
+  background:var(--surface);border:1px solid var(--line-color);padding:6px 14px;cursor:pointer;align-self:flex-start;}
+.btn-reset:hover{background:var(--surface-2);border-color:var(--primary-color);}
+.btn-reset:active{transform:scale(.93);}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:.82rem;}
+.legenda .it{display:inline-flex;align-items:center;gap:8px;}
+.legenda .sw{width:26px;border-top:3px solid #888;display:inline-block;}
+@media (max-height:1120px){
+  .tabela-qx table{font-size:.7rem;} .tabela-qx th,.tabela-qx td{padding:2px 4px;}
+  .tabela-qx h4{font-size:.85rem;margin-bottom:2px;} .tabela-qx h4 .tag{font-size:.7rem;}
+  .tabela-qx .leg-t{font-size:.72rem;margin-top:4px;}
+  .ua-header{padding-top:.9rem;padding-bottom:.2rem;}
+  .ua-title{font-size:1.8rem;} .ua-subtitle{font-size:1rem;}
+  .ua-main{padding-top:.5rem;padding-bottom:5vh !important;}
+  .interativo-svg{min-height:210px;}
+  .presets{padding-bottom:7px;} .presets-tit{margin-bottom:4px;font-size:.68rem;}
+  .presets-bts button{font-size:.7rem;padding:2px 7px;} .presets-bts{gap:4px;}
+  .interativo-svg{min-height:190px;}
+  .row label{font-size:.82rem;} .ctrl .row input[type=range]{margin-top:2px;}
+  .sel-tabua .origem{font-size:.68rem;min-height:0;line-height:1.25;}
+  .sel-tabua select{padding:3px 6px;font-size:.82rem;} .sel-tabua label{font-size:.82rem;}
+  .ctrl{gap:7px;} .lado{gap:8px;padding:10px 12px;}
+  .proj{padding-top:6px;font-size:.76rem;}
+  .faixa-res .res{padding-top:7px;} .res h3{font-size:.7rem;margin-bottom:3px;}
+  table.matriz td.v{font-size:1rem;} table.matriz th,table.matriz td{padding:2px 5px;font-size:.8rem;}
+  .nota-lado{font-size:.7rem;} .callout{font-size:.92rem;padding:7px 14px;margin-top:7px;}
+  .footnote{font-size:.68rem;margin-top:5px;}
+  .btn-reset{padding:4px 12px;font-size:.8rem;}
+  .legenda{font-size:.78rem;margin-top:3px;}
+}
+@media (max-height:1010px){
+  .ua-header{padding-top:.8rem;padding-bottom:.2rem;}
+  .ua-title{font-size:1.75rem;} .ua-subtitle{font-size:1rem;}
+  .ua-main{padding-top:.5rem;}
+  .interativo-svg{min-height:200px;}
+  .ua-main{padding-bottom:5vh !important;}
+  .footnote{font-size:.68rem;}
+  .legenda{font-size:.78rem;margin-top:3px;}
+  .abas button{padding:4px 13px;}
+  .par .num{font-size:1.3rem;} .res{padding-top:9px;} .lado{gap:10px;padding:12px 14px;}
+  .callout{font-size:.95rem;padding:8px 14px;margin-top:8px;}
+}
+@media (max-height:880px){
+  .ua-title{font-size:1.55rem;} .ua-subtitle{font-size:.95rem;}
+  .interativo-svg{min-height:170px;}
+  .par .num{font-size:1.2rem;} .ctrl{gap:8px;} .lado{gap:8px;padding:10px 13px;}
+  .callout{font-size:.9rem;padding:7px 13px;margin-top:6px;}
+  .footnote{margin-top:5px;line-height:1.28;}
+  .res h3{margin-bottom:5px;}
+}
+@media (max-height:1010px){
+  .sel-tabua .origem{font-size:.7rem;min-height:2.1em;line-height:1.25;}
+  .sel-tabua select{padding:4px 6px;font-size:.85rem;}
+  .sel-tabua label{font-size:.85rem;}
+  .ctrl{gap:9px;} .proj{padding-top:7px;font-size:.78rem;}
+  .res{padding-top:8px;} .res h3{margin-bottom:5px;font-size:.72rem;}
+  .par .num{font-size:1.25rem;} .par .rot{font-size:.66rem;}
+  .nota-lado{font-size:.72rem;}
+  .btn-reset{padding:4px 12px;font-size:.8rem;}
+}
+@media (max-height:900px){
+  .tabela-qx h4{font-size:.85rem;margin-bottom:2px;}
+  .tabela-qx h4 .tag{font-size:.72rem;}
+  .tabela-qx th,.tabela-qx td{padding:2px 4px;}
+  .tabela-qx table{font-size:.7rem;}
+  .tabela-qx .leg-t{font-size:.74rem;margin-top:5px;}
+  .sel-tabua .origem{min-height:0;}
+  .ctrl{gap:7px;} .lado{gap:7px;padding:10px 12px;}
+  .par .num{font-size:1.15rem;}
+}
+@media (max-width:1100px){.painel{flex-direction:column;} .tabela-qx{position:static;}
+  .tabela-qx .linha-t{flex-direction:column;}
+  .ua-header,.ua-main,.ua-footer{padding-left:1.5rem;padding-right:1.5rem;}}
+
+.sel-tabua{display:flex;flex-direction:column;gap:3px;}
+.sel-tabua label{font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:7px;}
+.sel-tabua label .pip{width:13px;height:13px;border-radius:3px;display:inline-block;flex:0 0 auto;}
+.sel-tabua select{font-family:var(--ua-font-corpo);font-size:.9rem;padding:5px 7px;
+  border:1px solid var(--line-color);background:var(--surface);color:var(--text-color);width:100%;cursor:pointer;}
+.sel-tabua .origem{font-size:.74rem;color:var(--muted-color);line-height:1.3;min-height:2.3em;}
+.sel-tabua .origem b{color:var(--text-color);font-weight:700;}
+.proj{display:flex;align-items:flex-start;gap:8px;font-size:.84rem;color:var(--text-color);
+  border-top:1px solid var(--line-color);padding-top:10px;}
+.proj input{margin-top:3px;accent-color:var(--ua-magenta);}
+.proj .aviso{color:var(--ua-magenta);font-weight:700;}
+.par .num.tA{color:var(--ua-azul-marinho-claro);} .par .num.tB{color:var(--ua-magenta);}
+.tabela-qx .caminho .v-est{color:var(--ua-azul-marinho-claro);}
+
+.res h3 .un{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted-color);font-size:.72rem;}
+.vereditos{display:flex;flex-direction:column;gap:6px;}
+.ver{display:flex;align-items:flex-start;gap:8px;font-size:.84rem;line-height:1.3;}
+.ver .mk{font-family:var(--ua-font-titulo);font-weight:900;font-size:.9rem;flex:0 0 auto;
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;}
+.ver.ok .mk{background:#1E8E5A;} .ver.nao .mk{background:var(--ua-magenta);}
+.ver b{font-weight:700;}
+.taxas{display:flex;gap:10px;}
+.taxa-cx{flex:1;border:1px solid var(--line-color);background:var(--ua-branco);padding:7px 9px;}
+.taxa-cx .rot{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-color);line-height:1.2;min-height:2.2em;}
+.taxa-cx .num{font-family:var(--ua-font-titulo);font-weight:900;font-size:1.35rem;line-height:1.1;margin-top:2px;}
+.taxa-cx .exp{font-size:.7rem;color:var(--muted-color);line-height:1.25;margin-top:3px;}
+.taxa-cx.tAt .num{color:var(--ua-azul-marinho-claro);}
+.taxa-cx.tPas .num{color:var(--ua-azul-eletrico);}
+.taxa-cx.tAtv .num{color:var(--ua-magenta);}
+.taxa-cx.tMax .num{color:var(--ua-laranja);}
+
+@media (max-height:900px){
+  .ctrl .row label{font-size:.8rem;}
+  .ctrl .row label .v{white-space:nowrap;margin-left:8px;}
+  .ctrl .row input[type=range]{margin-top:1px;height:4px;}
+  .painel .lado{gap:6px;padding:9px 12px;}
+  .ctrl{gap:6px;}
+  .presets{padding-bottom:6px;}
+  .res{padding-top:7px;}
+  .par{padding:7px 10px;}
+  .footnote{font-size:.66rem;line-height:1.25;margin-top:4px;}
+  .ua-main{padding-bottom:3vh !important;}
+}
+
+@media (max-height:810px){
+  .ua-title{font-size:1.35rem;} .ua-subtitle{font-size:.88rem;}
+  .ua-header{padding-top:.5rem;padding-bottom:.1rem;}
+  .interativo-svg{min-height:140px;}
+  .ctrl .row label{font-size:.76rem;}
+  .ctrl .row input[type=range]{margin-top:0;}
+  .painel .lado{gap:4px;padding:7px 10px;}
+  .ctrl{gap:4px;}
+  .presets{padding-bottom:4px;} .presets-tit{margin-bottom:2px;}
+  .par{padding:5px 9px;} .par .num{font-size:1.05rem;} .par .rot{font-size:.62rem;}
+  .par .exp{font-size:.68rem;}
+  .res{padding-top:5px;} .res h3{margin-bottom:3px;}
+  .callout{font-size:.82rem;padding:5px 11px;margin-top:4px;}
+  .footnote{font-size:.6rem;line-height:1.2;margin-top:3px;}
+  .ua-main{padding-bottom:2vh !important;}
+  .abas button{padding:3px 11px;font-size:.8rem;}
+  .ver-item{font-size:.82rem;}
+}
+
+/* telas baixas: controles em duas colunas para caber sem rolagem */
+@media (max-height:880px){
+  .ctrl{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;align-content:start;}
+  .presets{grid-column:1 / -1;}
+  .btn-reset{grid-column:1 / -1;justify-self:start;}
+  .painel .lado{flex:0 0 clamp(360px,32vw,460px);}
+  .painel.qx-modo .lado{flex:0 0 clamp(360px,32vw,460px);}
+}
+
+.tabela-qx table.t-larga{width:100%;}
+.tabela-qx table.t-larga td.idade,.tabela-qx table.t-larga th.idade{white-space:normal;}
+.tabela-qx table.matriz{font-size:.72rem;}
+.tabela-qx td.cel-ok{background:rgba(0,122,90,.12);color:#00614A;font-weight:600;}
+.tabela-qx td.cel-nao{background:rgba(239,0,104,.09);color:#A8004A;}
+.tabela-qx td.cel-agora{outline:2px solid var(--ua-azul-eletrico);outline-offset:-2px;font-weight:700;}
+.tabela-qx tr.lin-agora td{font-weight:700;}
+.tabela-qx tr.lin-agora td.idade{background:var(--ua-azul-marinho-claro);color:#fff;}
+@media (max-height:900px){ .tabela-qx table.matriz{font-size:.68rem;} }
+
+/* compactação dos blocos de tabela quando a tela não é alta */
+.tabela-qx table.t-larga td.idade:first-child,
+.tabela-qx table.t-larga th.idade:first-child{white-space:nowrap;}
+@media (max-height:1010px){
+  .tabela-qx h4{font-size:.82rem;margin-bottom:3px;}
+  .tabela-qx h4 .tag{display:inline;font-size:.7rem;margin-left:8px;}
+  .tabela-qx table.matriz{font-size:.66rem;}
+  .tabela-qx table.matriz th,.tabela-qx table.matriz td{padding:1px 5px;}
+  .tabela-qx .leg-t{font-size:.7rem;line-height:1.25;}
+  .tabela-qx .linha-t{gap:7px !important;}
+}
+@media (max-height:900px){
+  .tabela-qx table.t-larga{font-size:.66rem;}
+  .tabela-qx table.matriz{font-size:.62rem;}
+  .tabela-qx .leg-t{font-size:.66rem;}
+  .tabela-qx h4{font-size:.76rem;margin-bottom:2px;}
+  .tabela-qx .linha-t{gap:5px !important;}
+}
+</style>
+<link rel="stylesheet" href="assets/ua-moldura.css">
+<style>
+.ua-header{ padding-right:4vw !important; }
+@media (max-height:1120px){ .ua-main{ padding-bottom:4vh !important; } }
+</style>
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> &middot; Programa Executivo &middot; Módulo II &middot; Gestão Atuarial para a Tomada de Decisões &middot; 36ª Edição</div>
+
+<header class="ua-header">
+  <h1 class="ua-title">Estudo de convergência da taxa de juros</h1>
+  <p class="ua-subtitle">A TIR do ativo é a evidência. A taxa atuarial é a premissa. O conselho aprova a premissa, não a metodologia.</p>
+</header>
+
+<main class="ua-main">
+<div class="painel">
+  <div class="graf">
+    <div class="abas">
+      <button id="ab1" class="on" data-aba="proj">Projeção do patrimônio</button>
+      <button id="ab2" data-aba="carteira">Carteira</button>
+      <button id="ab3" data-aba="fluxo">Fluxo do passivo</button>
+    </div>
+    <svg id="svg" class="interativo-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" role="img"></svg>
+    <div id="tabela" class="tabela-qx oculto"></div>
+    <div id="tip" class="tip oculto"></div>
+    <div class="legenda" id="leg"></div>
+  </div>
+
+  <div class="lado">
+    <div class="ctrl">
+      <div class="presets">
+        <div class="presets-tit">Carteiras prontas</div>
+        <div class="presets-bts" id="presets"></div>
+      </div>
+      <div class="row">
+        <label for="taxa">Taxa atuarial em discussão <span class="v" id="vTaxa">4,50%</span></label>
+        <input type="range" id="taxa" min="3" max="6" step="0.1" value="4.5">
+      </div>
+      <div class="row">
+        <label for="pat">Patrimônio de cobertura <span class="v" id="vPat">R$ 12,0 bi</span></label>
+        <input type="range" id="pat" min="9500" max="14500" step="100" value="12000">
+      </div>
+      <div class="row">
+        <label for="htm">Marcados na curva (HtM) <span class="v" id="vHtm">45%</span></label>
+        <input type="range" id="htm" min="0" max="80" step="5" value="45">
+      </div>
+      <div class="row">
+        <label for="carrego">Taxa de carrego dos HtM <span class="v" id="vCarrego">5,80%</span></label>
+        <input type="range" id="carrego" min="3.5" max="7.5" step="0.1" value="5.8">
+      </div>
+      <div class="row">
+        <label for="resto">Retorno real do restante <span class="v" id="vResto">4,00%</span></label>
+        <input type="range" id="resto" min="1.5" max="6.5" step="0.1" value="4">
+      </div>
+      <div class="row">
+        <label for="param">Taxa parâmetro Previc <span class="v" id="vParam">4,60%</span></label>
+        <input type="range" id="param" min="3" max="6" step="0.1" value="4.6">
+      </div>
+      <div class="row">
+        <label for="banda">Intervalo do parâmetro <span class="v" id="vBanda">± 0,40 p.p.</span></label>
+        <input type="range" id="banda" min="0" max="1.5" step="0.05" value="0.4">
+      </div>
+    </div>
+    <button class="btn-reset" id="reset">Restaurar</button>
+  </div>
+</div>
+
+<div class="faixa-res">
+  <div class="res"><h3>As três taxas <span class="un">todas reais, ao ano</span></h3>
+    <div class="taxas">
+      <div class="taxa-cx tAt"><div class="rot">Taxa atuarial<br>(a premissa)</div><div class="num" id="nAt">--</div>
+        <div class="exp">o que o CD aprova</div></div>
+      <div class="taxa-cx tPas"><div class="rot">TIR do passivo</div><div class="num" id="nPas">--</div>
+        <div class="exp" id="ePas"></div></div>
+      <div class="taxa-cx tAtv"><div class="rot">TIR do ativo</div><div class="num" id="nAtv">--</div>
+        <div class="exp">a taxa real máxima que a carteira projeta no período</div></div>
+      <div class="taxa-cx tMax"><div class="rot">Suportada pelo patrimônio</div><div class="num" id="nMax">--</div>
+        <div class="exp" id="eMax"></div></div>
+    </div>
+  </div>
+  <div class="res" style="flex:0 0 38%"><h3>Veredicto</h3>
+    <div class="vereditos" id="vereditos"></div>
+  </div>
+</div>
+
+<div class="callout" id="callout">&nbsp;</div>
+<p class="footnote" id="rodapeNota"></p>
+</main>
+
+<footer class="ua-footer">
+  <span class="ua-footer__text">UniAbrapp &middot; Módulo II &middot; 36ª Edição &middot; Set/2026 &middot; Estudo de Convergência &middot; Gestão Atuarial para a Tomada de Decisões</span>
+</footer>
+
+<img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+<img src="assets/hashtag-azul-eletrico.gif" alt="" class="ua-hashtag" aria-hidden="true">
+
+<script>
+window.DADOS_CONV =
+{"beneficios":[526.15,559.709,592.584,624.412,654.829,683.468,709.975,734.011,755.259,773.435,788.291,799.619,807.262,811.111,811.111,807.262,799.619,788.291,773.435,755.259,734.011,709.975,683.468,654.829,624.412,592.584,559.709,526.15,492.256,458.36,424.773,391.78,359.634,328.56,298.746,270.349,243.49,218.259,194.714,172.885,152.775,134.363,117.61,102.457,88.832,76.654,65.832,56.269,47.868,40.527,34.149,28.639,23.904,19.857,16.416,13.508,11.062,9.016,7.314,5.904]};
+(function(){
+"use strict";
+var D = window.DADOS_CONV, B = D.beneficios, N = B.length;
+var PADRAO = {taxa:4.5, pat:12000, htm:45, carrego:5.8, resto:4.0, param:4.6, banda:0.4};
+var E = {}; for (var k in PADRAO) E[k] = PADRAO[k];
+var aba = "proj";
+var $ = function(id){ return document.getElementById(id); };
+var nb = function(v,c){ return v.toLocaleString("pt-BR",{minimumFractionDigits:c,maximumFractionDigits:c}); };
+var pp = function(v){ return nb(v,2) + "%"; };
+var bi = function(v){ return "R$ " + nb(v/1000,1) + " bi"; };
+var mi = function(v){ return nb(v,0); };
+
+// ---------- matemática ----------
+function vp(i){ var s = 0; for (var t = 1; t <= N; t++) s += B[t-1]/Math.pow(1+i, t); return s; }
+// TIR de {-P0, +B1..BN}: a taxa que iguala o fluxo ao valor inicial
+function tir(P0){
+  var lo = -0.6, hi = 0.9;
+  for (var k = 0; k < 200; k++){
+    var m = (lo+hi)/2;
+    if (vp(m) > P0) lo = m; else hi = m;
+  }
+  return (lo+hi)/2;
+}
+function tirAtivo(){ return (E.htm/100)*(E.carrego/100) + (1 - E.htm/100)*(E.resto/100); }
+function duration(i){
+  var v = vp(i), s = 0;
+  for (var t = 1; t <= N; t++) s += t*B[t-1]/Math.pow(1+i, t);
+  return s/v;
+}
+// projeta o patrimônio ano a ano rendendo r e pagando os benefícios
+function projeta(P0, r){
+  var p = [P0], atual = P0, zera = null;
+  for (var t = 1; t <= N; t++){
+    atual = atual*(1+r) - B[t-1];
+    if (atual < 0 && zera === null) zera = t - 1 + (p[t-1]*(1+r))/Math.max(B[t-1],1e-9);
+    p.push(Math.max(atual, 0));
+    if (atual < 0) { for (var u = t+1; u <= N; u++) p.push(0); break; }
+  }
+  return {serie:p, zera:zera};
+}
+
+var CARTEIRAS = [
+ {rot:"Conservadora", htm:70, carrego:5.8, resto:3.2,
+  ponto:"Carteira travada em títulos na curva: o retorno é previsível, e o plano fica preso à taxa de quando comprou."},
+ {rot:"Equilibrada", htm:45, carrego:5.8, resto:4.0,
+  ponto:"Metade travada, metade a mercado. É o desenho mais comum, e o que mais depende da projeção do ETQ."},
+ {rot:"Arrojada", htm:20, carrego:5.8, resto:5.2,
+  ponto:"Pouca coisa travada: a convergência passa a depender de um retorno projetado que ainda não existe."},
+ {rot:"Carrego baixo", htm:60, carrego:4.2, resto:3.6,
+  ponto:"Títulos comprados em época de juro baixo. A carteira está travada numa taxa que não sustenta a premissa antiga."}
+];
+
+// ---------- desenho ----------
+var NS = "http://www.w3.org/2000/svg";
+function el(t,a){ var e = document.createElementNS(NS,t); for (var k in a) e.setAttribute(k,a[k]); return e; }
+function texto(x,y,t,a){ var e = el("text",a||{}); e.setAttribute("x",x); e.setAttribute("y",y); e.textContent = t; return e; }
+var AZUL = "#002C60", MAG = "#EF0068", ELET = "#002CD6", LAR = "#F27649", CINZA = "#7A7A7A", LINHA = "#E8E8E8";
+var W = 900, H = 480, ML = 74, MR = 60, MT = 30, MB = 44;
+function eixos(svg, xs, ys, rotX, rotY, ys2, rotY2){
+  svg.appendChild(el("line",{x1:ML,y1:H-MB,x2:W-MR,y2:H-MB,stroke:CINZA,"stroke-width":1}));
+  xs.forEach(function(t){
+    svg.appendChild(el("line",{x1:t.px,y1:H-MB,x2:t.px,y2:H-MB+5,stroke:CINZA,"stroke-width":1}));
+    svg.appendChild(texto(t.px,H-MB+20,t.rot,{fill:CINZA,"font-size":13,"text-anchor":"middle"}));
+  });
+  ys.forEach(function(t){
+    svg.appendChild(el("line",{x1:ML,y1:t.px,x2:W-MR,y2:t.px,stroke:LINHA,"stroke-width":1}));
+    svg.appendChild(texto(ML-9,t.px+4,t.rot,{fill:CINZA,"font-size":13,"text-anchor":"end"}));
+  });
+  (ys2||[]).forEach(function(t){
+    svg.appendChild(texto(W-MR+8,t.px+4,t.rot,{fill:MAG,"font-size":12,"text-anchor":"start"}));
+  });
+  svg.appendChild(texto((ML+W-MR)/2,H-6,rotX,{fill:CINZA,"font-size":13,"text-anchor":"middle"}));
+  svg.appendChild(texto(ML,MT-11,rotY,{fill:CINZA,"font-size":13,"text-anchor":"start"}));
+  if (rotY2) svg.appendChild(texto(W-MR+8,MT-11,rotY2,{fill:MAG,"font-size":12,"text-anchor":"start"}));
+}
+function caminho(p){ return p.map(function(q,i){ return (i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1); }).join(" "); }
+
+var CTX = null;
+function desenhaProj(svg){
+  var r = tirAtivo(), pr = projeta(E.pat, r);
+  var x1 = 50;
+  var topo = Math.max(E.pat, Math.max.apply(null, pr.serie)) * 1.05;
+  var px = function(t){ return ML + t/x1*(W-ML-MR); };
+  var py = function(v){ return H-MB - v/topo*(H-MB-MT); };
+  var maxB = Math.max.apply(null, B.slice(0, x1));
+  var pyB = function(v){ return H-MB - v/(maxB*3.4)*(H-MB-MT); };
+  var xs = []; for (var a = 0; a <= x1; a += 5) xs.push({px:px(a), rot:a});
+  var ys = []; for (var k = 0; k <= 4; k++){ var v = topo*k/4; ys.push({px:py(v), rot: nb(v/1000,0)+" bi"}); }
+  var ys2 = []; for (var k2 = 0; k2 <= 2; k2++){ var v2 = maxB*3.4*k2/2*0+ maxB*k2/2; ys2.push({px:pyB(v2), rot: mi(v2)}); }
+  eixos(svg, xs, ys, "Anos a partir de hoje", "Patrimônio projetado", ys2, "Benefício pago (R$ mi)");
+
+  // barras do fluxo de benefícios
+  var larg = (W-ML-MR)/x1*0.7;
+  for (var t = 1; t <= x1; t++){
+    var h = (H-MB) - pyB(B[t-1]);
+    svg.appendChild(el("rect",{x:px(t)-larg/2, y:pyB(B[t-1]), width:larg, height:Math.max(h,0),
+      fill:MAG, opacity:.22}));
+  }
+  // patrimônio
+  var pts = pr.serie.slice(0, x1+1).map(function(v,t){ return [px(t), py(v)]; });
+  svg.appendChild(el("path",{d:caminho(pts), fill:"none", stroke:AZUL, "stroke-width":2.8}));
+  // provisão matemática na taxa atuarial, como referência
+  var pmv = vp(E.taxa/100);
+  svg.appendChild(el("line",{x1:ML, y1:py(pmv), x2:W-MR, y2:py(pmv), stroke:ELET,
+    "stroke-width":1.5, "stroke-dasharray":"6 4"}));
+  svg.appendChild(texto(ML+8, py(pmv)-7, "provisão matemática a " + pp(E.taxa) + ": " + bi(pmv),
+    {fill:ELET,"font-size":13,"font-weight":700,"text-anchor":"start"}));
+  if (pr.zera != null && pr.zera <= x1){
+    svg.appendChild(el("line",{x1:px(pr.zera), y1:MT, x2:px(pr.zera), y2:H-MB, stroke:LAR,
+      "stroke-width":2, "stroke-dasharray":"4 3"}));
+    svg.appendChild(texto(px(pr.zera)+7, MT+16, "patrimônio zera no ano " + Math.round(pr.zera),
+      {fill:LAR,"font-size":13,"font-weight":700,"text-anchor":"start"}));
+  } else {
+    var sobra = pr.serie[x1];
+    svg.appendChild(texto(W-MR-8, py(sobra)-10, "ainda restam " + bi(sobra) + " no ano " + x1,
+      {fill:AZUL,"font-size":13,"font-weight":700,"text-anchor":"end"}));
+  }
+  CTX = {x0:0, x1:x1, px:px, serie:pr.serie};
+  $("leg").innerHTML =
+    '<span class="it fixo"><span class="sw" style="border-color:'+AZUL+'"></span>patrimônio rendendo a TIR do ativo ('+pp(r*100)+')</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+ELET+';border-top-style:dashed"></span>provisão matemática</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+MAG+';opacity:.5"></span>benefício pago no ano</span>';
+}
+
+function desenhaCarteira(){
+  var r = tirAtivo();
+  var linhas = [
+    {rot:"Títulos marcados na curva (HtM)", pct:E.htm, ret:E.carrego,
+     obs:"taxa travada na compra; não muda com o mercado"},
+    {rot:"Demais ativos, marcados a mercado", pct:100-E.htm, ret:E.resto,
+     obs:"retorno projetado pelo ETQ; é projeção, não garantia"}
+  ];
+  var h = '<tr><th class="idade">Segmento</th><th>Alocação</th><th>Retorno real</th><th>Contribuição para a TIR</th><th class="idade">Observação</th></tr>';
+  linhas.forEach(function(l){
+    h += '<tr><td class="idade">'+l.rot+'</td><td>'+nb(l.pct,0)+'%</td><td>'+pp(l.ret)+'</td>' +
+         '<td class="v-est">'+pp(l.pct/100*l.ret)+'</td><td class="idade" style="font-weight:400;color:#7A7A7A">'+l.obs+'</td></tr>';
+  });
+  h += '<tr><td class="idade">TIR do ativo</td><td>100%</td><td></td><td class="v-ger">'+pp(r*100)+'</td>' +
+       '<td class="idade" style="font-weight:400;color:#7A7A7A">é a soma ponderada: a taxa real máxima que a carteira sustenta no período</td></tr>';
+  // matriz de sensibilidade: TIR do ativo por parcela em HtM x retorno do restante
+  function eixo(base, atual){
+    var v = base.slice();
+    if (v.indexOf(atual) < 0){ v.push(atual); v.sort(function(x,y){ return x-y; }); }
+    return v;
+  }
+  var LH = eixo([0,20,40,60,80,100], E.htm), LR = eixo([2.5,3.0,3.5,4.0,4.5,5.0,5.5], E.resto);
+  var htmP = E.htm, resP = E.resto;
+  var m = '<tr><th class="idade">HtM \\ restante</th>';
+  LR.forEach(function(x){ m += '<th>'+pp(x)+'</th>'; });
+  m += '</tr>';
+  LH.forEach(function(hp){
+    m += '<tr><td class="idade">'+hp+'%</td>';
+    LR.forEach(function(rr){
+      var v = (hp/100)*(E.carrego/100) + (1-hp/100)*(rr/100);
+      var cl = v*100 >= E.taxa ? "cel-ok" : "cel-nao";
+      if (hp === htmP && rr === resP) cl += " cel-agora";
+      m += '<td class="'+cl+'">'+nb(v*100,2)+'</td>';
+    });
+    m += '</tr>';
+  });
+
+  $("tabela").innerHTML = '<div class="linha-t" style="flex-direction:column;gap:10px">' +
+    '<div class="bloco-t"><h4>Composição da carteira<span class="tag">o lado do ativo, validado pelo ETQ</span></h4><table class="t-larga">'+h+'</table></div>' +
+    '<p class="leg-t" style="margin-top:0">O que trava a conversa é a primeira linha: a parcela marcada na curva rende a taxa de quando foi comprada, ' +
+    'não a taxa de hoje. Quanto maior essa parcela, menos a carteira responde a uma mudança de cenário, para o bem e para o mal.</p>' +
+    '<div class="bloco-t"><h4>TIR do ativo em cada combinação<span class="tag">carrego dos HtM fixo em '+pp(E.carrego)+'; em verde, o que sustenta '+pp(E.taxa)+'</span></h4><table class="matriz">'+m+'</table></div>' +
+    '<p class="leg-t" style="margin-top:0">A célula destacada é a carteira de agora. A leitura útil para o conselho é a linha: quanto o plano ' +
+    'depende do que ainda vai ser comprado. Com pouca coisa travada na curva, a taxa atuarial fica refém da projeção do ETQ.</p></div>';
+  $("leg").innerHTML = "";
+}
+
+function desenhaFluxo(){
+  var i = E.taxa/100, v = vp(i);
+  var blocos = [[1,5],[6,10],[11,20],[21,35],[36,N]];
+  var h = '<tr><th class="idade">Período</th><th>Benefícios do período</th><th>Valor presente a '+pp(E.taxa)+'</th><th>% da provisão</th></tr>';
+  blocos.forEach(function(b){
+    var som = 0, vpb = 0;
+    for (var t = b[0]; t <= b[1] && t <= N; t++){ som += B[t-1]; vpb += B[t-1]/Math.pow(1+i,t); }
+    h += '<tr><td class="idade">anos '+b[0]+' a '+Math.min(b[1],N)+'</td><td>'+mi(som)+'</td>' +
+         '<td class="v-est">'+mi(vpb)+'</td><td class="v-dif">'+nb(vpb/v*100,1)+'%</td></tr>';
+  });
+  h += '<tr><td class="idade">Total</td><td>'+mi(B.reduce(function(a,b2){return a+b2;},0))+'</td>' +
+       '<td class="v-ger">'+mi(v)+'</td><td class="v-dif">100,0%</td></tr>';
+  // sensibilidade da provisão e da duration à taxa
+  var TX = [3.5,4.0,4.5,5.0,5.5];
+  if (TX.indexOf(E.taxa) < 0){ TX.push(E.taxa); TX.sort(function(x,y){ return x-y; }); }
+  var s = '<tr><th class="idade">Taxa real</th><th>Provisão matemática</th>' +
+    '<th>Variação</th><th>Duration (anos)</th><th>Patrimônio cobre?</th></tr>';
+  TX.forEach(function(x){
+    var vx = vp(x/100), d = duration(x/100), dif = (vx/v-1)*100;
+    var agora = Math.abs(x-E.taxa) < 0.001;
+    s += '<tr'+(agora?' class="lin-agora"':'')+'><td class="idade">'+pp(x)+'</td><td class="v-est">'+mi(vx)+'</td>' +
+         '<td class="'+(dif>0.05?"cel-nao":(dif<-0.05?"cel-ok":""))+'">'+(dif>0?"+":"")+nb(dif,1)+'%</td>' +
+         '<td>'+nb(d,1)+'</td><td class="'+(E.pat>=vx-1?"cel-ok":"cel-nao")+'">'+(E.pat>=vx-1?"sim":"não")+'</td></tr>';
+  });
+
+  $("tabela").innerHTML = '<div class="linha-t" style="flex-direction:column;gap:10px">' +
+    '<div class="bloco-t"><h4>Fluxo do passivo<span class="tag">valores em R$ milhões, validados pelo ARPB</span></h4><table class="t-larga">'+h+'</table></div>' +
+    '<p class="leg-t" style="margin-top:0"><b>Duration do passivo: '+nb(duration(i),1)+' anos</b> na taxa atual. É ela que define em que ponto da curva de juros ' +
+    'o plano precisa olhar, e é por isso que o intervalo regulatório depende da duration.</p>' +
+    '<div class="bloco-t"><h4>O que meio ponto de taxa faz com a provisão<span class="tag">mesmo fluxo de benefícios, taxas de desconto diferentes</span></h4><table class="matriz">'+s+'</table></div>' +
+    '<p class="leg-t" style="margin-top:0">Este é o incentivo que o conselho precisa enxergar: subir a taxa reduz a provisão hoje e pode virar ' +
+    'déficit em superávit no papel, sem que um real tenha entrado no plano. A taxa não se escolhe pelo resultado que produz, e sim pela que a carteira entrega.</p></div>';
+  $("leg").innerHTML = "";
+}
+
+// ---------- dica do mouse ----------
+function mostraTip(ev){
+  var tip = $("tip"), svg = $("svg");
+  if (aba !== "proj" || !CTX || !svg.getScreenCTM){ tip.classList.add("oculto"); return; }
+  var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+  var m = svg.getScreenCTM(); if (!m){ tip.classList.add("oculto"); return; }
+  var p = pt.matrixTransform(m.inverse());
+  if (p.x < ML-4 || p.x > W-MR+4 || p.y < MT-6 || p.y > H-MB+6){ tip.classList.add("oculto"); return; }
+  var t = Math.round((p.x-ML)/(W-ML-MR)*CTX.x1);
+  t = Math.min(Math.max(t, 0), CTX.x1);
+  var patr = CTX.serie[t] || 0, ben = t >= 1 ? B[t-1] : 0;
+  tip.innerHTML = '<div class="ti">Ano ' + t + '</div>' +
+    '<div class="lin"><span class="sw2" style="border-color:'+AZUL+'"></span>Patrimônio<span class="vv">'+bi(patr)+'</span></div>' +
+    (t >= 1 ? '<div class="lin"><span class="sw2" style="border-color:'+MAG+'"></span>Benefício do ano<span class="vv">R$ '+mi(ben)+' mi</span></div>' : "") +
+    '<div class="rod">valores reais, a preços de hoje</div>';
+  tip.classList.remove("oculto");
+  var g = document.querySelector(".graf").getBoundingClientRect(), r = tip.getBoundingClientRect();
+  var x = ev.clientX - g.left + 16, y = ev.clientY - g.top + 14;
+  if (x + r.width > g.width - 4) x = ev.clientX - g.left - r.width - 16;
+  if (y + r.height > g.height - 4) y = Math.max(2, ev.clientY - g.top - r.height - 12);
+  tip.style.left = Math.max(2,x) + "px"; tip.style.top = Math.max(2,y) + "px";
+}
+
+// ---------- render ----------
+function render(){
+  var svg = $("svg"), tab = $("tabela");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  $("tip").classList.add("oculto");
+  svg.style.visibility = (aba === "proj") ? "visible" : "hidden";
+  tab.classList.toggle("oculto", aba === "proj");
+  document.querySelector(".painel").classList.toggle("qx-modo", aba !== "proj");
+  if (aba === "proj") desenhaProj(svg);
+  else if (aba === "carteira"){ desenhaCarteira(); afastaDaLapide(); }
+  else { desenhaFluxo(); afastaDaLapide(); }
+
+  var rAtv = tirAtivo()*100, rAt = E.taxa, pmv = vp(E.taxa/100);
+  var rPas = tir(pmv)*100;            // por construção, a própria taxa atuarial
+  var rMax = tir(E.pat)*100;          // o que o patrimônio de fato sustenta
+  $("nAt").textContent = pp(rAt);
+  $("nPas").textContent = pp(rPas);
+  $("ePas").textContent = "é a própria taxa atuarial: a PM foi calculada com ela";
+  $("nAtv").textContent = pp(rAtv);
+  $("nMax").textContent = pp(rMax);
+  $("eMax").textContent = Math.abs(E.pat - pmv) < 1.0
+    ? "patrimônio igual à PM: coincide com a taxa atuarial"
+    : (E.pat > pmv
+      ? "patrimônio acima da PM: folga de " + nb(rAt - rMax,2) + " p.p."
+      : "patrimônio abaixo da PM: faltam " + nb(rMax - rAt,2) + " p.p.");
+
+  var conv = rAtv >= rAt - 1e-9;
+  var dentro = Math.abs(rAt - E.param) <= E.banda + 1e-9;
+  var TOL = 1.0;                       // R$ 1 mi: tolerância para não brigar com arredondamento
+  var folga = E.pat >= pmv - TOL;
+  function ver(ok, txt){ return '<div class="ver '+(ok?"ok":"nao")+'"><span class="mk">'+(ok?"✓":"!")+'</span><span>'+txt+'</span></div>'; }
+  $("vereditos").innerHTML =
+    ver(conv, conv
+      ? "<b>Convergente.</b> A carteira projeta " + pp(rAtv) + ", que sustenta a taxa atuarial de " + pp(rAt) + "."
+      : "<b>Não convergente.</b> A carteira projeta " + pp(rAtv) + " e a taxa atuarial é " + pp(rAt) +
+        ": faltam " + nb(rAt-rAtv,2) + " p.p.") +
+    ver(dentro, dentro
+      ? "<b>Dentro do intervalo.</b> " + pp(rAt) + " está na faixa de " + pp(E.param-E.banda) + " a " + pp(E.param+E.banda) + "."
+      : "<b>Fora do intervalo.</b> " + pp(rAt) + " está fora da faixa de " + pp(E.param-E.banda) + " a " + pp(E.param+E.banda) +
+        ": possível, mas exige fundamentação e autorização da Previc.") +
+    ver(folga, Math.abs(E.pat - pmv) < TOL
+      ? "<b>Patrimônio igual à provisão.</b> Equilíbrio exato: " + bi(pmv) + "."
+      : (folga
+        ? "<b>Patrimônio cobre a provisão.</b> " + bi(E.pat) + " contra " + bi(pmv) + " de PM, superávit de R$ " + mi(E.pat-pmv) + " mi."
+        : "<b>Patrimônio abaixo da provisão.</b> " + bi(E.pat) + " contra " + bi(pmv) + " de PM, déficit de R$ " + mi(pmv-E.pat) + " mi."));
+
+  var pr = PRESETATIVO();
+  $("callout").textContent = pr ? pr.ponto : (conv
+    ? "A TIR do ativo é evidência de compatibilidade, não promessa de rentabilidade. O conselho aprova a premissa de " + pp(rAt) + ", e responde por ela se o cenário mudar."
+    : "Sem convergência, a saída não é insistir na taxa: é rever a premissa, a carteira, ou os dois. Aprovar assim mesmo transfere o problema para a próxima avaliação.");
+  [].forEach.call($("presets").querySelectorAll("button"), function(b,k){
+    var c = CARTEIRAS[k];
+    b.classList.toggle("on", c.htm === E.htm && Math.abs(c.carrego-E.carrego) < 1e-9 && Math.abs(c.resto-E.resto) < 1e-9);
+  });
+
+  $("vTaxa").textContent = pp(E.taxa);
+  $("vPat").textContent = bi(E.pat);
+  $("vHtm").textContent = nb(E.htm,0) + "%";
+  $("vCarrego").textContent = pp(E.carrego);
+  $("vResto").textContent = pp(E.resto);
+  $("vParam").textContent = pp(E.param);
+  $("vBanda").textContent = "± " + nb(E.banda,2) + " p.p.";
+}
+function PRESETATIVO(){
+  return CARTEIRAS.filter(function(c){
+    return c.htm === E.htm && Math.abs(c.carrego-E.carrego) < 1e-9 && Math.abs(c.resto-E.resto) < 1e-9;
+  })[0];
+}
+function afastaDaLapide(){
+  var t = $("tabela"), lap = document.querySelector(".ua-lapide");
+  if (!t) return;
+  var folga = 0;
+  if (lap){ var rl = lap.getBoundingClientRect(), rt = t.getBoundingClientRect();
+    if (rl.height > 0 && rl.right > rt.left) folga = Math.max(0, Math.round(rl.bottom - rt.top) + 10); }
+  t.style.paddingTop = folga + "px";
+}
+
+// ---------- controles ----------
+(function(){
+  var h = "";
+  CARTEIRAS.forEach(function(c,k){ h += '<button data-k="'+k+'" title="'+c.ponto.replace(/"/g,"&quot;")+'">'+c.rot+'</button>'; });
+  $("presets").innerHTML = h;
+  $("presets").addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    var c = CARTEIRAS[+b.dataset.k];
+    E.htm = c.htm; E.carrego = c.carrego; E.resto = c.resto;
+    $("htm").value = E.htm; $("carrego").value = E.carrego; $("resto").value = E.resto;
+    render();
+  });
+})();
+[["taxa",1],["pat",0],["htm",0],["carrego",1],["resto",1],["param",1],["banda",1]].forEach(function(c){
+  $(c[0]).addEventListener("input", function(){ E[c[0]] = parseFloat(this.value); render(); });
+});
+document.querySelector(".abas").addEventListener("click", function(ev){
+  var b = ev.target.closest("button"); if (!b) return;
+  aba = b.dataset.aba;
+  [].forEach.call(this.querySelectorAll("button"), function(x){ x.classList.toggle("on", x === b); });
+  render();
+});
+$("reset").addEventListener("click", function(){
+  for (var k in PADRAO){ E[k] = PADRAO[k]; var el2 = $(k); if (el2) el2.value = PADRAO[k]; }
+  render();
+});
+$("svg").addEventListener("mousemove", mostraTip);
+$("svg").addEventListener("mouseleave", function(){ $("tip").classList.add("oculto"); });
+
+$("rodapeNota").innerHTML =
+  "Caso ilustrativo <b>ExBD</b>, o mesmo exemplo recorrente do curso: plano BD maduro, provisão matemática de R$ 12,0 bi a 4,5% reais " +
+  "e duration de cerca de 14 anos. Fluxo de benefícios construído para reproduzir essa provisão e essa duration; <b>não é um plano real</b>. " +
+  "<b>TIR do passivo</b>: a taxa que iguala o fluxo de benefícios à provisão matemática, portanto a própria taxa atuarial. " +
+  "<b>TIR do ativo</b>: a taxa real que a carteira projeta entregar no período, somando a parcela travada na curva e a projetada a mercado. " +
+  "<b>Suportada pelo patrimônio</b>: a taxa que iguala o fluxo ao patrimônio de cobertura de fato existente. " +
+  "A taxa parâmetro e a largura do intervalo são entradas deste exemplo: na prática vêm da Previc e dependem da duration do passivo. " +
+  "Referências do bloco: Resolução CNPC nº 30/2018, Resolução Previc nº 23/2023 e Portaria Previc nº 835/2020. Elaboração própria.";
+
+render();
+})();
+</script>
+</body>
+</html>
