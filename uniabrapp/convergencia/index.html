@@ -368,6 +368,18 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
   .res h3{margin-bottom:3px;}
   .par{padding:6px 10px;}
 }
+
+@media (max-height:1010px){
+  .abas button{padding:2px 10px;font-size:.78rem;}
+  .legenda{font-size:.72rem;margin-top:2px;}
+  .footnote{font-size:.6rem;}
+  .ua-main{padding-bottom:0.8vh !important;}
+}
+@media (max-height:900px){
+  .tabela-qx table.t-larga{font-size:.62rem;}
+  .tabela-qx table.matriz{font-size:.6rem;}
+  .tabela-qx .leg-t{font-size:.62rem;}
+}
 </style>
 <link rel="stylesheet" href="assets/ua-moldura.css">
 <style>
@@ -389,10 +401,11 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
 <div class="painel">
   <div class="graf">
     <div class="abas">
-      <button id="ab1" class="on" data-aba="proj">Projeção do patrimônio</button>
-      <button id="ab2" data-aba="dist">Distribuição da TIR</button>
-      <button id="ab3" data-aba="carteira">Carteira</button>
-      <button id="ab4" data-aba="fluxo">Fluxo do passivo</button>
+      <button id="ab1" class="on" data-aba="proj">Patrimônio</button>
+      <button id="ab2" data-aba="taxat">Taxa no tempo</button>
+      <button id="ab3" data-aba="dist">Distribuição da TIR</button>
+      <button id="ab4" data-aba="carteira">Carteira</button>
+      <button id="ab5" data-aba="fluxo">Fluxo do passivo</button>
     </div>
     <svg id="svg" class="interativo-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" role="img"></svg>
     <div id="tabela" class="tabela-qx oculto"></div>
@@ -431,12 +444,16 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
         <input type="range" id="param" min="3" max="6" step="0.1" value="4.6">
       </div>
       <div class="row">
-        <label for="vol">Volatilidade do que está a mercado <span class="v" id="vVol">7,00%</span></label>
-        <input type="range" id="vol" min="0" max="16" step="0.5" value="7">
+        <label for="vol">Volatilidade do que está a mercado <span class="v" id="vVol">5,00%</span></label>
+        <input type="range" id="vol" min="0" max="16" step="0.5" value="5">
       </div>
       <div class="row">
         <label for="horiz">Horizonte de apuração <span class="v" id="vHoriz">15 anos</span></label>
         <input type="range" id="horiz" min="5" max="40" step="1" value="15">
+      </div>
+      <div class="row">
+        <label for="prazo">Vencimento médio dos HtM <span class="v" id="vPrazo">não vence</span></label>
+        <input type="range" id="prazo" min="0" max="30" step="1" value="0">
       </div>
       <div class="row">
         <label for="banda">Intervalo do parâmetro <span class="v" id="vBanda">± 0,40 p.p.</span></label>
@@ -446,6 +463,7 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
     <div class="bts-fim">
       <button class="btn-reset dest" id="igualar" title="Ajusta o retorno do que está a mercado até a TIR do ativo bater com a taxa atuarial">Igualar à premissa</button>
       <button class="btn-reset dest" id="zerar" title="Ajusta o retorno do que está a mercado até o patrimônio acabar exatamente com o último benefício">Zerar o saldo</button>
+      <button class="btn-reset" id="faixa">Ocultar faixa</button>
       <button class="btn-reset" id="sorteio">Novo sorteio</button>
       <button class="btn-reset" id="reset">Restaurar</button>
     </div>
@@ -487,9 +505,10 @@ window.DADOS_CONV =
 (function(){
 "use strict";
 var D = window.DADOS_CONV, B = D.beneficios, N = B.length;
-var PADRAO = {taxa:4.5, pat:12000, htm:45, carrego:5.8, resto:4.0, vol:7.0, horiz:15, param:4.6, banda:0.4};
+var PADRAO = {taxa:4.5, pat:12000, htm:45, carrego:5.8, resto:4.0, vol:5.0, horiz:15, prazo:0, param:4.6, banda:0.4};
 var E = {}; for (var k in PADRAO) E[k] = PADRAO[k];
 var aba = "proj";
+var faixaVisivel = true;      // botão liga e desliga o intervalo de confiança
 var $ = function(id){ return document.getElementById(id); };
 var nb = function(v,c){ return v.toLocaleString("pt-BR",{minimumFractionDigits:c,maximumFractionDigits:c}); };
 var pp = function(v){ return nb(v,2) + "%"; };
@@ -508,7 +527,25 @@ function tir(P0){
   }
   return (lo+hi)/2;
 }
-function tirAtivo(){ return (E.htm/100)*(E.carrego/100) + (1 - E.htm/100)*(E.resto/100); }
+// Parcela marcada na curva no ano t. Com prazo 0 ela nunca vence, que é a simplificação
+// usual; com prazo > 0 os títulos vão vencendo e o dinheiro é reinvestido a mercado.
+function pesoHtM(t){
+  if (!E.prazo) return E.htm/100;
+  var f = 1 - (t-1)/E.prazo;
+  return (E.htm/100) * (f > 0 ? f : 0);
+}
+// taxa da carteira no ano t, dado o retorno da parcela a mercado
+function taxaPort(t, rMerc){ var w = pesoHtM(t); return w*(E.carrego/100) + (1-w)*rMerc; }
+// projeção central da carteira: sem reinvestimento é uma taxa só; com reinvestimento
+// é a TIR da trajetória determinística, porque a taxa muda a cada ano
+function tirAtivo(){
+  if (!E.prazo) return (E.htm/100)*(E.carrego/100) + (1 - E.htm/100)*(E.resto/100);
+  // com reinvestimento a taxa muda a cada ano: a projeção da carteira é a média
+  // geométrica das taxas anuais dentro do horizonte de apuração
+  var H = Math.min(E.horiz, N), acum = 1;
+  for (var t = 1; t <= H; t++) acum *= (1 + taxaPort(t, E.resto/100));
+  return Math.pow(acum, 1/H) - 1;
+}
 function duration(i){
   var v = vp(i), s = 0;
   for (var t = 1; t <= N; t++) s += t*B[t-1]/Math.pow(1+i, t);
@@ -518,8 +555,9 @@ function duration(i){
 function projeta(P0, r){
   var p = [P0], atual = P0, zera = null;
   for (var t = 1; t <= N; t++){
-    atual = atual*(1+r) - B[t-1];
-    if (atual < 0 && zera === null) zera = t - 1 + (p[t-1]*(1+r))/Math.max(B[t-1],1e-9);
+    var rt = E.prazo ? taxaPort(t, E.resto/100) : r;
+    atual = atual*(1+rt) - B[t-1];
+    if (atual < 0 && zera === null) zera = t - 1 + (p[t-1]*(1+rt))/Math.max(B[t-1],1e-9);
     p.push(Math.max(atual, 0));
     if (atual < 0) { for (var u = t+1; u <= N; u++) p.push(0); break; }
   }
@@ -568,23 +606,26 @@ function tirRealizada(P0, serie, H){
 var SIM = null;
 function simula(){
   if (!CHOQUES) sorteia();
-  var w = E.htm/100, carr = E.carrego/100, mu = E.resto/100, sig = E.vol/100;
+  var w = E.htm/100, carr = E.carrego/100, mu = E.resto/100, sig = E.vol/100, prazo = E.prazo;
   var H = Math.min(E.horiz, ANOS);
   var tirs = new Float64Array(NSIM);
   var porAno = []; for (var t = 0; t <= ANOS; t++) porAno.push(new Float64Array(NSIM));
+  var taxaAno = []; for (var t2 = 0; t2 <= ANOS; t2++) taxaAno.push(new Float64Array(NSIM));
   var serie = new Float64Array(ANOS+1);
   var quebrou = 0;
   for (var s = 0; s < NSIM; s++){
-    var p = E.pat, base = s*ANOS;
-    serie[0] = p; porAno[0][s] = p;
+    var p = E.pat, base = s*ANOS, acum = 1;
+    serie[0] = p; porAno[0][s] = p; taxaAno[0][s] = w*carr + (1-w)*mu;
     var zerou = false;
     for (var a = 1; a <= ANOS; a++){
       var rMerc = mu + sig*CHOQUES[base + a - 1];
       if (rMerc < -0.60) rMerc = -0.60;           // piso: perda real de 60% num ano
-      var rPort = w*carr + (1-w)*rMerc;
+      var rPort = prazo ? (pesoHtM(a)*carr + (1-pesoHtM(a))*rMerc) : (w*carr + (1-w)*rMerc);
       p = p*(1+rPort) - B[a-1];
       if (p < 0 && !zerou){ zerou = true; }
       serie[a] = p; porAno[a][s] = p;
+      acum *= (1+rPort);
+      taxaAno[a][s] = Math.pow(acum, 1/a) - 1;    // retorno médio anualizado até o ano a
     }
     if (zerou) quebrou++;
     tirs[s] = tirRealizada(E.pat, serie, H);
@@ -599,11 +640,20 @@ function simula(){
     faixas.p75.push(v[Math.floor(0.75*NSIM)]);
     faixas.p95.push(v[Math.floor(0.95*NSIM)]);
   }
+  var tx = {p5:[], p25:[], p50:[], p75:[], p95:[]};
+  for (var y2 = 0; y2 <= ANOS; y2++){
+    var u = Array.prototype.slice.call(taxaAno[y2]).sort(function(x,z){ return x-z; });
+    tx.p5.push(u[Math.floor(0.05*NSIM)]);
+    tx.p25.push(u[Math.floor(0.25*NSIM)]);
+    tx.p50.push(u[Math.floor(0.50*NSIM)]);
+    tx.p75.push(u[Math.floor(0.75*NSIM)]);
+    tx.p95.push(u[Math.floor(0.95*NSIM)]);
+  }
   var ord = Array.prototype.slice.call(tirs).sort(function(x,z){ return x-z; });
   var alvo = E.taxa/100, acima = 0;
   for (var q = 0; q < NSIM; q++) if (tirs[q] >= alvo) acima++;
   SIM = {
-    tirs: ord, faixas: faixas, H: H,
+    tirs: ord, faixas: faixas, taxa: tx, H: H,
     p5: ord[Math.floor(0.05*NSIM)], p25: ord[Math.floor(0.25*NSIM)],
     p50: ord[Math.floor(0.50*NSIM)], p75: ord[Math.floor(0.75*NSIM)],
     p95: ord[Math.floor(0.95*NSIM)],
@@ -654,8 +704,9 @@ function desenhaProj(svg){
   var r = tirAtivo(), pr = projeta(E.pat, r);
   var x1 = N;                          // o gráfico vai até o último benefício, para o saldo poder zerar em tela
   var SF = simula();
-  var topo = Math.max(E.pat, Math.max.apply(null, pr.serie),
-                      Math.max.apply(null, SF.faixas.p50)) * 1.22;
+  var topo = faixaVisivel
+    ? Math.max(E.pat, Math.max.apply(null, pr.serie), Math.max.apply(null, SF.faixas.p50)) * 1.22
+    : Math.max(E.pat, Math.max.apply(null, pr.serie)) * 1.10;
   var px = function(t){ return ML + t/x1*(W-ML-MR); };
   var py = function(v){ return H-MB - v/topo*(H-MB-MT); };
   var maxB = Math.max.apply(null, B.slice(0, x1));
@@ -680,13 +731,15 @@ function desenhaProj(svg){
     for (var t = 0; t <= x1; t++){ cima.push([px(t), py(Math.max(sup[t],0))]); baixo.push([px(t), py(Math.max(inf[t],0))]); }
     return caminho(cima) + " L" + baixo.slice().reverse().map(function(q){ return q[0].toFixed(1)+" "+q[1].toFixed(1); }).join(" L") + " Z";
   }
-  var cp = el("clipPath",{id:"areaGraf"});
-  cp.appendChild(el("rect",{x:ML, y:MT, width:W-ML-MR, height:H-MB-MT}));
-  svg.appendChild(cp);
-  var gFaixa = el("g",{"clip-path":"url(#areaGraf)"});
-  gFaixa.appendChild(el("path",{d:area(S.faixas.p5, S.faixas.p95), fill:AZUL, opacity:.10, stroke:"none"}));
-  gFaixa.appendChild(el("path",{d:area(S.faixas.p25, S.faixas.p75), fill:AZUL, opacity:.17, stroke:"none"}));
-  svg.appendChild(gFaixa);
+  if (faixaVisivel){
+    var cp = el("clipPath",{id:"areaGraf"});
+    cp.appendChild(el("rect",{x:ML, y:MT, width:W-ML-MR, height:H-MB-MT}));
+    svg.appendChild(cp);
+    var gFaixa = el("g",{"clip-path":"url(#areaGraf)"});
+    gFaixa.appendChild(el("path",{d:area(S.faixas.p5, S.faixas.p95), fill:AZUL, opacity:.10, stroke:"none"}));
+    gFaixa.appendChild(el("path",{d:area(S.faixas.p25, S.faixas.p75), fill:AZUL, opacity:.17, stroke:"none"}));
+    svg.appendChild(gFaixa);
+  }
 
   // patrimônio
   var pts = pr.serie.slice(0, x1+1).map(function(v,t){ return [px(t), py(v)]; });
@@ -721,7 +774,7 @@ function desenhaProj(svg){
     '<span class="it fixo"><span class="sw" style="border-color:'+AZUL+'"></span>patrimônio rendendo a TIR do ativo ('+pp(r*100)+')</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+ELET+';border-top-style:dashed"></span>provisão matemática</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+MAG+';opacity:.5"></span>benefício pago no ano</span>' +
-    '<span class="it fixo"><span class="sw" style="background:'+AZUL+';opacity:.18;border-color:transparent"></span>faixa de cenários: 25% a 75% e 5% a 95%</span>';
+    (faixaVisivel ? '<span class="it fixo"><span class="sw" style="background:'+AZUL+';opacity:.18;border-color:transparent"></span>faixa de cenários: 25% a 75% e 5% a 95%</span>' : "");
 }
 
 function desenhaDist(svg){
@@ -768,7 +821,68 @@ function desenhaDist(svg){
     '<span class="it fixo"><span class="sw" style="border-color:#00614A"></span>cenários que entregam o necessário: ' + nb(S.prob*100,1) + '%</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+MAG+'"></span>cenários que não entregam: ' + nb((1-S.prob)*100,1) + '%</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+ELET+'"></span>taxa que zera o saldo</span>' +
-    '<span class="it fixo">faixa de 5% a 95%: ' + pp(S.p5*100) + ' a ' + pp(S.p95*100) + '</span>';
+    '<span class="it fixo">faixa de 5% a 95%: ' + pp(S.p5*100) + ' a ' + pp(S.p95*100) + '</span>' +
+    '<span class="it fixo">volatilidade da carteira: ' + pp((1-E.htm/100)*E.vol) + ' ao ano</span>';
+}
+
+function desenhaTaxa(svg){
+  var S = simula(), alvo = tir(E.pat)*100, det = tirAtivo()*100;
+  var x1 = N, px = function(t){ return ML + t/x1*(W-ML-MR); };
+  var acE = 1, detSerie = [];
+  for (var te = 1; te <= N; te++){ acE *= (1 + taxaPort(te, E.resto/100)); detSerie.push((Math.pow(acE,1/te)-1)*100); }
+  var vals = [alvo, det].concat(detSerie.slice(2)).concat(S.taxa.p50.slice(3).map(function(v){ return v*100; }));
+  if (faixaVisivel){
+    vals = vals.concat(S.taxa.p95.slice(3).map(function(v){ return v*100; }))
+               .concat(S.taxa.p5.slice(3).map(function(v){ return v*100; }));
+  }
+  var lo = Math.min.apply(null, vals) - 0.5, hi = Math.max.apply(null, vals) + 0.5;
+  if (hi - lo < 2){ var m0 = (hi+lo)/2; lo = m0-1; hi = m0+1; }
+  var py = function(v){ return H-MB - (v-lo)/(hi-lo)*(H-MB-MT); };
+  var xs = []; for (var a = 0; a <= x1; a += 10) xs.push({px:px(a), rot:a});
+  var ys = []; for (var k = 0; k <= 4; k++){ var v = lo + (hi-lo)*k/4; ys.push({px:py(v), rot: nb(v,1)+"%"}); }
+  eixos(svg, xs, ys, "Anos a partir de hoje", "Retorno real médio anualizado até o ano");
+
+  function areaT(inf, sup){
+    var cima = [], baixo = [];
+    for (var t = 3; t <= x1; t++){ cima.push([px(t), py(sup[t]*100)]); baixo.push([px(t), py(inf[t]*100)]); }
+    return caminho(cima) + " L" + baixo.slice().reverse().map(function(q){ return q[0].toFixed(1)+" "+q[1].toFixed(1); }).join(" L") + " Z";
+  }
+  if (faixaVisivel){
+    var cp2 = el("clipPath",{id:"areaTaxa"});
+    cp2.appendChild(el("rect",{x:ML, y:MT, width:W-ML-MR, height:H-MB-MT}));
+    svg.appendChild(cp2);
+    var g2 = el("g",{"clip-path":"url(#areaTaxa)"});
+    g2.appendChild(el("path",{d:areaT(S.taxa.p5, S.taxa.p95), fill:AZUL, opacity:.10, stroke:"none"}));
+    g2.appendChild(el("path",{d:areaT(S.taxa.p25, S.taxa.p75), fill:AZUL, opacity:.17, stroke:"none"}));
+    svg.appendChild(g2);
+  }
+  // o que o plano precisa
+  svg.appendChild(el("line",{x1:ML, y1:py(alvo), x2:W-MR, y2:py(alvo), stroke:ELET, "stroke-width":1.6, "stroke-dasharray":"6 4"}));
+  svg.appendChild(texto(ML+8, py(alvo)+16, "taxa que zera o saldo: " + pp(alvo),
+    {fill:ELET,"font-size":13,"font-weight":700,"text-anchor":"start"}));
+  // projeção central acumulada: reta quando a composição não muda, curva quando os HtM vencem
+  var ac = 1, cen = [];
+  for (var tc = 1; tc <= x1; tc++){
+    ac *= (1 + taxaPort(tc, E.resto/100));
+    if (tc >= 3) cen.push([px(tc), py((Math.pow(ac, 1/tc)-1)*100)]);
+  }
+  svg.appendChild(el("path",{d:caminho(cen), fill:"none", stroke:AZUL, "stroke-width":2.6}));
+  var fimC = (Math.pow(ac, 1/x1)-1)*100;
+  svg.appendChild(texto(W-MR-8, py(fimC)-9,
+    E.prazo ? ("projeção central cai para " + pp(fimC) + " no ano " + x1)
+            : ("projeção central: " + pp(det) + " todo ano"),
+    {fill:AZUL,"font-size":13,"font-weight":700,"text-anchor":"end"}));
+  // mediana simulada
+  var med = []; for (var t2 = 3; t2 <= x1; t2++) med.push([px(t2), py(S.taxa.p50[t2]*100)]);
+  svg.appendChild(el("path",{d:caminho(med), fill:"none", stroke:MAG, "stroke-width":2, "stroke-dasharray":"5 4"}));
+
+  CTX = {taxa:true, x1:x1, px:px, S:S, alvo:alvo, det:det, det2:detSerie};
+  $("leg").innerHTML =
+    '<span class="it fixo"><span class="sw" style="border-color:'+AZUL+'"></span>' +
+      (E.prazo ? "projeção central, com os HtM vencendo em " + nb(E.prazo,0) + " anos" : "projeção central, constante porque a composição não muda") + '</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+MAG+';border-top-style:dashed"></span>mediana dos cenários</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+ELET+';border-top-style:dashed"></span>taxa que zera o saldo</span>' +
+    (faixaVisivel ? '<span class="it fixo"><span class="sw" style="background:'+AZUL+';opacity:.18;border-color:transparent"></span>faixa de cenários</span>' : "");
 }
 
 function desenhaCarteira(){
@@ -868,11 +982,28 @@ function desenhaFluxo(){
 // ---------- dica do mouse ----------
 function mostraTip(ev){
   var tip = $("tip"), svg = $("svg");
-  if ((aba !== "proj" && aba !== "dist") || !CTX || !svg.getScreenCTM){ tip.classList.add("oculto"); return; }
+  if ((aba !== "proj" && aba !== "dist" && aba !== "taxat") || !CTX || !svg.getScreenCTM){ tip.classList.add("oculto"); return; }
   var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
   var m = svg.getScreenCTM(); if (!m){ tip.classList.add("oculto"); return; }
   var p = pt.matrixTransform(m.inverse());
   if (p.x < ML-4 || p.x > W-MR+4 || p.y < MT-6 || p.y > H-MB+6){ tip.classList.add("oculto"); return; }
+  if (CTX.taxa){
+    var tt = Math.round((p.x-ML)/(W-ML-MR)*CTX.x1);
+    tt = Math.min(Math.max(tt, 3), CTX.x1);
+    var Sx = CTX.S;
+    tip.innerHTML = '<div class="ti">Média anualizada até o ano ' + tt + '</div>' +
+      '<div class="lin"><span class="sw2" style="border-color:'+AZUL+'"></span>projeção central<span class="vv">'+pp(CTX.det2 && CTX.det2[tt-1] != null ? CTX.det2[tt-1] : CTX.det)+'</span></div>' +
+      '<div class="lin"><span class="sw2" style="border-color:'+MAG+'"></span>mediana dos cenários<span class="vv">'+pp(Sx.taxa.p50[tt]*100)+'</span></div>' +
+      (faixaVisivel ? '<div class="lin"><span class="sw2" style="border-color:'+CINZA+'"></span>faixa de 5% a 95%<span class="vv">'+pp(Sx.taxa.p5[tt]*100)+' a '+pp(Sx.taxa.p95[tt]*100)+'</span></div>' : "") +
+      '<div class="rod">precisa entregar ' + pp(CTX.alvo) + '</div>';
+    tip.classList.remove("oculto");
+    var gt = document.querySelector(".graf").getBoundingClientRect(), rt2 = tip.getBoundingClientRect();
+    var xt = ev.clientX - gt.left + 16, yt = ev.clientY - gt.top + 14;
+    if (xt + rt2.width > gt.width - 4) xt = ev.clientX - gt.left - rt2.width - 16;
+    if (yt + rt2.height > gt.height - 4) yt = Math.max(2, ev.clientY - gt.top - rt2.height - 12);
+    tip.style.left = Math.max(2,xt) + "px"; tip.style.top = Math.max(2,yt) + "px";
+    return;
+  }
   if (CTX.dist){
     var xv = CTX.lo + (p.x-ML)/(W-ML-MR)*(CTX.hi-CTX.lo);
     var kb = Math.floor((xv-CTX.lo)/CTX.larguraB);
@@ -911,12 +1042,13 @@ function render(){
   var svg = $("svg"), tab = $("tabela");
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   $("tip").classList.add("oculto");
-  var grafico = (aba === "proj" || aba === "dist");
+  var grafico = (aba === "proj" || aba === "dist" || aba === "taxat");
   svg.style.visibility = grafico ? "visible" : "hidden";
   tab.classList.toggle("oculto", grafico);
   document.querySelector(".painel").classList.toggle("qx-modo", !grafico);
   if (aba === "proj") desenhaProj(svg);
   else if (aba === "dist") desenhaDist(svg);
+  else if (aba === "taxat") desenhaTaxa(svg);
   else if (aba === "carteira"){ desenhaCarteira(); afastaDaLapide(); }
   else { desenhaFluxo(); afastaDaLapide(); }
 
@@ -1000,6 +1132,7 @@ function render(){
   $("vBanda").textContent = "± " + nb(E.banda,2) + " p.p.";
   $("vVol").textContent = pp(E.vol);
   $("vHoriz").textContent = nb(E.horiz,0) + " anos";
+  $("vPrazo").textContent = E.prazo ? (nb(E.prazo,0) + " anos") : "não vence";
   montaRodape();
 }
 function montaRodape(){
@@ -1016,6 +1149,7 @@ function montaRodape(){
   $("vBanda").textContent = "± " + nb(E.banda,2) + " p.p.";
   $("vVol").textContent = pp(E.vol);
   $("vHoriz").textContent = nb(E.horiz,0) + " anos";
+  $("vPrazo").textContent = E.prazo ? (nb(E.prazo,0) + " anos") : "não vence";
 }
 function PRESETATIVO(){
   return CARTEIRAS.filter(function(c){
@@ -1044,7 +1178,7 @@ function afastaDaLapide(){
     render();
   });
 })();
-[["taxa",1],["pat",0],["htm",0],["carrego",1],["resto",1],["vol",1],["horiz",0],["param",1],["banda",1]].forEach(function(c){
+[["taxa",1],["pat",0],["htm",0],["carrego",1],["resto",1],["vol",1],["horiz",0],["prazo",0],["param",1],["banda",1]].forEach(function(c){
   $(c[0]).addEventListener("input", function(){ E[c[0]] = parseFloat(this.value); render(); });
 });
 document.querySelector(".abas").addEventListener("click", function(ev){
@@ -1062,6 +1196,18 @@ $("reset").addEventListener("click", function(){
 var MSG = null;
 function ajustaPara(alvoPct, rotulo){
   var w = E.htm/100, lim = {resto:[1.5,6.5], carrego:[3.5,7.5]};
+  if (E.prazo){
+    // com reinvestimento a TIR não é linear no retorno de mercado: resolve por bisseção
+    var lo = lim.resto[0], hi = lim.resto[1], guard = E.resto;
+    for (var it = 0; it < 60; it++){
+      var m2 = (lo+hi)/2; E.resto = m2;
+      if (tirAtivo()*100 < alvoPct) lo = m2; else hi = m2;
+    }
+    E.resto = Math.round(((lo+hi)/2)*100)/100;
+    if (!isFinite(E.resto)) E.resto = guard;
+    $("resto").value = E.resto;
+    MSG = rotulo; render(); MSG = null; return;
+  }
   if (w < 0.999){
     var pedido = (alvoPct/100 - w*E.carrego/100)/(1-w)*100;
     var corte = Math.min(Math.max(pedido, lim.resto[0]), lim.resto[1]);
@@ -1087,6 +1233,12 @@ $("igualar").addEventListener("click", function(){
 $("zerar").addEventListener("click", function(){
   ajustaPara(tir(E.pat)*100, "zerar");
 });
+$("faixa").addEventListener("click", function(){
+  faixaVisivel = !faixaVisivel;
+  this.textContent = faixaVisivel ? "Ocultar faixa" : "Mostrar faixa";
+  this.classList.toggle("dest", !faixaVisivel);
+  render();
+});
 $("sorteio").addEventListener("click", function(){
   semente = (semente*1103515245 + 12345) & 0x7fffffff;
   CHOQUES = null; render();
@@ -1097,9 +1249,11 @@ $("svg").addEventListener("mouseleave", function(){ $("tip").classList.add("ocul
 $("rodapeNota").innerHTML =
   "Caso ilustrativo, o mesmo exemplo recorrente do curso: plano BD maduro, provisão de R$ 12,0 bi a 4,5% reais e duration de cerca de 14 anos. " +
   "Fluxo construído para reproduzir esses números; <b>não é um plano real</b>. <b>TIR do passivo</b>: a taxa que iguala o fluxo à provisão, portanto a própria taxa atuarial. " +
-  "<b>TIR do ativo</b>: a taxa real que a carteira projeta no período. <b>TIR que zera o saldo</b>: a que consome exatamente o patrimônio até o último benefício, ou seja, o que o plano precisa entregar. " +
+  "<b>TIR do ativo</b>: a taxa real que a carteira projeta no período. <b>TIR que zera o saldo</b>: a que consome exatamente o patrimônio até o último benefício; com superávit ela fica <b>abaixo</b> da taxa atuarial, e com déficit, acima. " +
   "<b>Simulação</b>: 2.000 cenários; a parcela na curva entrega o carrego e a parcela a mercado tem retorno anual sorteado de uma normal em torno da projeção do ETQ. " +
-  "Composição fixa no período, o que simplifica: na prática a parcela travada vence e é recomprada. A mediana simulada fica abaixo da projeção central porque a volatilidade corrói o retorno acumulado. " +
+  "A barra <b>vencimento médio dos HtM</b> controla a simplificação mais forte do estudo: em \"não vence\", a parcela travada entrega o carrego para sempre; " +
+  "com um prazo, ela vai vencendo e o dinheiro é reinvestido a mercado, e a projeção da carteira deixa de ser uma reta. Com prazo, a TIR do ativo é a média geométrica das taxas anuais dentro do horizonte. " +
+  "A mediana simulada fica abaixo da projeção central porque a volatilidade corrói o retorno acumulado. " +
   "A distribuição não é previsão; mostra que convergência é probabilidade, não certeza. " +
   "Taxa parâmetro e intervalo são entradas deste exemplo: na prática vêm da Previc e dependem da duration. " +
   "Referências: Resolução CNPC nº 30/2018, Resolução Previc nº 23/2023 e Portaria Previc nº 835/2020. Elaboração própria.";
