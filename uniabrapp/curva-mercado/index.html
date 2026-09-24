@@ -270,6 +270,11 @@
     .ua-sim .ua-btn--sorteio { margin-left: auto; }
     .ua-sim .ua-btn--sorteio { white-space: nowrap; }
     .ua-sim .ua-semente { white-space: nowrap; font-size: .68rem; }
+    .ua-tend { display: flex; align-items: center; gap: .3rem; margin: .1rem 0 .25rem; flex-wrap: nowrap; }
+    .ua-venda .ua-tend { margin: 0 0 0 .6rem; }
+    .ua-venda input[type=range] { max-width: 190px; }
+    .ua-sim .ua-semente { display: none; }
+    .is-inativo { opacity: .45; }
   </style>
   <link rel="stylesheet" href="assets/ua-moldura.css">
 </head>
@@ -298,12 +303,12 @@
         <div class="ua-escala"><span>4,0%</span><span>6,0% (base)</span><span>8,0%</span></div>
       </div>
 
-      <div class="ua-card">
+      <div class="ua-card" id="card-mk">
         <div class="ua-card__topo">
           <span class="ua-card__rotulo">Taxa de mercado</span>
           <span class="ua-card__tag">régua do mercado</span>
         </div>
-        <p class="ua-card__desc">O que o mercado exige hoje por um título igual.</p>
+        <p class="ua-card__desc" id="d-mk">O que o mercado exige hoje por um título igual.</p>
         <div class="ua-valor" id="v-mk">7,0%</div>
         <input type="range" id="s-mk" min="3" max="10" step="0.1" value="7"
                aria-label="Taxa de mercado, em por cento ao ano acima da inflação">
@@ -352,17 +357,19 @@
       </div>
 
       <div class="ua-vista is-oculta" id="vista-tempo" role="tabpanel" aria-live="polite">
-        <h2 class="ua-painel__titulo">O mercado oscila; no vencimento, as réguas se encontram</h2>
+        <h2 class="ua-painel__titulo">Comprado a mercado, o título oscila e volta à curva</h2>
         <p class="ua-painel__linha" id="t-linha2"></p>
         <div class="ua-sim">
-          <span class="ua-venda__rot">Volatilidade da taxa</span>
+          <span class="ua-venda__rot">Tendência</span>
+          <input type="range" id="s-tend2" min="-1" max="1" step="0.25" value="0.5" aria-label="Tendência anual da taxa de mercado, em pontos percentuais">
+          <span class="ua-sim__val" id="v-tend2">+0,50 p.p./ano</span>
+          <span class="ua-venda__rot">Volatilidade</span>
           <input type="range" id="s-vol2" min="0" max="1.5" step="0.1" value="0.8" aria-label="Volatilidade anual da taxa de mercado, em pontos percentuais">
-          <span class="ua-sim__val" id="v-vol2">0,8 p.p./ano</span>
-          <button class="ua-btn ua-btn--sorteio" id="btn-sim2" type="button">nova simulação</button>
-          <span class="ua-semente" id="sem2">semente 1</span>
+          <span class="ua-sim__val" id="v-vol2">0,8 p.p.</span>
+          <button class="ua-btn ua-btn--sorteio" id="btn-sim2" type="button">sortear</button>
         </div>
         <div class="ua-legenda" id="leg-tempo"></div>
-        <svg class="ua-grafico" id="g-tempo" viewBox="0 0 700 235" role="img"
+        <svg class="ua-grafico" id="g-tempo" viewBox="0 0 700 222" role="img"
              aria-label="Valor na curva e valor a mercado ao longo do tempo até o vencimento"></svg>
         <div class="ua-fecho" id="f-tempo"></div>
       </div>
@@ -376,14 +383,16 @@
           <input type="range" id="s-ano" min="1" max="10" step="1" value="2" aria-label="Ano da venda">
         </div>
         <div class="ua-sim">
-          <span class="ua-venda__rot">Volatilidade da taxa</span>
+          <span class="ua-venda__rot">Tendência</span>
+          <input type="range" id="s-tend3" min="-1" max="1" step="0.25" value="0.5" aria-label="Tendência anual da taxa de mercado, em pontos percentuais">
+          <span class="ua-sim__val" id="v-tend3">+0,50 p.p./ano</span>
+          <span class="ua-venda__rot">Volatilidade</span>
           <input type="range" id="s-vol3" min="0" max="1.5" step="0.1" value="0.8" aria-label="Volatilidade anual da taxa de mercado, em pontos percentuais">
-          <span class="ua-sim__val" id="v-vol3">0,8 p.p./ano</span>
-          <button class="ua-btn ua-btn--sorteio" id="btn-sim3" type="button">nova simulação</button>
-          <span class="ua-semente" id="sem3">semente 1</span>
+          <span class="ua-sim__val" id="v-vol3">0,8 p.p.</span>
+          <button class="ua-btn ua-btn--sorteio" id="btn-sim3" type="button">sortear</button>
         </div>
         <div class="ua-legenda" id="leg-venda"></div>
-        <svg class="ua-grafico" id="g-venda" viewBox="0 0 700 190" role="img"
+        <svg class="ua-grafico" id="g-venda" viewBox="0 0 700 180" role="img"
              aria-label="Rentabilidade anual realizada conforme o ano da venda"></svg>
         <div class="ua-kpis">
           <div class="ua-kpi k-curva"><div class="ua-kpi__rot">Na curva, na data</div><div class="ua-kpi__num" id="k3-cv"></div><div class="ua-kpi__sub">o que o balanço mostrava</div></div>
@@ -402,7 +411,7 @@
 
     <p class="ua-nota">
       Modelo didático em termos reais: face de R$ 2,80 bi, cupom semestral de 6,0% a.a. (NTN-B). Valores são fluxos por receber descontados pela taxa em questão.
-      Vistas 2 e 3: 500 cenários de passeio aleatório sem tendência a partir da taxa do painel, com semente; hipotéticos, não previsão. Mesmo título da peça de ajuste de precificação.
+      Vistas 2 e 3: compra a mercado pela taxa de compra; 500 cenários de passeio aleatório com tendência e volatilidade escolhidas, com semente; hipotéticos, não previsão. Mesmo título da peça de ajuste de precificação.
     </p>
   </main>
 
@@ -589,7 +598,12 @@
      Cenários hipotéticos, não previsão nem calibração histórica.
      ============================================================ */
   var NSIM = 500;
-  var sim = { vol: 0.8, semente: 1 };
+  var sim = { vol: 0.8, semente: 1, tend: 0.5 };   // tendência da taxa, p.p. por ano
+  function tendTxt() {
+    if (Math.abs(sim.tend) < 0.01) return 'juros sem tendência';
+    return 'juros ' + (sim.tend > 0 ? 'subindo ' : 'caindo ') + num(Math.abs(sim.tend), 2) + ' p.p. ao ano';
+  }
+  function vies() { return sim.tend > 0.01 ? 'alta' : (sim.tend < -0.01 ? 'queda' : 'neutro'); }
   var cacheTraj = { chave: '', r: null };
   var cacheVenda = { chave: '', dados: null };
 
@@ -609,14 +623,14 @@
 
   /* taxas simuladas: r[i][k] = taxa do cenário i no semestre k (k = 0 é hoje) */
   function trajetorias() {
-    var nk = 2 * st.pz, chave = [st.mk, st.pz, sim.vol, sim.semente].join('|');
+    var nk = 2 * st.pz, chave = [st.aq, st.pz, sim.vol, sim.semente, sim.tend].join('|');
     if (cacheTraj.chave === chave) return cacheTraj.r;
     var rnd = prng(sim.semente * 7919 + 17), dp = sim.vol * Math.sqrt(0.5), out = [];
     for (var i = 0; i < NSIM; i++) {
-      var a = new Float64Array(nk + 1), r = st.mk;
+      var a = new Float64Array(nk + 1), r = st.aq;   // compra a mercado: no dia da compra, curva = mercado
       a[0] = r;
       for (var k = 1; k <= nk; k++) {
-        r += dp * normal(rnd);
+        r += sim.tend * 0.5 + dp * normal(rnd);
         if (r < 0.5) r = 0.5;
         if (r > 15) r = 15;
         a[k] = r;
@@ -674,14 +688,14 @@
 
   /* ---------- Vista 2: cenários até o vencimento ---------- */
   function renderTempo() {
-    var W = 700, H = 235, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb, n = st.pz, nk = 2 * n;
+    var W = 700, H = 222, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb, n = st.pz, nk = 2 * n;
     var R = trajetorias(), ts = [], cv = [], q = { p5: [], p25: [], p50: [], p75: [], p95: [] }, um = [];
-    var piorDif = new Float64Array(NSIM).fill(Infinity);
+    var piorDif = new Float64Array(NSIM).fill(Infinity), melhorDif = new Float64Array(NSIM).fill(-Infinity);
     for (var k = 0; k <= nk; k++) {
       var t = k / 2, vcur = valorGrade(st.aq, nk - k), col = new Float64Array(NSIM);
       for (var i = 0; i < NSIM; i++) {
         col[i] = valorGrade(R[i][k], nk - k);
-        var d = col[i] - vcur; if (d < piorDif[i]) piorDif[i] = d;
+        var d = col[i] - vcur; if (d < piorDif[i]) piorDif[i] = d; if (d > melhorDif[i]) melhorDif[i] = d;
       }
       var rs = resumo(col);
       ts.push(t); cv.push(vcur); um.push(col[0]);
@@ -712,23 +726,28 @@
     el('g-tempo').innerHTML = s;
 
     el('leg-tempo').innerHTML = legendaSim('<span><i style="border-top-color:' + CIN + ';border-top-width:2px"></i>um cenário</span>');
-    el('t-linha2').innerHTML = NSIM + ' cenários para a taxa de mercado, partindo de ' + pct(st.mk) + '. Valor logo após cada cupom, em R$ bi.';
+    el('t-linha2').innerHTML = 'Compra a mercado a ' + pct(st.aq) + ': no dia da compra, curva = mercado. ' + NSIM + ' cenários, em R$ bi.';
 
-    var pd = resumo(piorDif), tm = ts[km];
+    var pd = resumo(piorDif), md = resumo(melhorDif), tm = ts[km];
     var f;
     if (sim.vol < 0.05) {
-      f = 'Com volatilidade zero, a taxa fica parada em ' + pct(st.mk) + ' e os cenários viram uma linha só. <strong>Aumente a volatilidade</strong> e veja o leque abrir no meio do caminho e fechar no vencimento.';
+      f = 'Com volatilidade zero, os cenários viram uma linha só: ' + tendTxt() + '. ' + (vies() === 'neutro' ? 'Curva e mercado ficam colados. ' : '') + '<strong>Aumente a volatilidade</strong> e veja o leque abrir no meio do caminho e fechar no vencimento.';
     } else {
       f = 'No ano ' + num(tm, tm % 1 ? 1 : 0) + ', o valor a mercado fica entre <strong>' + bi(q.p5[km]) + ' e ' + bi(q.p95[km]) + '</strong> em 90% dos cenários, contra ' + bi(cv[km]) + ' na curva. ' +
-          'Em algum momento do caminho, a diferença para a curva chega a <strong>' + miAss(pd.p50) + '</strong> no cenário mediano e a ' + miAss(pd.p5) + ' nos 5% piores. ' +
-          '<strong>No vencimento, o leque fecha em todos os cenários:</strong> quem manteve recebe os ' + pct(st.aq) + ' contratados. A variabilidade é real, mas só custa a quem vende.';
+          (vies() === 'queda'
+            ? 'No caminho, o ganho a mercado chega a <strong>' + miAss(md.p50) + '</strong> no cenário mediano. '
+            : 'No caminho, a perda a mercado chega a <strong>' + miAss(pd.p50) + '</strong> no cenário mediano e a ' + miAss(pd.p5) + ' nos 5% piores. ') +
+          '<strong>No vencimento, o leque fecha em todos os cenários:</strong> quem manteve recebe os ' + pct(st.aq) + ' contratados. ' +
+          (vies() === 'alta' ? 'Com juros subindo, o mercado fica abaixo da curva durante quase todo o caminho: <strong>a perda a mercado é sistemática, não azar</strong>.' :
+           vies() === 'queda' ? 'Com juros caindo, o mercado fica acima da curva: o ganho existe, mas só vira dinheiro se o título for vendido.' :
+           'Sem tendência, a mediana fica colada na curva. Isso não quer dizer que não há perda: quer dizer que não se sabe de que lado ela vem.');
     }
     el('f-tempo').innerHTML = f;
   }
 
   /* ---------- Vista 3: venda antecipada em cenários ---------- */
   function dadosVenda() {
-    var nk = 2 * st.pz, chave = [st.mk, st.pz, sim.vol, sim.semente, st.aq, st.cupom].join('|');
+    var nk = 2 * st.pz, chave = [st.pz, sim.vol, sim.semente, sim.tend, st.aq, st.cupom].join('|');
     if (cacheVenda.chave === chave) return cacheVenda.dados;
     var R = trajetorias(), P0 = valorGrade(st.aq, nk), c = cupomSem(), porK = {};
     for (var k = 2; k <= nk; k++) {
@@ -747,7 +766,7 @@
 
   function renderVenda() {
     var n = st.pz, nk = 2 * n, T = Math.min(st.ano, n), kT = 2 * T;
-    var W = 700, H = 190, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb;
+    var W = 700, H = 180, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb;
     var D = dadosVenda(), ts = [], q = { p5: [], p25: [], p50: [], p75: [], p95: [] };
     for (var k = 2; k <= nk; k++) {
       ts.push(k / 2);
@@ -788,7 +807,7 @@
     var vc = valorGrade(st.aq, nk - kT);
     el('v-ano').textContent = String(T);
     el('leg-venda').innerHTML = legendaSim().replace('>na curva<', '>mantido até o vencimento<').replace('mediana a mercado', 'mediana se vender');
-    el('t-linha3').textContent = 'Compra hoje a ' + pct(st.aq) + ', recebe os cupons e vende no ano escolhido, à taxa de cada cenário.';
+    el('t-linha3').textContent = 'Compra a mercado a ' + pct(st.aq) + ', recebe os cupons e vende no ano escolhido. ' + NSIM + ' cenários.';
     el('k3-cv').textContent = bi(vc);
     el('k3-vd').textContent = bi(dT.v.p50);
     var semDisp = sim.vol < 0.05 || T >= n;
@@ -800,11 +819,15 @@
     if (T >= n) {
       f = 'Vender no vencimento é resgatar: rende os ' + pct(st.aq) + ' contratados em todos os cenários, sem dispersão nenhuma. <strong>Puxe o ano da venda para trás</strong> e veja o leque abrir.';
     } else if (sim.vol < 0.05) {
-      f = 'Com volatilidade zero, só existe um cenário: taxa parada em ' + pct(st.mk) + ', vender no ano ' + T + ' rende ' + pct(dT.r.p50) + ' a.a. <strong>Aumente a volatilidade</strong> para ver o que a venda antecipada arrisca.';
+      f = 'Com volatilidade zero, só existe um cenário (' + tendTxt() + '): vender no ano ' + T + ' rende ' + pct(dT.r.p50) + ' a.a., contra ' + pct(st.aq) + ' contratados. <strong>Aumente a volatilidade</strong> para ver a dispersão.';
     } else {
-      f = 'Vendendo no ano ' + T + ', a rentabilidade vai de <strong>' + pct(dT.r.p5) + ' a ' + pct(dT.r.p95) + ' a.a.</strong> em 90% dos cenários, e fica abaixo dos ' + pct(st.aq) +
-          ' contratados em <strong>' + pAb + '% deles</strong>. Quanto mais cedo a venda, mais largo o leque; no vencimento, ele fecha. ' +
-          '<strong>Quem é obrigado a vender não escolhe o cenário</strong>: por isso a curva exige capacidade financeira demonstrada.';
+      var abre = 'Vendendo no ano ' + T + ', a rentabilidade mediana é <strong>' + pct(dT.r.p50) + ' a.a.</strong> (90% entre ' + pct(dT.r.p5) + ' e ' + pct(dT.r.p95) +
+                 ') e fica abaixo dos ' + pct(st.aq) + ' contratados em <strong>' + pAb + '% dos cenários</strong>. ';
+      f = abre + (vies() === 'alta'
+            ? 'Com juros subindo, <strong>a perda na venda antecipada é a regra, não o azar</strong>, e é maior quanto mais cedo a venda. Quem é obrigado a vender num ciclo de alta vende no pior momento.'
+            : vies() === 'queda'
+            ? 'Com juros caindo, vender antes rende mais: é a tentação. <strong>Título na curva vendido para embolsar ganho contradiz a intenção declarada</strong>.'
+            : 'Sem tendência, a mediana devolve a taxa de compra e parece que não há perda. <strong>Há: metade dos cenários perde, e quem é obrigado a vender não escolhe o cenário.</strong>');
     }
     el('f-venda').innerHTML = f;
   }
@@ -817,6 +840,9 @@
     el('s-ano').max = String(st.pz);
     if (st.ano > st.pz) { st.ano = st.pz; }
     el('s-ano').value = String(st.ano);
+    var simula = aba !== 'preco';
+    el('card-mk').classList.toggle('is-inativo', simula);
+    el('d-mk').textContent = simula ? 'Vistas 2 e 3: compra a mercado, pela taxa de compra.' : 'O que o mercado exige hoje por um título igual.';
     if (aba === 'preco') renderPreco();
     if (aba === 'tempo') renderTempo();
     if (aba === 'venda') renderVenda();
@@ -831,19 +857,21 @@
   ligar('s-aq', 'aq', false); ligar('s-mk', 'mk', false); ligar('s-pz', 'pz', true); ligar('s-ano', 'ano', true);
   function sincSim() {
     ['2', '3'].forEach(function (x) {
+      el('s-tend' + x).value = String(sim.tend);
+      el('v-tend' + x).textContent = (sim.tend > 0 ? '+' : '') + num(sim.tend, 2) + ' p.p./ano';
       el('s-vol' + x).value = String(sim.vol);
-      el('v-vol' + x).textContent = num(sim.vol, 1) + ' p.p./ano';
-      el('sem' + x).textContent = 'semente ' + sim.semente;
+      el('v-vol' + x).textContent = num(sim.vol, 1) + ' p.p.';
     });
   }
   ['2', '3'].forEach(function (x) {
     el('s-vol' + x).addEventListener('input', function (ev) { sim.vol = parseFloat(ev.target.value); sincSim(); render(); });
     el('btn-sim' + x).addEventListener('click', function () { sim.semente += 1; sincSim(); render(); });
+    el('s-tend' + x).addEventListener('input', function (ev) { sim.tend = parseFloat(ev.target.value); sincSim(); render(); });
   });
   sincSim();
 
   el('btn-reset').addEventListener('click', function () {
-    st.aq = BASE.aq; st.mk = BASE.mk; st.pz = BASE.pz; st.ano = BASE.ano; st.cupom = true; sim.vol = 0.8; sim.semente = 1; sincSim();
+    st.aq = BASE.aq; st.mk = BASE.mk; st.pz = BASE.pz; st.ano = BASE.ano; st.cupom = true; sim.vol = 0.8; sim.semente = 1; sim.tend = 0.5; sincSim();
     el('s-aq').value = BASE.aq; el('s-mk').value = BASE.mk; el('s-pz').value = BASE.pz;
     el('m-cupom').setAttribute('aria-pressed', 'true'); el('m-zero').setAttribute('aria-pressed', 'false');
     render();
