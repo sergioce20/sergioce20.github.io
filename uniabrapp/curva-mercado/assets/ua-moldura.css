@@ -1,0 +1,36 @@
+/* ============================================================
+   UniAbrapp — Moldura dos slides aplicada às peças HTML (36ª ed.)
+   Decisão do Sérgio, 13/09/2026: peça projetada em sala usa a mesma
+   moldura do slide (lápide, logo, hashtag, pontilhado, rodapé do curso).
+   Geometria derivada do slide 33,87 × 19,05 cm, em unidades de viewport.
+   ============================================================ */
+@import url("inter.css");
+:root{
+  --ua-font-titulo:"Aptos Display","Aptos","Inter",system-ui,-apple-system,sans-serif;
+  --ua-font-corpo:"Aptos","Inter",system-ui,-apple-system,sans-serif;
+}
+html,body{ background:#F0EFEF; }
+body{ font-family:var(--ua-font-corpo); }
+body.ua-moldura{
+  background:#F0EFEF url("fundo-cinza-claro.jpg") center/cover no-repeat fixed;
+  min-height:100vh;
+}
+/* âncoras de marca: mesma posição do slide */
+.ua-logo{ position:fixed !important; top:3.8vh !important; right:2.1vw !important;
+  width:7.9vw !important; min-width:96px; height:auto !important; z-index:1000; }
+.ua-hashtag{ position:fixed !important; bottom:3.7vh !important; right:2.5vw !important;
+  width:3.5vw !important; min-width:44px; height:auto !important; object-fit:contain; z-index:1000; pointer-events:none; }
+.ua-lapide{ position:fixed; left:9vw; top:-18.5vh; width:7.5vw; min-width:72px; height:auto; z-index:999; pointer-events:none; }
+.ua-pontilhado{ position:fixed; left:0; bottom:0; width:8.9vw; min-width:90px; height:auto; z-index:0; pointer-events:none; opacity:.9; }
+.ua-curso{ position:fixed; left:10vw; bottom:1.1vh; z-index:1000; pointer-events:none; background:rgba(240,239,239,.92); padding:.15rem .6rem; border-radius:999px;
+  font-family:var(--ua-font-corpo); font-size:.72rem; letter-spacing:.02em; color:#7A7A7A; }
+.ua-curso strong{ color:#002C60; font-weight:700; }
+/* título afastado da lápide, como no slide (x = 4,94 cm) */
+.ua-header{ padding-left:14.6vw !important; padding-right:12vw !important; padding-top:2.6vh !important; }
+.ua-main, .ua-footer{ padding-left:4vw !important; padding-right:4vw !important; }
+.ua-footer{ display:none !important; }
+.ua-main{ padding-bottom:9vh !important; }
+@media (max-width:900px){
+  .ua-lapide,.ua-pontilhado,.ua-curso{ display:none; }
+  .ua-header{ padding-left:1.5rem !important; padding-right:7rem !important; }
+}

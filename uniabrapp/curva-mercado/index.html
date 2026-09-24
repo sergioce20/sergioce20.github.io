@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Na curva ou a mercado · UniAbrapp Módulo II</title>
+  <style>
+    /* ============================================================
+       UniAbrapp — Tokens institucionais
+       Cópia fiel do bloco usado nas demais peças da 36ª edição
+       ============================================================ */
+    :root {
+      --ua-azul-marinho-profundo: #00145B;
+      --ua-azul-marinho-claro:    #002C60;
+      --ua-azul-eletrico:         #002CD6;
+      --ua-magenta:               #EF0068;
+
+      --ua-cinza-fundo:           #F0EFEF;
+      --ua-cinza-lapide:          #E8E8E8;
+      --ua-cinza-rodape:          #7A7A7A;
+      --ua-branco:                #FFFFFF;
+
+      --ua-laranja:               #F27649;
+      --ua-amarelo:               #F9BB59;
+
+      --ua-font-titulo:  "Aptos Display", "Aptos", "Inter", system-ui, sans-serif;
+      --ua-font-corpo:   "Aptos", "Inter", system-ui, sans-serif;
+
+      --ua-fs-titulo-slide:     2.0rem;
+      --ua-fs-titulo-secao:     1.75rem;
+      --ua-fs-corpo-grande:     1.12rem;
+      --ua-fs-corpo-padrao:     1rem;
+      --ua-fs-corpo-pequeno:    0.875rem;
+      --ua-fs-caption:          0.75rem;
+      --ua-fs-rodape:           0.6875rem;
+
+      --ua-spacing-xs: 0.5rem;
+      --ua-spacing-sm: 1rem;
+      --ua-spacing-md: 1.5rem;
+      --ua-spacing-lg: 2rem;
+
+      --ua-container-max: 78rem;
+    }
+
+    /* ============================================================
+       Reset + base
+       ============================================================ */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: var(--ua-font-corpo);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ua-azul-marinho-claro);
+      background: var(--ua-cinza-fundo);
+    }
+    body.ua-app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Âncoras de marca */
+    .ua-logo { position: fixed; top: 1.2rem; right: 1.5rem; width: 9rem; height: auto; z-index: 100; }
+    .ua-hashtag { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 4rem; height: 4rem; z-index: 100; pointer-events: none; }
+
+    /* Header / main / footer */
+    .ua-header { padding: 1.2rem 4rem 0.7rem; max-width: var(--ua-container-max); margin: 0 auto; width: 100%; }
+    .ua-title {
+      font-family: var(--ua-font-titulo); font-weight: 900;
+      font-size: var(--ua-fs-titulo-slide); color: var(--ua-azul-marinho-claro);
+      line-height: 1.1; margin: 0 0 0.4rem;
+    }
+    .ua-subtitle {
+      font-size: var(--ua-fs-corpo-grande); color: var(--ua-azul-marinho-claro);
+      margin: 0; opacity: .85;
+    }
+    .ua-main {
+      flex: 1; padding: 0.45rem 4rem 0.4rem; max-width: var(--ua-container-max);
+      margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.28fr);
+      gap: 0.8rem; align-items: start;
+    }
+    .ua-footer { padding: 1rem 4rem 5rem; max-width: var(--ua-container-max); margin: 0 auto; width: 100%; }
+    .ua-footer__text { font-size: var(--ua-fs-rodape); color: var(--ua-cinza-rodape); }
+
+    /* ============================================================
+       Coluna esquerda — controles
+       ============================================================ */
+    .ua-controles { display: flex; flex-direction: column; gap: 0.55rem; }
+    .ua-card {
+      background: var(--ua-branco); border-radius: 10px;
+      padding: 0.6rem 0.95rem 0.7rem;
+      box-shadow: 0 1px 3px rgba(0,20,91,.08);
+    }
+    .ua-card__topo { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+    .ua-card__rotulo {
+      font-weight: 700; font-size: var(--ua-fs-corpo-pequeno);
+      letter-spacing: .06em; text-transform: uppercase; color: var(--ua-azul-marinho-claro);
+    }
+    .ua-card__tag {
+      font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape);
+      letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+    }
+    .ua-card__desc { font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape); margin: .1rem 0 .2rem; }
+    .ua-valor {
+      font-family: var(--ua-font-titulo); font-weight: 900;
+      font-size: 1.5rem; color: var(--ua-magenta); line-height: 1.1; margin-bottom: 0;
+    }
+    .ua-valor--azul { color: var(--ua-azul-eletrico); }
+
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+      background: var(--ua-cinza-lapide); border-radius: 2px; outline: none; margin: .35rem 0 .15rem;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--ua-magenta); cursor: pointer; border: 0;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%; background: var(--ua-magenta); cursor: pointer; border: 0;
+    }
+    input[type="range"]:focus-visible { outline: 2px solid var(--ua-azul-eletrico); outline-offset: 4px; }
+    input.ua-range--azul::-webkit-slider-thumb { background: var(--ua-azul-eletrico); }
+    input.ua-range--azul::-moz-range-thumb { background: var(--ua-azul-eletrico); }
+
+    .ua-escala { display: flex; justify-content: space-between; font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape); }
+
+    .ua-reset {
+      align-self: flex-start; margin-top: .1rem;
+      background: var(--ua-cinza-lapide); border: 0; border-radius: 6px;
+      padding: .45rem .9rem; font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-pequeno); color: var(--ua-azul-marinho-claro); cursor: pointer;
+    }
+    .ua-reset:hover { background: #DEDEDE; }
+    .ua-reset:focus-visible { outline: 2px solid var(--ua-azul-eletrico); outline-offset: 2px; }
+
+    /* ============================================================
+       Coluna direita — painel
+       ============================================================ */
+    .ua-painel {
+      background: var(--ua-branco); border-radius: 10px;
+      padding: 0.8rem 1.25rem 0.85rem; box-shadow: 0 1px 3px rgba(0,20,91,.08);
+    }
+    .ua-painel__titulo {
+      font-family: var(--ua-font-titulo); font-weight: 900;
+      font-size: 1.2rem; margin: 0 0 .1rem; color: var(--ua-azul-marinho-claro);
+    }
+    .ua-painel__linha { font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape); margin: 0 0 .7rem; }
+
+    .ua-barras { display: flex; flex-direction: column; gap: .25rem; margin-bottom: .5rem; }
+    .ua-barra__cab { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; margin-bottom: .15rem; }
+    .ua-barra__nome { font-size: var(--ua-fs-corpo-pequeno); font-weight: 700; }
+    .ua-barra__nota { font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape); font-weight: 400; }
+    .ua-barra__num { font-family: var(--ua-font-titulo); font-weight: 900; font-size: 1.1rem; }
+    .ua-barra__trilho { position: relative; height: 13px; background: var(--ua-cinza-fundo); border-radius: 4px; overflow: hidden; }
+    .ua-marcador { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ua-branco); box-shadow: 0 0 0 1px rgba(0,44,96,.55); }
+    .ua-barra__preenche { height: 100%; width: 0; border-radius: 4px; transition: width .35s ease-out; }
+    .b-mercado .ua-barra__preenche { background: #B9BCC7; }
+    .b-mercado .ua-barra__num { color: var(--ua-cinza-rodape); }
+    .b-curva .ua-barra__preenche { background: var(--ua-azul-marinho-claro); }
+    .b-curva .ua-barra__num { color: var(--ua-azul-marinho-claro); }
+    .b-atuarial .ua-barra__preenche { background: var(--ua-magenta); }
+    .b-atuarial .ua-barra__num { color: var(--ua-magenta); }
+
+    .ua-ajuste {
+      border-left: 4px solid var(--ua-magenta); background: var(--ua-cinza-fundo);
+      border-radius: 0 8px 8px 0; padding: .5rem .9rem .55rem; margin-bottom: .55rem;
+    }
+    .ua-ajuste__rotulo {
+      font-size: var(--ua-fs-caption); letter-spacing: .06em; text-transform: uppercase;
+      color: var(--ua-cinza-rodape); margin-bottom: .1rem;
+    }
+    .ua-ajuste__num {
+      font-family: var(--ua-font-titulo); font-weight: 900; font-size: 1.7rem;
+      line-height: 1.05; color: var(--ua-magenta);
+    }
+    .ua-ajuste__conta { font-size: var(--ua-fs-corpo-pequeno); color: var(--ua-azul-marinho-claro); margin-top: .2rem; }
+
+    .ua-eta { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; font-size: var(--ua-fs-corpo-pequeno); margin-bottom: .35rem; }
+    .ua-eta strong { font-family: var(--ua-font-titulo); font-size: 1.05rem; }
+    .ua-eta__seta { color: var(--ua-cinza-rodape); }
+
+    .ua-regra {
+      background: var(--ua-azul-marinho-profundo); color: var(--ua-branco);
+      border-radius: 8px; padding: .5rem .8rem; font-size: 0.72rem; line-height: 1.4;
+    }
+    .ua-regra strong { color: var(--ua-amarelo); }
+
+    .ua-condicoes { margin-top: .55rem; font-size: 0.7rem; color: var(--ua-cinza-rodape); line-height: 1.5; }
+
+    /* ============================================================
+       Abas e vista de trajetória
+       ============================================================ */
+    .ua-abas { display: flex; gap: .3rem; margin-bottom: .4rem; border-bottom: 1px solid var(--ua-cinza-lapide); }
+    .ua-aba {
+      border: 0; background: none; cursor: pointer; font-family: var(--ua-font-corpo);
+      font-size: var(--ua-fs-corpo-pequeno); font-weight: 700; color: var(--ua-cinza-rodape);
+      padding: .3rem .7rem .35rem; border-bottom: 3px solid transparent; margin-bottom: -1px;
+    }
+    .ua-aba[aria-selected="true"] { color: var(--ua-azul-marinho-claro); border-bottom-color: var(--ua-magenta); }
+    .ua-aba:focus-visible { outline: 2px solid var(--ua-azul-eletrico); outline-offset: 2px; }
+    .is-oculta { display: none !important; }
+
+    .ua-vies { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; margin: .1rem 0 .5rem; }
+    .ua-vies__rotulo {
+      font-size: var(--ua-fs-caption); letter-spacing: .05em; text-transform: uppercase;
+      color: var(--ua-cinza-rodape); margin-right: .2rem;
+    }
+    .ua-btn {
+      border: 1px solid var(--ua-cinza-lapide); background: var(--ua-branco); border-radius: 6px;
+      padding: .3rem .6rem; font-family: var(--ua-font-corpo); font-size: var(--ua-fs-caption);
+      color: var(--ua-azul-marinho-claro); cursor: pointer;
+    }
+    .ua-btn[aria-pressed="true"] { background: var(--ua-azul-marinho-claro); color: var(--ua-branco); border-color: var(--ua-azul-marinho-claro); }
+    .ua-btn:focus-visible { outline: 2px solid var(--ua-azul-eletrico); outline-offset: 2px; }
+    .ua-btn--sorteio { margin-left: auto; background: var(--ua-cinza-lapide); border-color: var(--ua-cinza-lapide); }
+    .ua-semente { font-size: var(--ua-fs-caption); color: var(--ua-cinza-rodape); }
+
+    .ua-modo { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+    .ua-rodape-controles { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .1rem; }
+    .ua-header__linha { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .ua-barra__dir { display: inline-flex; align-items: baseline; gap: .4rem; }
+    .ua-par { font-size: 0.7rem; color: var(--ua-cinza-rodape); }
+    .ua-par--agio { color: var(--ua-laranja); font-weight: 700; }
+    .ua-legenda { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; font-size: var(--ua-fs-caption); margin: .35rem 0 .1rem; }
+    .ua-legenda span { display: inline-flex; align-items: center; gap: .35rem; }
+    #leg-itens { display: inline-flex; gap: .9rem; flex-wrap: wrap; }
+    .ua-legenda i { width: 18px; height: 0; border-top-width: 3px; border-top-style: solid; display: inline-block; }
+    .ua-grafico { width: 100%; height: auto; display: block; margin-top: -.15rem; }
+    .ua-fecho {
+      margin-top: .5rem; border-left: 4px solid var(--ua-azul-eletrico); background: var(--ua-cinza-fundo);
+      border-radius: 0 8px 8px 0; padding: .55rem .85rem; font-size: var(--ua-fs-caption); line-height: 1.5;
+    }
+    .ua-fecho strong { color: var(--ua-azul-marinho-claro); }
+
+    .ua-ancora {
+      grid-column: 1 / -1; background: var(--ua-azul-marinho-profundo); color: var(--ua-branco);
+      border-radius: 10px; padding: .45rem 1.2rem; margin-top: 0;
+    }
+    .ua-ancora__traco { width: 46px; height: 3px; background: var(--ua-magenta); margin-bottom: .35rem; }
+    .ua-ancora__texto { font-family: var(--ua-font-titulo); font-weight: 700; font-size: 1.02rem; line-height: 1.25; }
+
+    .ua-nota { grid-column: 1 / -1; font-size: 0.64rem; color: var(--ua-cinza-rodape); line-height: 1.4; margin: 0; }
+
+    @media (max-width: 1100px) {
+      .ua-main { grid-template-columns: 1fr; }
+      .ua-hashtag { width: 3rem; height: 3rem; }
+    }
+      /* ===== Peça curva × mercado: componentes próprios ===== */
+    .ua-kpis { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; margin: .45rem 0 .5rem; }
+    .ua-kpi { background: var(--ua-cinza-fundo); border-radius: 8px; padding: .4rem .7rem .45rem; border-top: 3px solid var(--ua-cinza-lapide); }
+    .ua-kpi__rot { font-size: var(--ua-fs-caption); letter-spacing: .05em; text-transform: uppercase; color: var(--ua-cinza-rodape); }
+    .ua-kpi__num { font-family: var(--ua-font-titulo); font-weight: 900; font-size: 1.3rem; line-height: 1.15; }
+    .ua-kpi__sub { font-size: 0.7rem; color: var(--ua-cinza-rodape); }
+    .k-curva { border-top-color: var(--ua-azul-eletrico); } .k-curva .ua-kpi__num { color: var(--ua-azul-eletrico); }
+    .k-merc { border-top-color: var(--ua-magenta); } .k-merc .ua-kpi__num { color: var(--ua-magenta); }
+    .k-dif { border-top-color: var(--ua-azul-marinho-claro); } .k-dif .ua-kpi__num { color: var(--ua-azul-marinho-claro); }
+    .ua-venda { display: flex; align-items: center; gap: .8rem; margin: .1rem 0 .3rem; }
+    .ua-venda__rot { font-size: var(--ua-fs-caption); letter-spacing: .05em; text-transform: uppercase; color: var(--ua-cinza-rodape); white-space: nowrap; }
+    .ua-venda__val { font-family: var(--ua-font-titulo); font-weight: 900; color: var(--ua-magenta); font-size: 1.15rem; min-width: 1.6rem; }
+    .ua-venda input[type=range] { margin: 0; }
+    .ua-condicoes--esq { margin-top: .35rem; background: var(--ua-branco); border-radius: 10px; padding: .5rem .95rem; font-size: .72rem; color: var(--ua-azul-marinho-claro); box-shadow: 0 1px 3px rgba(0,20,91,.08); border-left: 4px solid var(--ua-azul-marinho-claro); }
+    .ua-condicoes--esq strong { display: block; font-size: var(--ua-fs-caption); letter-spacing: .06em; text-transform: uppercase; margin-bottom: .15rem; }
+  </style>
+  <link rel="stylesheet" href="assets/ua-moldura.css">
+</head>
+<body class="ua-moldura ua-app">
+<img src="assets/lapide-organica.svg" alt="" class="ua-lapide" aria-hidden="true">
+<img src="assets/pontilhado-escuro.svg" alt="" class="ua-pontilhado" aria-hidden="true">
+<div class="ua-curso"><strong>UniAbrapp</strong> · Programa Executivo · Módulo II · Gestão Atuarial para a Tomada de Decisões · 36ª Edição</div>
+
+  <header class="ua-header">
+    <h1 class="ua-title">Título na curva ou a mercado</h1>
+    <p class="ua-subtitle">Duas réguas para o mesmo título. Muda quando a diferença aparece, não quanto o título paga.</p>
+  </header>
+
+  <main class="ua-main">
+
+    <section class="ua-controles" aria-label="Controles">
+      <div class="ua-card">
+        <div class="ua-card__topo">
+          <span class="ua-card__rotulo">Taxa de compra</span>
+          <span class="ua-card__tag">régua da curva</span>
+        </div>
+        <p class="ua-card__desc">Travada no dia da compra. É a régua do valor na curva.</p>
+        <div class="ua-valor ua-valor--azul" id="v-aq">6,0%</div>
+        <input type="range" class="ua-range--azul" id="s-aq" min="4" max="8" step="0.1" value="6"
+               aria-label="Taxa de compra do título, em por cento ao ano acima da inflação">
+        <div class="ua-escala"><span>4,0%</span><span>6,0% (base)</span><span>8,0%</span></div>
+      </div>
+
+      <div class="ua-card">
+        <div class="ua-card__topo">
+          <span class="ua-card__rotulo">Taxa de mercado</span>
+          <span class="ua-card__tag">régua do mercado</span>
+        </div>
+        <p class="ua-card__desc">O que o mercado exige hoje por um título igual.</p>
+        <div class="ua-valor" id="v-mk">7,0%</div>
+        <input type="range" id="s-mk" min="3" max="10" step="0.1" value="7"
+               aria-label="Taxa de mercado, em por cento ao ano acima da inflação">
+        <div class="ua-escala"><span>3,0%</span><span>7,0% (base)</span><span>10,0%</span></div>
+      </div>
+
+      <div class="ua-card">
+        <div class="ua-card__topo">
+          <span class="ua-card__rotulo">Prazo até o vencimento</span>
+          <span class="ua-card__tag">mais longo, mais sensível</span>
+        </div>
+        <div class="ua-valor" id="v-pz">10</div>
+        <input type="range" id="s-pz" min="2" max="30" step="1" value="10" aria-label="Prazo até o vencimento, em anos">
+        <div class="ua-escala"><span>2</span><span>10 (base)</span><span>30</span></div>
+      </div>
+
+      <div class="ua-rodape-controles">
+        <div class="ua-modo">
+          <button class="ua-btn" id="m-cupom" type="button" aria-pressed="true">com cupom</button>
+          <button class="ua-btn" id="m-zero" type="button" aria-pressed="false">sem cupom</button>
+        </div>
+        <button class="ua-reset" id="btn-reset" type="button">Estado-base</button>
+      </div>
+
+      <p class="ua-condicoes ua-condicoes--esq"><strong>O que a norma exige</strong>Intenção e capacidade financeira de manter até o vencimento, demonstradas em projeções financeiras e atuariais, e ao menos cinco anos entre a compra e o vencimento, em qualquer modalidade de plano. Resolução CNPC nº 43/2021, art. 30, na redação da Resolução CNPC nº 61/2024.</p>
+    </section>
+
+    <section class="ua-painel">
+      <div class="ua-abas" role="tablist" aria-label="Vistas da peça">
+        <button class="ua-aba" id="aba-preco" role="tab" aria-selected="true" type="button">1. Taxa e preço</button>
+        <button class="ua-aba" id="aba-tempo" role="tab" aria-selected="false" type="button">2. Até o vencimento</button>
+        <button class="ua-aba" id="aba-venda" role="tab" aria-selected="false" type="button">3. Venda antecipada</button>
+      </div>
+
+      <div class="ua-vista" id="vista-preco" role="tabpanel" aria-live="polite">
+        <h2 class="ua-painel__titulo">Um único título, duas taxas de desconto</h2>
+        <p class="ua-painel__linha" id="t-linha1"></p>
+        <svg class="ua-grafico" id="g-preco" viewBox="0 0 700 215" role="img"
+             aria-label="Preço do título em função da taxa de desconto, com o valor na curva e o valor a mercado marcados"></svg>
+        <div class="ua-kpis">
+          <div class="ua-kpi k-curva"><div class="ua-kpi__rot">Na curva</div><div class="ua-kpi__num" id="k-cv"></div><div class="ua-kpi__sub" id="k-cv-s"></div></div>
+          <div class="ua-kpi k-merc"><div class="ua-kpi__rot">A mercado</div><div class="ua-kpi__num" id="k-mk"></div><div class="ua-kpi__sub" id="k-mk-s"></div></div>
+          <div class="ua-kpi k-dif"><div class="ua-kpi__rot">Diferença</div><div class="ua-kpi__num" id="k-df"></div><div class="ua-kpi__sub" id="k-df-s"></div></div>
+        </div>
+        <div class="ua-fecho" id="f-preco"></div>
+      </div>
+
+      <div class="ua-vista is-oculta" id="vista-tempo" role="tabpanel" aria-live="polite">
+        <h2 class="ua-painel__titulo">Mantido até o vencimento, as duas réguas se encontram</h2>
+        <p class="ua-painel__linha" id="t-linha2"></p>
+        <div class="ua-legenda" id="leg-tempo"></div>
+        <svg class="ua-grafico" id="g-tempo" viewBox="0 0 700 235" role="img"
+             aria-label="Valor na curva e valor a mercado ao longo do tempo até o vencimento"></svg>
+        <div class="ua-fecho" id="f-tempo"></div>
+      </div>
+
+      <div class="ua-vista is-oculta" id="vista-venda" role="tabpanel" aria-live="polite">
+        <h2 class="ua-painel__titulo">A diferença só vira resultado se o título for vendido</h2>
+        <p class="ua-painel__linha" id="t-linha3"></p>
+        <div class="ua-venda">
+          <span class="ua-venda__rot">Venda no ano</span>
+          <span class="ua-venda__val" id="v-ano">2</span>
+          <input type="range" id="s-ano" min="1" max="10" step="1" value="2" aria-label="Ano da venda">
+        </div>
+        <svg class="ua-grafico" id="g-venda" viewBox="0 0 700 190" role="img"
+             aria-label="Rentabilidade anual realizada conforme o ano da venda"></svg>
+        <div class="ua-kpis">
+          <div class="ua-kpi k-curva"><div class="ua-kpi__rot">Na curva, na data</div><div class="ua-kpi__num" id="k3-cv"></div><div class="ua-kpi__sub">o que o balanço mostrava</div></div>
+          <div class="ua-kpi k-merc"><div class="ua-kpi__rot">Preço de venda</div><div class="ua-kpi__num" id="k3-vd"></div><div class="ua-kpi__sub" id="k3-vd-s"></div></div>
+          <div class="ua-kpi k-dif"><div class="ua-kpi__rot">Rentabilidade</div><div class="ua-kpi__num" id="k3-rt"></div><div class="ua-kpi__sub" id="k3-rt-s"></div></div>
+        </div>
+        <div class="ua-fecho" id="f-venda"></div>
+      </div>
+
+    </section>
+
+    <div class="ua-ancora">
+      <div class="ua-ancora__traco"></div>
+      <div class="ua-ancora__texto">Marcar na curva não elimina o risco de juros. Troca a oscilação do balanço pelo compromisso de não vender, e esse compromisso só se sustenta com liquidez.</div>
+    </div>
+
+    <p class="ua-nota">
+      Modelo didático em termos reais: face de R$ 2,80 bi, cupom semestral de 6,0% a.a. no padrão da NTN-B. Cada valor é a soma
+      dos fluxos por receber, descontados pela taxa em questão; na vista 3, a taxa de mercado é a da data da venda. Mesmo título
+      da peça de ajuste de precificação, que acrescenta a terceira régua: a taxa atuarial. Não representa plano específico.
+    </p>
+  </main>
+
+  <footer class="ua-footer">
+    <span class="ua-footer__text">UniAbrapp · Módulo II · 36ª Ed · Set/2026 · Na curva ou a mercado</span>
+  </footer>
+
+  <img src="assets/hashtag-azul-eletrico.gif" alt="" class="ua-hashtag" aria-hidden="true">
+  <img src="assets/logo-uniabrapp.svg" alt="UniAbrapp" class="ua-logo">
+
+  <script>
+  /* ============================================================
+     Na curva ou a mercado
+     Mesmo título da peça de ajuste de precificação: valor de face de
+     R$ 2,80 bi e, no modo com cupom, cupom semestral de 6,0% a.a. no
+     padrão da NTN-B, (1 + 0,06)^0,5 - 1 sobre o valor de face.
+       Na curva  = fluxos que faltam descontados pela taxa de compra
+       A mercado = os mesmos fluxos descontados pela taxa de mercado
+     Valor em t = fluxos com data estritamente posterior a t (logo
+     após o pagamento do cupom de t). No vencimento, as duas réguas
+     valem o valor de face, por construção.
+     ============================================================ */
+  var FACE = 2.80;          // R$ bi
+  var CUPOM = 6.0;          // % a.a., termos reais
+  var BASE = { aq: 6.0, mk: 7.0, pz: 10, ano: 2 };
+  var st = { aq: BASE.aq, mk: BASE.mk, pz: BASE.pz, ano: BASE.ano, cupom: true };
+  var aba = 'preco';
+
+  var el = function (id) { return document.getElementById(id); };
+  var AZ = '#002CD6', MAG = '#EF0068', MAR = '#002C60', CIN = '#7A7A7A', LAP = '#E8E8E8';
+
+  function num(v, c) { return v.toFixed(c).replace('.', ','); }
+  function pct(v, c) { return num(v, c === undefined ? 1 : c) + '%'; }
+  function bi(v) { return 'R$ ' + num(v, 2) + ' bi'; }
+  function miAss(vBi) {
+    var m = vBi * 1000;
+    if (Math.abs(m) < 0.5) return 'R$ 0';
+    return (m > 0 ? '+ ' : '− ') + 'R$ ' + Math.abs(Math.round(m)).toLocaleString('pt-BR') + ' mi';
+  }
+  function miAbs(vBi) { return 'R$ ' + Math.abs(Math.round(vBi * 1000)).toLocaleString('pt-BR') + ' mi'; }
+  function anos(t) { return num(t, t % 1 ? 1 : 0) + (t === 1 ? ' ano' : ' anos'); }
+
+  function cupomSem() { return st.cupom ? FACE * (Math.pow(1 + CUPOM / 100, 0.5) - 1) : 0; }
+
+  /* valor em t, logo após o pagamento do cupom de t */
+  function valor(taxaPct, t) {
+    var y = taxaPct / 100, n = st.pz, c = cupomSem(), s = 0;
+    if (t >= n - 1e-9) return FACE;
+    for (var k = 1; k * 0.5 <= n + 1e-9; k++) {
+      var tk = k * 0.5;
+      if (tk > t + 1e-9) s += c / Math.pow(1 + y, tk - t);
+    }
+    return s + FACE / Math.pow(1 + y, n - t);
+  }
+
+  /* duration de Macaulay e modificada, em t = 0 */
+  function duration(taxaPct) {
+    var y = taxaPct / 100, n = st.pz, c = cupomSem(), P = 0, D = 0;
+    for (var k = 1; k * 0.5 <= n + 1e-9; k++) {
+      var tk = k * 0.5, f = c + (Math.abs(tk - n) < 1e-9 ? FACE : 0);
+      var v = f / Math.pow(1 + y, tk);
+      P += v; D += tk * v;
+    }
+    if (!st.cupom) { P = FACE / Math.pow(1 + y, n); D = n * P; }
+    return { mac: D / P, mod: D / P / (1 + y) };
+  }
+
+  /* rentabilidade anual efetiva de quem compra em 0 pela taxa de compra,
+     recebe os cupons e vende em T pela taxa de mercado */
+  function rentVenda(T) {
+    var fl = [[0, -valor(st.aq, 0)]], c = cupomSem();
+    for (var k = 1; k * 0.5 <= T + 1e-9; k++) fl.push([k * 0.5, c]);
+    fl.push([T, valor(st.mk, T)]);
+    var f = function (r) { var s = 0; fl.forEach(function (p) { s += p[1] / Math.pow(1 + r, p[0]); }); return s; };
+    var lo = -0.95, hi = 2;
+    for (var i = 0; i < 200; i++) { var m = (lo + hi) / 2; if (f(m) > 0) lo = m; else hi = m; }
+    return (lo + hi) / 2 * 100;
+  }
+
+  /* ---------- utilitários de gráfico ---------- */
+  function passoRedondo(amp, alvo) {
+    var cands = [0.05, 0.1, 0.2, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 25, 50];
+    for (var i = 0; i < cands.length; i++) if (amp / cands[i] <= alvo) return cands[i];
+    return 100;
+  }
+  function eixoY(svg, lo, hi, passo, x0, x1, y, fmt) {
+    var s = '';
+    for (var v = Math.ceil(lo / passo - 1e-9) * passo; v <= hi + 1e-9; v += passo) {
+      var yy = y(v).toFixed(1);
+      s += '<line x1="' + x0 + '" y1="' + yy + '" x2="' + x1 + '" y2="' + yy + '" stroke="' + LAP + '" stroke-width="1"/>' +
+           '<text x="' + (x0 - 8) + '" y="' + (+yy + 4) + '" text-anchor="end" font-size="11" fill="' + CIN + '">' + fmt(v) + '</text>';
+    }
+    return s;
+  }
+  function texto(x, y, t, cor, anc, tam, peso) {
+    return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + (anc || 'start') + '" font-size="' + (tam || 12) +
+           '" font-weight="' + (peso || 700) + '" fill="' + cor + '" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">' + t + '</text>';
+  }
+
+  /* ---------- Vista 1: preço × taxa ---------- */
+  function renderPreco() {
+    var W = 700, H = 215, ml = 58, mr = 16, mt = 12, mb = 28, pw = W - ml - mr, ph = H - mt - mb;
+    var x0 = 3, x1 = 10;
+    var pts = [];
+    for (var r = x0; r <= x1 + 1e-9; r += 0.1) pts.push([r, valor(r, 0)]);
+    var vmax = pts[0][1], vmin = pts[pts.length - 1][1];
+    var passo = passoRedondo(vmax - vmin, 5);
+    var lo = Math.floor(vmin / passo) * passo, hi = Math.ceil(vmax / passo) * passo;
+    var X = function (r) { return ml + (r - x0) / (x1 - x0) * pw; };
+    var Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+    var s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 0.1 ? 2 : 1); });
+    for (var g = 3; g <= 10; g++) {
+      s += '<text x="' + X(g).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">' + g + '%</text>';
+    }
+    s += '<text x="' + (ml + pw / 2) + '" y="' + (H + 2) + '" text-anchor="middle" font-size="10" fill="' + CIN + '"></text>';
+
+    s += '<path d="' + pts.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' ') +
+         '" fill="none" stroke="' + MAR + '" stroke-width="2.5" opacity=".55"/>';
+    if (st.mk <= 8.2) s += texto(X(9.9), Y(valor(9.9, 0)) - 10, 'preço do título para cada taxa', CIN, 'end', 11, 400);
+
+    var vc = valor(st.aq, 0), vm = valor(st.mk, 0);
+    var xc = X(st.aq), xm = X(st.mk), yc = Y(vc), ym = Y(vm);
+    // linha do valor na curva
+    s += '<line x1="' + ml + '" y1="' + yc.toFixed(1) + '" x2="' + (W - mr) + '" y2="' + yc.toFixed(1) + '" stroke="' + AZ + '" stroke-width="1.6" stroke-dasharray="6 4"/>';
+    s += '<line x1="' + xc.toFixed(1) + '" y1="' + yc.toFixed(1) + '" x2="' + xc.toFixed(1) + '" y2="' + (mt + ph) + '" stroke="' + AZ + '" stroke-width="1" stroke-dasharray="3 3"/>';
+    s += '<line x1="' + xm.toFixed(1) + '" y1="' + ym.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y2="' + (mt + ph) + '" stroke="' + MAG + '" stroke-width="1" stroke-dasharray="3 3"/>';
+    // diferença
+    if (Math.abs(vm - vc) > 0.004) {
+      s += '<line x1="' + xm.toFixed(1) + '" y1="' + yc.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y2="' + ym.toFixed(1) + '" stroke="' + MAG + '" stroke-width="4" opacity=".35"/>';
+      var yMk = ym + (st.mk >= st.aq ? 20 : -12); if (yMk > mt + ph - 20) yMk = ym - 12;
+      var yl = (yc + ym) / 2 + 4; if (Math.abs(yl - yMk) < 16) yl = yc + (ym > yc ? 16 : -8);
+      var dir = st.mk > 8.2 ? 'end' : 'start', dx = dir === 'end' ? -10 : 10;
+      s += texto(xm + dx, yl, miAss(vm - vc), MAG, dir, 13, 800);
+    }
+    s += '<circle cx="' + xc.toFixed(1) + '" cy="' + yc.toFixed(1) + '" r="7" fill="' + AZ + '" stroke="#fff" stroke-width="2"/>';
+    s += '<circle cx="' + xm.toFixed(1) + '" cy="' + ym.toFixed(1) + '" r="7" fill="' + MAG + '" stroke="#fff" stroke-width="2"/>';
+    var lblCurva = 'na curva: ' + bi(vc);
+    s += texto(W - mr - 4, yc - 8, lblCurva, AZ, 'end', 12, 800);
+    var yLblM = ym + (st.mk >= st.aq ? 20 : -12);
+    if (yLblM > mt + ph - 20) yLblM = ym - 12;
+    s += texto(xm + (st.mk > 8.2 ? -12 : 12), yLblM, 'a mercado: ' + bi(vm), MAG, st.mk > 8.2 ? 'end' : 'start', 12, 800);
+    s += texto(xc, mt + ph - 6, 'compra ' + pct(st.aq), AZ, st.aq < st.mk ? 'end' : 'start', 11, 700).replace('x="' + xc.toFixed(1), 'x="' + (xc + (st.aq < st.mk ? -5 : 5)).toFixed(1));
+    var dirM = (st.aq < st.mk && st.mk <= 8.8) ? 1 : -1;
+    s += texto(xm + 5 * dirM, mt + ph - 6, 'mercado ' + pct(st.mk), MAG, dirM > 0 ? 'start' : 'end', 11, 700);
+    el('g-preco').innerHTML = s;
+
+    var d = duration(st.mk), dif = vm - vc;
+    el('t-linha1').innerHTML = 'Preço em R$ bi. ' + (st.cupom ? 'Com cupom, padrão NTN-B, ' : 'Sem cupom, fluxo único, ') + 'vencimento em ' + anos(st.pz) +
+      '. Duration a mercado de <strong>' + num(d.mac, 1) + ' anos</strong>: cada 1 p.p. a mais na taxa tira cerca de <strong>' + pct(d.mod) + '</strong> do preço.';
+    el('k-cv').textContent = bi(vc);
+    el('k-cv-s').textContent = 'a ' + pct(st.aq) + ', taxa de compra';
+    el('k-mk').textContent = bi(vm);
+    el('k-mk-s').textContent = 'a ' + pct(st.mk) + ', taxa de hoje';
+    el('k-df').textContent = miAss(dif);
+    el('k-df-s').textContent = Math.abs(dif) < 0.0005 ? 'as duas réguas coincidem' : num(dif / vc * 100, 1).replace('-', '−') + '% sobre o valor na curva';
+
+    var f;
+    if (Math.abs(st.mk - st.aq) < 0.05) {
+      f = 'Com a taxa de mercado igual à de compra, as duas réguas dão o mesmo valor. <strong>É o único ponto em que curva e mercado coincidem.</strong> ' +
+          'Mova a taxa de mercado: o ponto magenta anda sobre a curva de preço, o azul fica parado.';
+    } else if (st.mk > st.aq) {
+      f = 'A taxa de mercado está em ' + pct(st.mk) + ', acima dos ' + pct(st.aq) + ' da compra, e o preço de tela é <strong>' + miAbs(dif) +
+          ' menor</strong>. <strong>Na curva, nada muda:</strong> o título continua pagando exatamente o que foi contratado. ' +
+          'O plano não perdeu caixa, perdeu a chance de comprar a ' + pct(st.mk) + '. A diferença é o preço, hoje, de estar travado a ' + pct(st.aq) + '.';
+    } else {
+      f = 'A taxa de mercado está em ' + pct(st.mk) + ', abaixo dos ' + pct(st.aq) + ' da compra, e o preço de tela é <strong>' + miAbs(dif) +
+          ' maior</strong>. <strong>Na curva, esse ganho não aparece.</strong> Ele existe, mas só vira dinheiro se o título for vendido, ' +
+          'e vender contradiz a intenção declarada de manter até o vencimento.';
+    }
+    el('f-preco').innerHTML = f;
+  }
+
+  /* ---------- Vista 2: convergência no tempo ---------- */
+  function renderTempo() {
+    var W = 700, H = 235, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb, n = st.pz;
+    var serie = [];
+    for (var t = 0; t <= n + 1e-9; t += 0.5) serie.push({ t: t, c: valor(st.aq, t), m: valor(st.mk, t) });
+    var todos = [];
+    serie.forEach(function (p) { todos.push(p.c, p.m); });
+    var vmin = Math.min.apply(null, todos), vmax = Math.max.apply(null, todos);
+    var passo = passoRedondo(Math.max(vmax - vmin, 0.2), 5);
+    var lo = Math.floor(vmin / passo) * passo, hi = Math.ceil(vmax / passo) * passo;
+    if (hi - vmax < passo * 0.4) hi += passo;
+    if (vmin - lo < passo * 0.4) lo -= passo;
+    var X = function (t) { return ml + t / n * pw; };
+    var Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+    var s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 0.1 ? 2 : 1); });
+    var pe = Math.max(1, Math.round(passoRedondo(n, 10)));
+    for (var a = 0; a <= n + 1e-9; a += pe) {
+      s += '<text x="' + X(a).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">' + (a === 0 ? 'hoje' : 'ano ' + a) + '</text>';
+    }
+    // área da diferença
+    var ida = serie.map(function (p) { return X(p.t).toFixed(1) + ' ' + Y(p.c).toFixed(1); });
+    var volta = serie.slice().reverse().map(function (p) { return X(p.t).toFixed(1) + ' ' + Y(p.m).toFixed(1); });
+    s += '<path d="M' + ida.join(' L') + ' L' + volta.join(' L') + ' Z" fill="' + MAG + '" opacity=".10"/>';
+    var linha = function (k, cor, w) {
+      return '<path d="' + serie.map(function (p, i) { return (i ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p[k]).toFixed(1); }).join(' ') +
+             '" fill="none" stroke="' + cor + '" stroke-width="' + w + '" stroke-linejoin="round"/>';
+    };
+    s += linha('c', AZ, 3) + linha('m', MAG, 3);
+    // rótulos
+    var p0 = serie[0], pm = serie[Math.round(serie.length / 2) - 1], pf = serie[serie.length - 1];
+    if (Math.abs(p0.m - p0.c) > 0.004) {
+      s += texto(X(0) + 8, (Y(p0.c) + Y(p0.m)) / 2 + 4, miAss(p0.m - p0.c), MAG, 'start', 12, 800);
+      s += texto(X(pm.t), (Y(pm.c) + Y(pm.m)) / 2 + 4, miAss(pm.m - pm.c), MAG, 'middle', 11, 700);
+    }
+    s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(pf.c).toFixed(1) + '" r="6" fill="' + MAR + '" stroke="#fff" stroke-width="2"/>';
+    s += texto(X(n) - 10, Y(pf.c) + (p0.m < p0.c ? -12 : 22), 'vencimento: ' + bi(FACE) + ' nas duas réguas', MAR, 'end', 12, 800);
+    el('g-tempo').innerHTML = s;
+
+    el('leg-tempo').innerHTML =
+      '<span><i style="border-top-color:' + AZ + '"></i>na curva, a ' + pct(st.aq) + '</span>' +
+      '<span><i style="border-top-color:' + MAG + '"></i>a mercado, taxa parada em ' + pct(st.mk) + '</span>' +
+      '<span><i style="border-top:10px solid ' + MAG + ';opacity:.18;height:10px"></i>diferença</span>';
+    el('t-linha2').textContent = 'Valor logo após cada cupom, em R$ bi, supondo a taxa de mercado parada até o vencimento.';
+
+    var f;
+    if (Math.abs(st.mk - st.aq) < 0.05) {
+      f = 'Taxas iguais, linhas sobrepostas. Suba ou desça a taxa de mercado e veja a diferença abrir hoje e fechar sozinha até o vencimento.';
+    } else {
+      f = 'Hoje a diferença é de <strong>' + miAss(p0.m - p0.c) + '</strong>; no ano ' + num(pm.t, pm.t % 1 ? 1 : 0) + ', de ' + miAss(pm.m - pm.c) +
+          '; no vencimento, <strong>zero</strong>. O título paga ' + bi(FACE) + ' a quem o carregou, qualquer que tenha sido a taxa no caminho. ' +
+          '<strong>Quem mantém até o fim recebe os ' + pct(st.aq) + ' contratados.</strong> ' +
+          (st.mk > st.aq ? 'Não é de graça: durante todo o prazo, o plano ganhou ' + pct(st.aq) + ' num mercado que pagava ' + pct(st.mk) + '.'
+                         : 'O ganho a mercado também some: quem não vende não o realiza.');
+    }
+    el('f-tempo').innerHTML = f;
+  }
+
+  /* ---------- Vista 3: venda antecipada ---------- */
+  function renderVenda() {
+    var n = st.pz, T = Math.min(st.ano, n);
+    var W = 700, H = 190, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb;
+    var serie = [];
+    for (var t = 1; t <= n + 1e-9; t += 0.5) serie.push({ t: t, r: rentVenda(t) });
+    var vals = serie.map(function (p) { return p.r; }).concat([st.aq]);
+    var vmin = Math.min.apply(null, vals), vmax = Math.max.apply(null, vals);
+    var passo = passoRedondo(Math.max(vmax - vmin, 1), 5);
+    var lo = Math.floor(vmin / passo) * passo, hi = Math.ceil(vmax / passo) * passo;
+    if (hi - lo < passo * 2) { lo -= passo; hi += passo; }
+    var X = function (t) { return ml + (t - 1) / Math.max(n - 1, 1) * pw; };
+    var Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+    var s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 1 ? 1 : 0) + '%'; });
+    var pe = Math.max(1, Math.round(passoRedondo(n, 10)));
+    for (var a = 1; a <= n + 1e-9; a += (a === 1 && pe > 1 ? pe - 1 : pe)) {
+      s += '<text x="' + X(a).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">ano ' + a + '</text>';
+    }
+    if (lo < 0 && hi > 0) s += '<line x1="' + ml + '" y1="' + Y(0).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(0).toFixed(1) + '" stroke="' + CIN + '" stroke-width="1"/>';
+    s += '<line x1="' + ml + '" y1="' + Y(st.aq).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(st.aq).toFixed(1) + '" stroke="' + AZ + '" stroke-width="2" stroke-dasharray="6 4"/>';
+    s += texto(ml + 6, Y(st.aq) + (st.mk >= st.aq - 0.04 ? -8 : 16), 'mantido até o vencimento: ' + pct(st.aq) + ' a.a.', AZ, 'start', 12, 800);
+    s += '<path d="' + serie.map(function (p, i) { return (i ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p.r).toFixed(1); }).join(' ') +
+         '" fill="none" stroke="' + MAG + '" stroke-width="3" stroke-linejoin="round"/>';
+    var rT = rentVenda(T);
+    s += '<line x1="' + X(T).toFixed(1) + '" y1="' + Y(rT).toFixed(1) + '" x2="' + X(T).toFixed(1) + '" y2="' + Y(st.aq).toFixed(1) + '" stroke="' + MAG + '" stroke-width="4" opacity=".3"/>';
+    s += '<circle cx="' + X(T).toFixed(1) + '" cy="' + Y(rT).toFixed(1) + '" r="7" fill="' + MAG + '" stroke="#fff" stroke-width="2"/>';
+    var anc = T > n * 0.7 ? 'end' : 'start', dx = anc === 'end' ? -12 : 12;
+    s += texto(X(T) + dx, Y(rT) + (rT < st.aq + 0.05 ? 20 : -10), 'vende no ano ' + T + ': ' + pct(rT) + ' a.a.', MAG, anc, 12, 800);
+    el('g-venda').innerHTML = s;
+
+    var vc = valor(st.aq, T), vv = valor(st.mk, T), dif = vv - vc;
+    el('v-ano').textContent = String(T);
+    el('t-linha3').textContent = 'Compra hoje a ' + pct(st.aq) + ', recebe os cupons e vende com a taxa de mercado em ' + pct(st.mk) +
+      '. Rentabilidade anual realizada conforme o ano da venda.';
+    el('k3-cv').textContent = bi(vc);
+    el('k3-vd').textContent = bi(vv);
+    el('k3-vd-s').textContent = Math.abs(dif) < 0.0005 ? 'igual ao valor na curva' : (dif < 0 ? 'perda realizada de ' : 'ganho realizado de ') + miAbs(dif);
+    el('k3-rt').textContent = pct(rT) + ' a.a.';
+    el('k3-rt-s').textContent = 'realizada, contra ' + pct(st.aq) + ' contratados';
+
+    var f;
+    if (T >= n) {
+      f = 'Vender no vencimento é resgatar: rende os ' + pct(st.aq) + ' contratados, qualquer que seja a taxa de mercado. <strong>Puxe o ano da venda para trás</strong> e veja o custo de sair antes.';
+    } else if (Math.abs(st.mk - st.aq) < 0.05) {
+      f = 'Com a taxa de mercado igual à de compra, vender em qualquer data rende os mesmos ' + pct(st.aq) + '. <strong>O problema da venda antecipada nasce da mudança de taxa, não da venda.</strong>';
+    } else if (st.mk > st.aq) {
+      f = 'Vendido no ano ' + T + ' com a taxa a ' + pct(st.mk) + ', o título rende <strong>' + pct(rT) + ' a.a.</strong>, não ' + pct(st.aq) +
+          '. A diferença de ' + miAbs(dif) + ', que era só leitura, vira resultado. Quanto mais cedo a venda, maior o estrago. ' +
+          '<strong>Quem é obrigado a vender antes é quem ficou sem liquidez</strong>: por isso a curva exige capacidade financeira demonstrada.';
+    } else {
+      f = 'Com a taxa a ' + pct(st.mk) + ', vender no ano ' + T + ' realiza ganho de ' + miAbs(dif) + ' e rende <strong>' + pct(rT) + ' a.a.</strong> ' +
+          'É a tentação do lado oposto. <strong>Título na curva vendido para embolsar ganho contradiz a intenção declarada</strong> e põe em dúvida a classificação do restante da carteira.';
+    }
+    el('f-venda').innerHTML = f;
+  }
+
+  /* ---------- controle ---------- */
+  function render() {
+    el('v-aq').textContent = pct(st.aq);
+    el('v-mk').textContent = pct(st.mk);
+    el('v-pz').textContent = String(st.pz);
+    el('s-ano').max = String(st.pz);
+    if (st.ano > st.pz) { st.ano = st.pz; }
+    el('s-ano').value = String(st.ano);
+    if (aba === 'preco') renderPreco();
+    if (aba === 'tempo') renderTempo();
+    if (aba === 'venda') renderVenda();
+  }
+
+  function ligar(id, chave, inteiro) {
+    el(id).addEventListener('input', function (ev) {
+      st[chave] = inteiro ? parseInt(ev.target.value, 10) : parseFloat(ev.target.value);
+      render();
+    });
+  }
+  ligar('s-aq', 'aq', false); ligar('s-mk', 'mk', false); ligar('s-pz', 'pz', true); ligar('s-ano', 'ano', true);
+
+  el('btn-reset').addEventListener('click', function () {
+    st.aq = BASE.aq; st.mk = BASE.mk; st.pz = BASE.pz; st.ano = BASE.ano; st.cupom = true;
+    el('s-aq').value = BASE.aq; el('s-mk').value = BASE.mk; el('s-pz').value = BASE.pz;
+    el('m-cupom').setAttribute('aria-pressed', 'true'); el('m-zero').setAttribute('aria-pressed', 'false');
+    render();
+  });
+  [['m-cupom', true], ['m-zero', false]].forEach(function (p) {
+    el(p[0]).addEventListener('click', function () {
+      st.cupom = p[1];
+      el('m-cupom').setAttribute('aria-pressed', String(st.cupom));
+      el('m-zero').setAttribute('aria-pressed', String(!st.cupom));
+      render();
+    });
+  });
+
+  function trocarAba(q) {
+    aba = q;
+    ['preco', 'tempo', 'venda'].forEach(function (k) {
+      el('aba-' + k).setAttribute('aria-selected', String(k === q));
+      el('vista-' + k).classList.toggle('is-oculta', k !== q);
+    });
+    render();
+  }
+  ['preco', 'tempo', 'venda'].forEach(function (k) { el('aba-' + k).addEventListener('click', function () { trocarAba(k); }); });
+
+  /* ?aba=tempo abre direto numa vista (útil para captura) */
+  var m = /[?&]aba=(preco|tempo|venda)/.exec(location.search);
+  trocarAba(m ? m[1] : 'preco');
+
+  </script>
+</body>
+</html>
