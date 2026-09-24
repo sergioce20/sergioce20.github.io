@@ -130,6 +130,7 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
 .ctrl .row label{font-size:.92rem;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;margin:0;}
 .ctrl .row label .v{color:var(--primary-strong);font-weight:700;font-family:var(--ua-font-titulo);}
 .ctrl .row input[type=range]{margin:4px 0 0;height:5px;width:100%;accent-color:var(--ua-magenta);}
+.ctrl .row.fixa .fixa-d{font-size:.72rem;color:var(--muted-color);margin-top:2px;line-height:1.25;}
 .grp{display:inline-flex;border:1px solid var(--line-color);border-radius:999px;overflow:hidden;}
 .grp button{border:none;background:transparent;padding:5px 16px;cursor:pointer;
   font-family:var(--ua-font-titulo);font-weight:700;font-size:.85rem;color:var(--muted-color);}
@@ -445,9 +446,9 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
         <label for="resto">Retorno real do restante <span class="v" id="vResto">4,00%</span></label>
         <input type="range" id="resto" min="1.5" max="6.5" step="0.01" value="4">
       </div>
-      <div class="row">
-        <label for="param">Taxa parâmetro Previc <span class="v" id="vParam">4,60%</span></label>
-        <input type="range" id="param" min="3" max="6" step="0.1" value="4.6">
+      <div class="row fixa">
+        <label>Taxa parâmetro Previc <span class="v" id="vParam">6,10%</span></label>
+        <div class="fixa-d" id="dParam">ETTJ 2026</div>
       </div>
       <div class="row">
         <label for="vol">Volatilidade do que está a mercado <span class="v" id="vVol">5,00%</span></label>
@@ -461,9 +462,9 @@ table.matriz tr.ldif td:first-child{font-size:.78rem;color:var(--muted-color);fo
         <label for="prazo">Vencimento médio dos HtM <span class="v" id="vPrazo">não vence</span></label>
         <input type="range" id="prazo" min="0" max="30" step="1" value="0">
       </div>
-      <div class="row">
-        <label for="banda">Intervalo do parâmetro <span class="v" id="vBanda">± 0,40 p.p.</span></label>
-        <input type="range" id="banda" min="0" max="1.5" step="0.05" value="0.4">
+      <div class="row fixa">
+        <label>Corredor regulatório <span class="v" id="vBanda">4,27% a 6,50%</span></label>
+        <div class="fixa-d">70% do parâmetro a parâmetro + 0,40 p.p.</div>
       </div>
     </div>
     <div class="bts-fim">
@@ -513,6 +514,15 @@ window.DADOS_CONV =
 var D = window.DADOS_CONV, B = D.beneficios, N = B.length;
 var PADRAO = {taxa:4.5, pat:12000, htm:45, carrego:5.8, resto:4.0, vol:5.0, horiz:15, prazo:0, param:4.6, banda:0.4};
 var E = {}; for (var k in PADRAO) E[k] = PADRAO[k];
+// ETTJ Média 2026, Portaria Previc nº 324/2026, Anexo I: [duração, parâmetro, limite inferior, limite superior]
+// limite inferior = 70% do parâmetro; limite superior = parâmetro + 0,40 p.p. (Resolução Previc nº 23/2023, art. 50)
+var ETTJ2026 = [[1,6.58,4.61,6.98],[1.5,6.35,4.45,6.75],[2,6.23,4.36,6.63],[2.5,6.15,4.31,6.55],[3,6.12,4.28,6.52],[3.5,6.1,4.27,6.5],[4,6.08,4.26,6.48],[4.5,6.08,4.26,6.48],[5,6.08,4.25,6.48],[5.5,6.08,4.25,6.48],[6,6.08,4.25,6.48],[6.5,6.08,4.26,6.48],[7,6.08,4.26,6.48],[7.5,6.08,4.26,6.48],[8,6.08,4.26,6.48],[8.5,6.09,4.26,6.49],[9,6.09,4.26,6.49],[9.5,6.09,4.26,6.49],[10,6.09,4.26,6.49],[10.5,6.09,4.26,6.49],[11,6.09,4.27,6.49],[11.5,6.09,4.27,6.49],[12,6.1,4.27,6.5],[12.5,6.1,4.27,6.5],[13,6.1,4.27,6.5],[13.5,6.1,4.27,6.5],[14,6.1,4.27,6.5],[14.5,6.1,4.27,6.5],[15,6.11,4.27,6.51],[15.5,6.11,4.27,6.51],[16,6.11,4.28,6.51],[16.5,6.11,4.28,6.51],[17,6.11,4.28,6.51],[17.5,6.11,4.28,6.51],[18,6.11,4.28,6.51],[18.5,6.11,4.28,6.51],[19,6.12,4.28,6.52],[19.5,6.12,4.28,6.52],[20,6.12,4.28,6.52],[20.5,6.12,4.28,6.52],[21,6.12,4.28,6.52],[21.5,6.12,4.29,6.52],[22,6.12,4.29,6.52],[22.5,6.12,4.29,6.52],[23,6.13,4.29,6.53],[23.5,6.13,4.29,6.53],[24,6.13,4.29,6.53],[24.5,6.13,4.29,6.53],[25,6.13,4.29,6.53],[25.5,6.13,4.29,6.53],[26,6.13,4.29,6.53],[26.5,6.13,4.29,6.53],[27,6.13,4.29,6.53],[27.5,6.14,4.3,6.54],[28,6.14,4.3,6.54],[28.5,6.14,4.3,6.54],[29,6.14,4.3,6.54],[29.5,6.14,4.3,6.54],[30,6.14,4.3,6.54],[30.5,6.14,4.3,6.54],[31,6.14,4.3,6.54],[31.5,6.14,4.3,6.54],[32,6.14,4.3,6.54],[32.5,6.15,4.3,6.55],[33,6.15,4.3,6.55]];
+function corredor(){
+  var dur = duration(E.taxa/100);
+  var alvo = Math.min(33, Math.max(1, Math.round(dur*2)/2));   // ponto da ETTJ mais próximo da duração
+  var lin = ETTJ2026.filter(function(r){ return Math.abs(r[0]-alvo) < 1e-9; })[0];
+  return {dur:dur, ponto:alvo, param:lin[1], piso:lin[2], teto:lin[3]};
+}
 var aba = "proj";
 var faixaVisivel = true;      // botão liga e desliga o intervalo de confiança
 var $ = function(id){ return document.getElementById(id); };
@@ -893,7 +903,7 @@ function desenhaTaxa(svg){
 
 function desenhaEscolha(svg){
   var S = simula();
-  var piso = E.param - E.banda, teto = E.param + E.banda;   // intervalo regulatório
+  var CR = corredor(), piso = CR.piso, teto = CR.teto;   // corredor regulatório da ETTJ 2026
   var med = S.p50*100, p5 = S.p5*100, p95 = S.p95*100;      // o que a carteira entrega
   var det = tirAtivo()*100, zera = tir(E.pat)*100;
   // o intervalo possível vai do piso regulatório até a mediana do que a carteira entrega
@@ -924,8 +934,9 @@ function desenhaEscolha(svg){
     if (det2) svg.appendChild(texto(W-MR, y-7, det2, {fill:CINZA,"font-size":12,"text-anchor":"end"}));
   }
   // 1. intervalo regulatório
-  barra(y0, piso, teto, ELET, .13, "Intervalo regulatório da Previc",
+  barra(y0, piso, teto, ELET, .13, "Corredor da Previc · ETTJ 2026, ponto " + nb(CR.ponto,1) + " anos, parâmetro " + pp(CR.param),
     pp(piso) + " a " + pp(teto));
+  svg.appendChild(el("line",{x1:px(CR.param), y1:y0-3, x2:px(CR.param), y2:y0+alt+3, stroke:ELET, "stroke-width":2}));
   // 2. o que a carteira entrega
   barra(y0+alt+gap, p5, p95, AZUL, .11, "O que a carteira entrega nos cenários",
     "faixa de 5% a 95%: " + pp(p5) + " a " + pp(p95));
@@ -960,7 +971,7 @@ function desenhaEscolha(svg){
 
   CTX = null;
   $("leg").innerHTML =
-    '<span class="it fixo"><span class="sw" style="border-color:'+ELET+'"></span>piso e teto vêm da taxa parâmetro e da duration</span>' +
+    '<span class="it fixo"><span class="sw" style="border-color:'+ELET+'"></span>piso = 70% do parâmetro; teto = parâmetro + 0,40 p.p.</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+AZUL+'"></span>o teto prático é a mediana, não o melhor cenário</span>' +
     '<span class="it fixo"><span class="sw" style="border-color:'+corT+'"></span>' +
       (!existe ? "não há intervalo possível: a carteira não alcança o piso regulatório"
@@ -1152,7 +1163,7 @@ function render(){
 
   var S = SIM || simula();
   var conv = rAtv >= rAt - 1e-9;
-  var dentro = Math.abs(rAt - E.param) <= E.banda + 1e-9;
+  var CR = corredor(), dentro = rAt >= CR.piso - 1e-9 && rAt <= CR.teto + 1e-9;
   var TOL = 1.0;                       // R$ 1 mi: tolerância para não brigar com arredondamento
   var folga = E.pat >= pmv - TOL;
   function ver(ok, txt){ return '<div class="ver '+(ok?"ok":"nao")+'"><span class="mk">'+(ok?"✓":"!")+'</span><span>'+txt+'</span></div>'; }
@@ -1162,9 +1173,9 @@ function render(){
       : "<b>Não convergente.</b> A carteira projeta " + pp(rAtv) + " e a taxa atuarial é " + pp(rAt) +
         ": faltam " + nb(rAt-rAtv,2) + " p.p.") +
     ver(dentro, dentro
-      ? "<b>Dentro do intervalo.</b> " + pp(rAt) + " está na faixa de " + pp(E.param-E.banda) + " a " + pp(E.param+E.banda) + "."
-      : "<b>Fora do intervalo.</b> " + pp(rAt) + " está fora da faixa de " + pp(E.param-E.banda) + " a " + pp(E.param+E.banda) +
-        ": possível, mas exige fundamentação e autorização da Previc.") +
+      ? "<b>Dentro do corredor.</b> " + pp(rAt) + " está entre " + pp(CR.piso) + " e " + pp(CR.teto) + " (ETTJ 2026, duração de " + nb(CR.dur,1) + " anos): adoção sem autorização prévia."
+      : "<b>Fora do corredor.</b> " + pp(rAt) + " está fora da faixa de " + pp(CR.piso) + " a " + pp(CR.teto) +
+        ": exige estudo que comprove a necessidade e autorização prévia da Previc.") +
     ver(S.prob >= 0.5, "<b>Convergência em " + nb(S.prob*100,0) + "% dos cenários.</b> Mediana " +
       pp(S.p50*100) + ", faixa de " + pp(S.p5*100) + " a " + pp(S.p95*100) + ".") +
     ver(folga, Math.abs(E.pat - pmv) < TOL
@@ -1212,8 +1223,10 @@ function render(){
   $("vHtm").textContent = nb(E.htm,0) + "%";
   $("vCarrego").textContent = pp(E.carrego);
   $("vResto").textContent = pp(E.resto);
-  $("vParam").textContent = pp(E.param);
-  $("vBanda").textContent = "± " + nb(E.banda,2) + " p.p.";
+  var CRr = corredor();
+  $("vParam").textContent = pp(CRr.param);
+  $("vBanda").textContent = pp(CRr.piso) + " a " + pp(CRr.teto);
+  $("dParam").textContent = "ETTJ 2026, ponto de " + nb(CRr.ponto,1) + " anos; duração do passivo de " + nb(CRr.dur,1) + " anos";
   $("vVol").textContent = pp(E.vol);
   $("vHoriz").textContent = nb(E.horiz,0) + " anos";
   $("vPrazo").textContent = E.prazo ? (nb(E.prazo,0) + " anos") : "não vence";
@@ -1229,8 +1242,10 @@ function montaRodape(){
   $("vHtm").textContent = nb(E.htm,0) + "%";
   $("vCarrego").textContent = pp(E.carrego);
   $("vResto").textContent = pp(E.resto);
-  $("vParam").textContent = pp(E.param);
-  $("vBanda").textContent = "± " + nb(E.banda,2) + " p.p.";
+  var CRr = corredor();
+  $("vParam").textContent = pp(CRr.param);
+  $("vBanda").textContent = pp(CRr.piso) + " a " + pp(CRr.teto);
+  $("dParam").textContent = "ETTJ 2026, ponto de " + nb(CRr.ponto,1) + " anos; duração do passivo de " + nb(CRr.dur,1) + " anos";
   $("vVol").textContent = pp(E.vol);
   $("vHoriz").textContent = nb(E.horiz,0) + " anos";
   $("vPrazo").textContent = E.prazo ? (nb(E.prazo,0) + " anos") : "não vence";
@@ -1262,7 +1277,7 @@ function afastaDaLapide(){
     render();
   });
 })();
-[["taxa",1],["pat",0],["htm",0],["carrego",1],["resto",1],["vol",1],["horiz",0],["prazo",0],["param",1],["banda",1]].forEach(function(c){
+[["taxa",1],["pat",0],["htm",0],["carrego",1],["resto",1],["vol",1],["horiz",0],["prazo",0]].forEach(function(c){
   $(c[0]).addEventListener("input", function(){ E[c[0]] = parseFloat(this.value); render(); });
 });
 document.querySelector(".abas").addEventListener("click", function(ev){
@@ -1339,8 +1354,8 @@ $("rodapeNota").innerHTML =
   "com um prazo, ela vai vencendo e o dinheiro é reinvestido a mercado, e a projeção da carteira deixa de ser uma reta. Com prazo, a TIR do ativo é a média geométrica das taxas anuais dentro do horizonte. " +
   "A mediana simulada fica abaixo da projeção central porque a volatilidade corrói o retorno acumulado. " +
   "A distribuição não é previsão; mostra que convergência é probabilidade, não certeza. " +
-  "Taxa parâmetro e intervalo são entradas deste exemplo: na prática vêm da Previc e dependem da duration. " +
-  "Referências: Resolução CNPC nº 30/2018, Resolução Previc nº 23/2023 e Portaria Previc nº 835/2020. Elaboração própria.";
+  "<b>Corredor</b>: ETTJ Média 2026 no ponto mais próximo da duração do passivo, de 70% do parâmetro a parâmetro + 0,40 p.p. " +
+  "Referências: Resolução CNPC nº 30/2018, Resolução Previc nº 23/2023 (art. 50) e Portaria Previc nº 324/2026 (ETTJ Média 2026). Elaboração própria.";
 
 render();
 })();

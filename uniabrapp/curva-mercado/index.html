@@ -275,6 +275,11 @@
     .ua-venda input[type=range] { max-width: 190px; }
     .ua-sim .ua-semente { display: none; }
     .is-inativo { opacity: .45; }
+    .ua-valor--linha { display: flex; align-items: baseline; gap: .6rem; }
+    .ua-dur { font-family: var(--ua-font-corpo); font-size: .82rem; font-weight: 700; color: var(--ua-azul-marinho-claro); }
+    .ua-modo3 { margin-left: auto; display: inline-flex; gap: .25rem; }
+    .ua-venda input[type=range] { max-width: 220px; }
+    .ua-modo3 .ua-btn { white-space: nowrap; }
   </style>
   <link rel="stylesheet" href="assets/ua-moldura.css">
 </head>
@@ -320,7 +325,7 @@
           <span class="ua-card__rotulo">Prazo até o vencimento</span>
           <span class="ua-card__tag">mais longo, mais sensível</span>
         </div>
-        <div class="ua-valor" id="v-pz">10</div>
+        <div class="ua-valor ua-valor--linha"><span id="v-pz">10</span> <span class="ua-dur" id="v-dur">duration 7,6 anos</span></div>
         <input type="range" id="s-pz" min="2" max="30" step="1" value="10" aria-label="Prazo até o vencimento, em anos">
         <div class="ua-escala"><span>2</span><span>10 (base)</span><span>30</span></div>
       </div>
@@ -381,6 +386,7 @@
           <span class="ua-venda__rot">Venda no ano</span>
           <span class="ua-venda__val" id="v-ano">2</span>
           <input type="range" id="s-ano" min="1" max="10" step="1" value="2" aria-label="Ano da venda">
+          <span class="ua-modo3"><button class="ua-btn" id="m3-valor" type="button" aria-pressed="true">valores</button><button class="ua-btn" id="m3-rent" type="button" aria-pressed="false">rentabilidade</button></span>
         </div>
         <div class="ua-sim">
           <span class="ua-venda__rot">Tendência</span>
@@ -395,9 +401,9 @@
         <svg class="ua-grafico" id="g-venda" viewBox="0 0 700 180" role="img"
              aria-label="Rentabilidade anual realizada conforme o ano da venda"></svg>
         <div class="ua-kpis">
-          <div class="ua-kpi k-curva"><div class="ua-kpi__rot">Na curva, na data</div><div class="ua-kpi__num" id="k3-cv"></div><div class="ua-kpi__sub">o que o balanço mostrava</div></div>
-          <div class="ua-kpi k-merc"><div class="ua-kpi__rot">Preço de venda</div><div class="ua-kpi__num" id="k3-vd"></div><div class="ua-kpi__sub" id="k3-vd-s"></div></div>
-          <div class="ua-kpi k-dif"><div class="ua-kpi__rot">Rentabilidade</div><div class="ua-kpi__num" id="k3-rt"></div><div class="ua-kpi__sub" id="k3-rt-s"></div></div>
+          <div class="ua-kpi k-merc"><div class="ua-kpi__rot">Mercado − curva</div><div class="ua-kpi__num" id="k3-cv"></div><div class="ua-kpi__sub" id="k3-cv-s"></div></div>
+          <div class="ua-kpi k-curva"><div class="ua-kpi__rot">Acumulada na venda</div><div class="ua-kpi__num" id="k3-vd"></div><div class="ua-kpi__sub" id="k3-vd-s"></div></div>
+          <div class="ua-kpi k-dif"><div class="ua-kpi__rot">Equivalente ao ano</div><div class="ua-kpi__num" id="k3-rt"></div><div class="ua-kpi__sub" id="k3-rt-s"></div></div>
         </div>
         <div class="ua-fecho" id="f-venda"></div>
       </div>
@@ -764,70 +770,126 @@
     return porK;
   }
 
+  /* duration de Macaulay com m semestres por vencer, logo após o cupom */
+  function durGrade(taxaPct, m) {
+    if (m <= 0) return 0;
+    var v = Math.pow(1 + taxaPct / 100, -0.5), c = cupomSem(), P = 0, D = 0;
+    for (var j = 1; j <= m; j++) {
+      var f = c + (j === m ? FACE : 0), pv = f * Math.pow(v, j);
+      P += pv; D += (j / 2) * pv;
+    }
+    return D / P;
+  }
+
+  var modo3 = 'valor';   // 'valor' = mercado x curva; 'rent' = rentabilidade por ano de venda
+
   function renderVenda() {
     var n = st.pz, nk = 2 * n, T = Math.min(st.ano, n), kT = 2 * T;
     var W = 700, H = 180, ml = 58, mr = 26, mt = 14, mb = 28, pw = W - ml - mr, ph = H - mt - mb;
-    var D = dadosVenda(), ts = [], q = { p5: [], p25: [], p50: [], p75: [], p95: [] };
-    for (var k = 2; k <= nk; k++) {
-      ts.push(k / 2);
-      ['p5', 'p25', 'p50', 'p75', 'p95'].forEach(function (c) { q[c].push(D[k].r[c]); });
-    }
-    var vals = q.p5.concat(q.p95, [st.aq]);
-    var vmin = Math.min.apply(null, vals), vmax = Math.max.apply(null, vals);
-    var passo = passoRedondo(Math.max(vmax - vmin, 1), 5);
-    var lo = Math.floor(vmin / passo) * passo, hi = Math.ceil(vmax / passo) * passo;
-    if (hi - lo < passo * 2) { lo -= passo; hi += passo; }
-    var X = function (t) { return ml + (t - 1) / Math.max(n - 1, 1) * pw; };
-    var Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
-    var s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 1 ? 1 : 0) + '%'; });
-    var pe = Math.max(1, Math.round(passoRedondo(n, 10)));
-    for (var a = 1; a <= n + 1e-9; a += (a === 1 && pe > 1 ? pe - 1 : pe)) {
-      s += '<text x="' + X(a).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">ano ' + a + '</text>';
-    }
-    if (lo < 0 && hi > 0) s += '<line x1="' + ml + '" y1="' + Y(0).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(0).toFixed(1) + '" stroke="' + CIN + '" stroke-width="1"/>';
-    s += '<path d="' + faixaPath(X, Y, ts, q.p5, q.p95) + '" fill="' + MAG + '" opacity=".14"/>';
-    s += '<path d="' + faixaPath(X, Y, ts, q.p25, q.p75) + '" fill="' + MAG + '" opacity=".22"/>';
-    s += '<path d="' + linhaPath(X, Y, ts, q.p50) + '" fill="none" stroke="' + MAG + '" stroke-width="3" stroke-linejoin="round"/>';
-    s += '<line x1="' + ml + '" y1="' + Y(st.aq).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(st.aq).toFixed(1) + '" stroke="' + AZ + '" stroke-width="2" stroke-dasharray="6 4"/>';
-    var dT = D[kT];
-    s += '<line x1="' + X(T).toFixed(1) + '" y1="' + Y(dT.r.p5).toFixed(1) + '" x2="' + X(T).toFixed(1) + '" y2="' + Y(dT.r.p95).toFixed(1) + '" stroke="' + MAR + '" stroke-width="2"/>';
-    [dT.r.p5, dT.r.p95].forEach(function (v) {
-      s += '<line x1="' + (X(T) - 6).toFixed(1) + '" y1="' + Y(v).toFixed(1) + '" x2="' + (X(T) + 6).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="' + MAR + '" stroke-width="2"/>';
-    });
-    s += '<circle cx="' + X(T).toFixed(1) + '" cy="' + Y(dT.r.p50).toFixed(1) + '" r="7" fill="' + MAG + '" stroke="#fff" stroke-width="2"/>';
-    var anc = T > n * 0.6 ? 'end' : 'start', dx = anc === 'end' ? -12 : 12;
-    var rotT = T >= n ? 'resgate: ' + pct(st.aq) + ' em todos os cenários' :
-               (sim.vol < 0.05 ? 'ano ' + T + ': ' + pct(dT.r.p50) + ' a.a.' : 'ano ' + T + ': 90% entre ' + pct(dT.r.p5) + ' e ' + pct(dT.r.p95));
-    var yRot = T >= n ? Y(dT.r.p50) + 20 : (sim.vol < 0.05 ? Y(dT.r.p50) + 20 : Y(dT.r.p95) + 4);
-    s += texto(X(T) + dx, yRot, rotT, MAR, anc, 12, 800);
-    var yAq = Y(st.aq) + (Y(st.aq) - mt < 18 ? 16 : -8);
-    s += texto(W - mr - 4, yAq, 'mantido até o vencimento: ' + pct(st.aq) + ' a.a.', AZ, 'end', 12, 800);
-    el('g-venda').innerHTML = s;
-
+    var D = dadosVenda(), dT = D[kT], s = '', lo, hi, passo, X, Y, a, pe;
     var vc = valorGrade(st.aq, nk - kT);
-    el('v-ano').textContent = String(T);
-    el('leg-venda').innerHTML = legendaSim().replace('>na curva<', '>mantido até o vencimento<').replace('mediana a mercado', 'mediana se vender');
-    el('t-linha3').textContent = 'Compra a mercado a ' + pct(st.aq) + ', recebe os cupons e vende no ano escolhido. ' + NSIM + ' cenários.';
-    el('k3-cv').textContent = bi(vc);
-    el('k3-vd').textContent = bi(dT.v.p50);
-    var semDisp = sim.vol < 0.05 || T >= n;
-    el('k3-vd-s').textContent = semDisp ? 'sem dispersão entre cenários' : 'mediana · 90%: ' + num(dT.v.p5, 2) + ' a ' + num(dT.v.p95, 2);
-    el('k3-rt').textContent = pct(dT.r.p50) + ' a.a.';
-    el('k3-rt-s').textContent = semDisp ? 'contra ' + pct(st.aq) + ' contratados' : 'mediana · 90%: ' + pct(dT.r.p5) + ' a ' + pct(dT.r.p95);
-
-    var f, pAb = Math.round(dT.abaixo * 100);
-    if (T >= n) {
-      f = 'Vender no vencimento é resgatar: rende os ' + pct(st.aq) + ' contratados em todos os cenários, sem dispersão nenhuma. <strong>Puxe o ano da venda para trás</strong> e veja o leque abrir.';
-    } else if (sim.vol < 0.05) {
-      f = 'Com volatilidade zero, só existe um cenário (' + tendTxt() + '): vender no ano ' + T + ' rende ' + pct(dT.r.p50) + ' a.a., contra ' + pct(st.aq) + ' contratados. <strong>Aumente a volatilidade</strong> para ver a dispersão.';
+    if (modo3 === 'valor') {
+      var R = trajetorias(), ts = [], cv = [], q = { p5: [], p25: [], p50: [], p75: [], p95: [] };
+      for (var k = 0; k <= nk; k++) {
+        var col = new Float64Array(NSIM);
+        for (var i = 0; i < NSIM; i++) col[i] = valorGrade(R[i][k], nk - k);
+        var rs = resumo(col);
+        ts.push(k / 2); cv.push(valorGrade(st.aq, nk - k));
+        ['p5', 'p25', 'p50', 'p75', 'p95'].forEach(function (c) { q[c].push(rs[c]); });
+      }
+      var todos = q.p5.concat(q.p95, cv);
+      var vmin = Math.min.apply(null, todos), vmax = Math.max.apply(null, todos);
+      passo = passoRedondo(Math.max(vmax - vmin, 0.2), 4);
+      lo = Math.floor(vmin / passo) * passo; hi = Math.ceil(vmax / passo) * passo;
+      if (hi - vmax < passo * 0.3) hi += passo;
+      X = function (t) { return ml + t / n * pw; };
+      Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+      s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 0.1 ? 2 : 1); });
+      pe = Math.max(1, Math.round(passoRedondo(n, 10)));
+      for (a = 0; a <= n + 1e-9; a += pe) {
+        s += '<text x="' + X(a).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">' + (a === 0 ? 'compra' : 'ano ' + a) + '</text>';
+      }
+      s += '<path d="' + faixaPath(X, Y, ts, q.p5, q.p95) + '" fill="' + MAG + '" opacity=".14"/>';
+      s += '<path d="' + faixaPath(X, Y, ts, q.p25, q.p75) + '" fill="' + MAG + '" opacity=".22"/>';
+      s += '<path d="' + linhaPath(X, Y, ts, q.p50) + '" fill="none" stroke="' + MAG + '" stroke-width="3" stroke-linejoin="round"/>';
+      s += '<path d="' + linhaPath(X, Y, ts, cv) + '" fill="none" stroke="' + AZ + '" stroke-width="3" stroke-linejoin="round"/>';
+      if (T < n) {   // depois da venda o plano já não tem o título
+        s += '<rect x="' + X(T).toFixed(1) + '" y="' + mt + '" width="' + (X(n) - X(T)).toFixed(1) + '" height="' + ph + '" fill="#fff" opacity=".62"/>';
+        s += texto((X(T) + X(n)) / 2, mt + 14, 'depois da venda, o título já não é do plano', CIN, 'middle', 11, 600);
+      }
+      var xT = X(T);
+      s += '<line x1="' + xT.toFixed(1) + '" y1="' + Y(dT.v.p95).toFixed(1) + '" x2="' + xT.toFixed(1) + '" y2="' + Y(dT.v.p5).toFixed(1) + '" stroke="' + MAR + '" stroke-width="2"/>';
+      [dT.v.p5, dT.v.p95].forEach(function (v) {
+        s += '<line x1="' + (xT - 6).toFixed(1) + '" y1="' + Y(v).toFixed(1) + '" x2="' + (xT + 6).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="' + MAR + '" stroke-width="2"/>';
+      });
+      s += '<circle cx="' + xT.toFixed(1) + '" cy="' + Y(vc).toFixed(1) + '" r="6" fill="' + AZ + '" stroke="#fff" stroke-width="2"/>';
+      s += '<circle cx="' + xT.toFixed(1) + '" cy="' + Y(dT.v.p50).toFixed(1) + '" r="7" fill="' + MAG + '" stroke="#fff" stroke-width="2"/>';
+      var anc = T > n * 0.45 ? 'end' : 'start', dx = anc === 'end' ? -12 : 12;
+      var rotV = T >= n ? 'resgate: ' + bi(FACE) + ' nas duas réguas'
+                        : 'venda no ano ' + T + ': curva ' + num(vc, 2) + ' · mercado ' + num(dT.v.p50, 2) + ' (mediana)';
+      s += texto(xT + dx, Math.min(Y(dT.v.p5) + 16, mt + ph - 4), rotV, MAR, anc, 12, 800);
     } else {
-      var abre = 'Vendendo no ano ' + T + ', a rentabilidade mediana é <strong>' + pct(dT.r.p50) + ' a.a.</strong> (90% entre ' + pct(dT.r.p5) + ' e ' + pct(dT.r.p95) +
-                 ') e fica abaixo dos ' + pct(st.aq) + ' contratados em <strong>' + pAb + '% dos cenários</strong>. ';
-      f = abre + (vies() === 'alta'
-            ? 'Com juros subindo, <strong>a perda na venda antecipada é a regra, não o azar</strong>, e é maior quanto mais cedo a venda. Quem é obrigado a vender num ciclo de alta vende no pior momento.'
-            : vies() === 'queda'
-            ? 'Com juros caindo, vender antes rende mais: é a tentação. <strong>Título na curva vendido para embolsar ganho contradiz a intenção declarada</strong>.'
-            : 'Sem tendência, a mediana devolve a taxa de compra e parece que não há perda. <strong>Há: metade dos cenários perde, e quem é obrigado a vender não escolhe o cenário.</strong>');
+      var ts2 = [], q2 = { p5: [], p25: [], p50: [], p75: [], p95: [] };
+      for (var k2 = 2; k2 <= nk; k2++) {
+        ts2.push(k2 / 2);
+        ['p5', 'p25', 'p50', 'p75', 'p95'].forEach(function (c) { q2[c].push(D[k2].r[c]); });
+      }
+      var vals = q2.p5.concat(q2.p95, [st.aq]);
+      var vmin2 = Math.min.apply(null, vals), vmax2 = Math.max.apply(null, vals);
+      passo = passoRedondo(Math.max(vmax2 - vmin2, 1), 5);
+      lo = Math.floor(vmin2 / passo) * passo; hi = Math.ceil(vmax2 / passo) * passo;
+      if (hi - lo < passo * 2) { lo -= passo; hi += passo; }
+      X = function (t) { return ml + (t - 1) / Math.max(n - 1, 1) * pw; };
+      Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+      s = eixoY(null, lo, hi, passo, ml, W - mr, Y, function (v) { return num(v, passo < 1 ? 1 : 0) + '%'; });
+      pe = Math.max(1, Math.round(passoRedondo(n, 10)));
+      for (a = 1; a <= n + 1e-9; a += (a === 1 && pe > 1 ? pe - 1 : pe)) {
+        s += '<text x="' + X(a).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" fill="' + CIN + '">ano ' + a + '</text>';
+      }
+      if (lo < 0 && hi > 0) s += '<line x1="' + ml + '" y1="' + Y(0).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(0).toFixed(1) + '" stroke="' + CIN + '" stroke-width="1"/>';
+      s += '<path d="' + faixaPath(X, Y, ts2, q2.p5, q2.p95) + '" fill="' + MAG + '" opacity=".14"/>';
+      s += '<path d="' + faixaPath(X, Y, ts2, q2.p25, q2.p75) + '" fill="' + MAG + '" opacity=".22"/>';
+      s += '<path d="' + linhaPath(X, Y, ts2, q2.p50) + '" fill="none" stroke="' + MAG + '" stroke-width="3" stroke-linejoin="round"/>';
+      s += '<line x1="' + ml + '" y1="' + Y(st.aq).toFixed(1) + '" x2="' + (W - mr) + '" y2="' + Y(st.aq).toFixed(1) + '" stroke="' + AZ + '" stroke-width="2" stroke-dasharray="6 4"/>';
+      s += '<line x1="' + X(T).toFixed(1) + '" y1="' + Y(dT.r.p5).toFixed(1) + '" x2="' + X(T).toFixed(1) + '" y2="' + Y(dT.r.p95).toFixed(1) + '" stroke="' + MAR + '" stroke-width="2"/>';
+      s += '<circle cx="' + X(T).toFixed(1) + '" cy="' + Y(dT.r.p50).toFixed(1) + '" r="7" fill="' + MAG + '" stroke="#fff" stroke-width="2"/>';
+      var anc2 = T > n * 0.6 ? 'end' : 'start', dx2 = anc2 === 'end' ? -12 : 12;
+      s += texto(X(T) + dx2, Y(dT.r.p95) + 4, T >= n ? 'resgate: ' + pct(st.aq) + ' a.a.' : 'ano ' + T + ': ' + pct(dT.r.p50) + ' a.a. (mediana)', MAR, anc2, 12, 800);
+      var yAq = Y(st.aq) + (Y(st.aq) - mt < 18 ? 16 : -8);
+      s += texto(W - mr - 4, yAq, 'na curva: ' + pct(st.aq) + ' a.a.', AZ, 'end', 12, 800);
+    }
+    el('g-venda').innerHTML = s;
+    el('m3-valor').setAttribute('aria-pressed', String(modo3 === 'valor'));
+    el('m3-rent').setAttribute('aria-pressed', String(modo3 === 'rent'));
+    el('leg-venda').innerHTML = modo3 === 'valor'
+      ? legendaSim()
+      : legendaSim().replace('>na curva<', '>na curva (taxa de compra)<').replace('mediana a mercado', 'mediana se vender no ano');
+
+    /* rentabilidade até a venda: anual equivalente (TIR) e acumulada no período */
+    var acum = function (r) { return (Math.pow(1 + r / 100, T) - 1) * 100; };
+    var semDisp = sim.vol < 0.05 || T >= n, pAb = Math.round(dT.abaixo * 100);
+    var dMed = dT.v.p50 - vc;
+    el('v-ano').textContent = String(T);
+    el('t-linha3').textContent = 'Compra a mercado a ' + pct(st.aq) + ', recebe os cupons e vende no ano ' + T +
+      (T < n ? '. Duration restante na venda: ' + num(durGrade(st.aq, nk - kT), 1) + ' anos.' : '.');
+    el('k3-cv').textContent = T >= n ? 'R$ 0' : miAss(dMed);
+    el('k3-cv-s').textContent = T >= n ? 'no resgate, curva = mercado' : (semDisp ? 'na data da venda' : 'mediana · perda em ' + pAb + '%');
+    el('k3-vd').textContent = pct(acum(dT.r.p50), 1);
+    el('k3-vd-s').textContent = 'na curva: ' + pct(acum(st.aq), 1);
+    el('k3-rt').textContent = pct(dT.r.p50) + ' a.a.';
+    el('k3-rt-s').textContent = semDisp ? 'contra ' + pct(st.aq) + ' a.a. na curva' : '90%: ' + pct(dT.r.p5) + ' a ' + pct(dT.r.p95);
+
+    var f;
+    if (T >= n) {
+      f = 'Vender no vencimento é resgatar: curva e mercado valem o mesmo e o título rende os ' + pct(st.aq) + ' contratados em todos os cenários. <strong>Puxe o ano da venda para trás</strong>.';
+    } else if (sim.vol < 0.05) {
+      f = 'Com volatilidade zero há um cenário só (' + tendTxt() + '): no ano ' + T + ', mercado ' + bi(dT.v.p50) + ' contra ' + bi(vc) + ' na curva. A diferença vira resultado na venda, e o período rende ' + pct(dT.r.p50) + ' a.a.';
+    } else {
+      f = 'Na data da venda, o mercado paga <strong>' + bi(dT.v.p50) + '</strong> na mediana por um título que o balanço mostrava a ' + bi(vc) +
+          ': <strong>' + miAss(dMed) + '</strong> viram resultado. No período, o plano acumula ' + pct(acum(dT.r.p50), 1) + ' (' + pct(dT.r.p50) + ' a.a.) em vez de ' + pct(acum(st.aq), 1) + '. ' +
+          (vies() === 'alta' ? '<strong>Com juros subindo, perder na venda antecipada é a regra.</strong>'
+           : vies() === 'queda' ? 'Com juros caindo, vender antes rende mais: é a tentação, e contradiz a intenção declarada.'
+           : 'Sem tendência, a mediana quase empata, mas ' + pAb + '% dos cenários perdem: quem é obrigado a vender não escolhe o cenário.');
     }
     el('f-venda').innerHTML = f;
   }
@@ -837,6 +899,8 @@
     el('v-aq').textContent = pct(st.aq);
     el('v-mk').textContent = pct(st.mk);
     el('v-pz').textContent = String(st.pz);
+    var txDur = aba === 'preco' ? st.mk : st.aq;
+    el('v-dur').textContent = 'duration ' + num(durGrade(txDur, 2 * st.pz), 1) + ' anos a ' + pct(txDur);
     el('s-ano').max = String(st.pz);
     if (st.ano > st.pz) { st.ano = st.pz; }
     el('s-ano').value = String(st.ano);
@@ -869,6 +933,8 @@
     el('s-tend' + x).addEventListener('input', function (ev) { sim.tend = parseFloat(ev.target.value); sincSim(); render(); });
   });
   sincSim();
+  el('m3-valor').addEventListener('click', function () { modo3 = 'valor'; render(); });
+  el('m3-rent').addEventListener('click', function () { modo3 = 'rent'; render(); });
 
   el('btn-reset').addEventListener('click', function () {
     st.aq = BASE.aq; st.mk = BASE.mk; st.pz = BASE.pz; st.ano = BASE.ano; st.cupom = true; sim.vol = 0.8; sim.semente = 1; sim.tend = 0.5; sincSim();
