@@ -1,0 +1,18 @@
+chave;descricao;valor;unidade;fonte
+total;Ofertas no mercado de capitais doméstico em 2025;838.8;R$ bilhões;ANBIMA 22/01/2026
+renda_fixa;Renda fixa (total);737.7;R$ bilhões;ANBIMA via CNN Brasil 22/01/2026
+debentures;Debêntures;492.8;R$ bilhões;ANBIMA 22/01/2026
+debentures_incentivadas;Debêntures incentivadas (Lei 12.431), incluídas em debêntures;178.0;R$ bilhões;ANBIMA 22/01/2026
+notas_comerciais;Notas comerciais;51.8;R$ bilhões;ANBIMA 22/01/2026
+fidc;FIDC;90.8;R$ bilhões;ANBIMA 22/01/2026
+cri;CRI;49.0;R$ bilhões;ANBIMA 22/01/2026
+cra;CRA;46.2;R$ bilhões;ANBIMA 22/01/2026
+hibridos;Híbridos (total);85.6;R$ bilhões;ANBIMA via CNN Brasil 22/01/2026
+fii;FII;79.2;R$ bilhões;ANBIMA 22/01/2026
+fiagro;Fiagro;6.4;R$ bilhões;ANBIMA 22/01/2026
+acoes;Ações (renda variável);15.5;R$ bilhões;ANBIMA via CNN Brasil 22/01/2026
+acoes_2021;Ações (renda variável) em 2021;128;R$ bilhões;ANBIMA via CNN Brasil 22/01/2026
+ultimo_ipo;Ano do último IPO na B3;2021;ano;CNN Brasil 22/01/2026
+deb_destino_infra;Debêntures: fatia destinada a infraestrutura;0.350;fração;ANBIMA 22/01/2026
+deb_destino_dividas;Debêntures: fatia destinada a pagamento de dívidas;0.262;fração;ANBIMA 22/01/2026
+externo_usd;Emissões no mercado externo;31.6;US$ bilhões;ANBIMA 22/01/2026
